@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio de Sesión - EduGestión | Gestión Académica</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Sistema de gestión académica EduGestión. Administra profesores, estudiantes, cursos y calificaciones de manera eficiente." />
+    <meta name="keywords"
+        content="gestión académica, administración escolar, calificaciones, cursos, profesores, estudiantes" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="EduGestión - Sistema de Gestión Académica" />
+    <meta property="og:description" content="Plataforma integral de gestión académica para instituciones educativas" />
+    <meta property="og:type" content="website" />
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ICONOS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- FUENTE -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ESTILOS PERSONALIZADOS -->
+    <link href="login-styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ========== LOADING ANIMATION ========== -->
+    <div id="pageLoader" class="page-loader active">
+        <div class="loader-content">
+            <div class="loader-dots">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+            </div>
+            <p class="loader-text" id="loaderText">Cargando EduGestión...</p>
+            <p class="loader-subtext">Sistema de Gestión Académica</p>
+        </div>
+        <div class="loader-brand">
+            <div class="loader-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="loader-brand-text">EduGestión</span>
+        </div>
+    </div>
+
+    <style>
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #ede9fe 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .page-loader.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 36px;
+            justify-content: center;
+        }
+
+        .loader-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .loader-dot:nth-child(1) {
+            background: linear-gradient(135deg, #6C63FF, #8B5CF6);
+            animation-delay: 0s;
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .loader-dot:nth-child(2) {
+            background: linear-gradient(135deg, #FF6584, #FF8FA3);
+            animation-delay: 0.1s;
+            box-shadow: 0 6px 20px rgba(255, 101, 132, 0.4);
+        }
+
+        .loader-dot:nth-child(3) {
+            background: linear-gradient(135deg, #34A853, #4ED879);
+            animation-delay: 0.2s;
+            box-shadow: 0 6px 20px rgba(52, 168, 83, 0.4);
+        }
+
+        .loader-dot:nth-child(4) {
+            background: linear-gradient(135deg, #FBBC05, #FFD54F);
+            animation-delay: 0.3s;
+            box-shadow: 0 6px 20px rgba(251, 188, 5, 0.4);
+        }
+
+        .loader-dot:nth-child(5) {
+            background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+            animation-delay: 0.4s;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            40% {
+                transform: translateY(-35px) scale(1.15);
+            }
+        }
+
+        .loader-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .loader-subtext {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .loader-brand {
+            position: absolute;
+            bottom: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.7;
+        }
+
+        .loader-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6C63FF, #FF6584);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .loader-brand-text {
+            font-weight: 800;
+            color: #475569;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .page-loader {
+                padding: 20px;
+            }
+
+            .loader-dots {
+                gap: 10px;
+                margin-bottom: 24px;
+            }
+
+            .loader-dot {
+                width: 16px;
+                height: 16px;
+            }
+
+            .loader-text {
+                font-size: 1.1rem;
+            }
+
+            .loader-subtext {
+                font-size: 0.8rem;
+            }
+
+            .loader-brand {
+                bottom: 30px;
+            }
+
+            .loader-brand-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+
+            .loader-brand-text {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+
+    <script>
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                document.getElementById('pageLoader').classList.remove('active');
+            }, 800);
+        });
+    </script>
+
+    <div class="login-container">
+        <!-- Sección de Branding -->
+        <div class="login-image">
+            <div class="brand-content">
+                <div class="brand-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1>EduGestión</h1>
+                <p>Plataforma integral de gestión académica. Cursos, calificaciones, asistencia y más en un solo lugar.
+                </p>
+                <ul class="brand-features">
+                    <li><i class="fas fa-chart-line"></i> Seguimiento de rendimiento</li>
+                    <li><i class="fas fa-calendar-check"></i> Control de asistencia</li>
+                    <li><i class="fas fa-book-open"></i> Gestión de cursos</li>
+                    <li><i class="fas fa-users"></i> Perfiles personalizados</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div class="login-form">
+            <!-- Selector de rol -->
+            <div class="role-selector">
+                <button class="role-tab active" id="tabAdmin" onclick="cambiarRol('admin')">
+                    <i class="fas fa-user-shield"></i> <span class="role-label">Admin</span>
+                </button>
+                <button class="role-tab" id="tabProfesor" onclick="cambiarRol('profesor')">
+                    <i class="fas fa-chalkboard-teacher"></i> <span class="role-label">Profesor</span>
+                </button>
+                <button class="role-tab" id="tabEstudiante" onclick="cambiarRol('estudiante')">
+                    <i class="fas fa-user-graduate"></i> <span class="role-label">Estudiante</span>
+                </button>
+                <button class="role-tab" id="tabPadre" onclick="cambiarRol('padre')">
+                    <i class="fas fa-users"></i> <span class="role-label">Padre</span>
+                </button>
+            </div>
+
+            <h2 id="loginTitle">Bienvenido</h2>
+            <p class="subtitle" id="loginSubtitle">Ingresa tus credenciales para acceder al panel de administración</p>
+
+            <!-- Mensaje de error -->
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Error de autenticación</span>
+            </div>
+
+            <!-- Mensaje de éxito -->
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText">Login exitoso</span>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="usuario" id="labelUsuario">Correo institucional</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="usuario" class="form-control" placeholder="correo@institucion.edu"
+                            required autocomplete="username" aria-label="Correo institucional">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Ingresa tu contraseña"
+                            required autocomplete="current-password" aria-label="Contraseña">
+                        <i class="fa fa-lock"></i>
+                        <button type="button" class="password-toggle" id="togglePassword"
+                            aria-label="Mostrar contraseña">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-row">
+                    <div class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Recordarme</label>
+                    </div>
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="btnLogin">
+                    <span class="btn-text">Ingresar</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>¿Necesitas ayuda? <a href="#">Contactar soporte técnico</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ====== Cambio de rol ======
+        const roles = {
+            admin: {
+                title: 'Bienvenido',
+                subtitle: 'Ingresa tus credenciales para acceder al panel de administración',
+                label: 'Correo institucional',
+                placeholder: 'admin',
+                icon: 'fa-envelope',
+                redirect: '/admin'
+            },
+            profesor: {
+                title: 'Hola, Profesor',
+                subtitle: 'Accede para gestionar tus cursos y calificaciones',
+                label: 'Correo institucional',
+                placeholder: 'profesor',
+                icon: 'fa-envelope',
+                redirect: '/profesor'
+            },
+            estudiante: {
+                title: 'Hola, Estudiante',
+                subtitle: 'Consulta tus cursos, notas y horarios',
+                label: 'Código estudiantil',
+                placeholder: 'estudiante',
+                icon: 'fa-id-badge',
+                redirect: '/estudiante'
+            },
+            padre: {
+                title: 'Hola, Padre de Familia',
+                subtitle: 'Consulta las notas y actividades de tus hijos',
+                label: 'Correo del acudiente',
+                placeholder: 'correo@ejemplo.com',
+                icon: 'fa-envelope',
+                redirect: '/padre'
+            }
+        };
+
+        let currentRole = 'admin';
+
+        function cambiarRol(role) {
+            currentRole = role;
+            const config = roles[role];
+
+            // Update tabs
+            document.querySelectorAll('.role-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab' + role.charAt(0).toUpperCase() + role.slice(1)).classList.add('active');
+
+            // Update form
+            document.getElementById('loginTitle').textContent = config.title;
+            document.getElementById('loginSubtitle').textContent = config.subtitle;
+            document.getElementById('labelUsuario').textContent = config.label;
+
+            const input = document.getElementById('usuario');
+            input.placeholder = config.placeholder;
+
+            const icon = document.querySelector('#usuario ~ i, .form-group:first-of-type .input-wrapper i');
+            if (icon) {
+                icon.className = 'fa ' + config.icon;
+            }
+
+            // Clear errors
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        // ====== Toggle contraseña ======
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // ====== Login form ======
+        const loginForm = document.getElementById('loginForm');
+        const btnLogin = document.getElementById('btnLogin');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const successMessage = document.getElementById('successMessage');
+
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            btnLogin.classList.add('loading');
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+
+            const cuenta = document.getElementById('usuario').value.trim();
+            const pwd = document.getElementById('password').value.trim();
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cuenta, password: pwd, rol: currentRole })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    // Guardar sesión
+                    sessionStorage.setItem('eduGestionUser', JSON.stringify(data.usuario));
+
+                    successMessage.querySelector('#successText').textContent = `¡Bienvenido, ${data.usuario.name || data.usuario.nombres}! Redirigiendo...`;
+                    successMessage.classList.add('show');
+
+                    setTimeout(function () {
+                        const config = roles[currentRole];
+                        window.location.href = config.redirect;
+                    }, 1000);
+                } else {
+                    btnLogin.classList.remove('loading');
+                    errorText.textContent = data.error || 'Credenciales inválidas';
+                    errorMessage.classList.add('show');
+                }
+            } catch (err) {
+                btnLogin.classList.remove('loading');
+                errorText.textContent = 'Error de conexión con el servidor';
+                errorMessage.classList.add('show');
+            }
+        });
+
+        // Hide errors on input
+        document.getElementById('usuario').addEventListener('input', function () {
+            errorMessage.classList.remove('show');
+        });
+        document.getElementById('password').addEventListener('input', function () {
+            errorMessage.classList.remove('show');
+        });
+
+        // ====== Remember Me ======
+        window.addEventListener('DOMContentLoaded', function () {
+            const savedUser = localStorage.getItem('eduGestion_user');
+            if (savedUser) {
+                document.getElementById('usuario').value = savedUser;
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        loginForm.addEventListener('submit', function () {
+            if (document.getElementById('rememberMe').checked) {
+                localStorage.setItem('eduGestion_user', document.getElementById('usuario').value);
+            } else {
+                localStorage.removeItem('eduGestion_user');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

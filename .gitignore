@@ -1,0 +1,52 @@
+# ==========================================
+# EduGestión Académico - .gitignore
+# ==========================================
+
+# Dependencias de Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Variables de entorno (¡NUNCA subir al repo!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Archivos temporales del proyecto
+tmp_*.js
+*.tmp
+*.temp
+
+# Archivos de sesión / caché
+.session.json
+.cache/
+
+# Comprimidos y binarios
+*.zip
+*.rar
+*.tar.gz
+*.exe
+*.spec
+
+# Archivos de diagnóstico
+*.docx
+*.pdf

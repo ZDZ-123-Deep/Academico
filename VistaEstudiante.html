@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Estudiante - EduGestión</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');</script>
+    <link href="academico-styles.css" rel="stylesheet">
+    <style>
+        .course-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px
+        }
+
+        .course-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden
+        }
+
+        .course-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-4px)
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px
+        }
+
+        .course-card.violet::before {
+            background: linear-gradient(90deg, #6C63FF, #8B5CF6)
+        }
+
+        .course-card.coral::before {
+            background: linear-gradient(90deg, #FF6584, #FF8FA3)
+        }
+
+        .course-card.green::before {
+            background: linear-gradient(90deg, #10b981, #059669)
+        }
+
+        .course-card.orange::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706)
+        }
+
+        .course-card.blue::before {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa)
+        }
+
+        .course-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px
+        }
+
+        .course-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem
+        }
+
+        .course-card-icon.violet {
+            background: var(--primary-light);
+            color: var(--primary)
+        }
+
+        .course-card-icon.coral {
+            background: #ffe4e8;
+            color: var(--accent)
+        }
+
+        .course-card-icon.green {
+            background: #d1fae5;
+            color: var(--success)
+        }
+
+        .course-card-icon.orange {
+            background: #fef3c7;
+            color: var(--warning)
+        }
+
+        .course-card-icon.blue {
+            background: #dbeafe;
+            color: #3b82f6
+        }
+
+        .course-card h4 {
+            font-weight: 700;
+            color: var(--gray-900);
+            font-size: 1rem
+        }
+
+        .course-card .course-prof {
+            color: var(--gray-500);
+            font-size: 0.8rem;
+            margin-top: 2px
+        }
+
+        .course-card-info {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-200)
+        }
+
+        .course-card-info div {
+            text-align: center;
+            flex: 1
+        }
+
+        .course-card-info .val {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--gray-900)
+        }
+
+        .course-card-info .lbl {
+            font-size: 0.7rem;
+            color: var(--gray-500);
+            text-transform: uppercase
+        }
+
+        .progress-ring {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            margin-bottom: 20px
+        }
+
+        .ring-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary)
+        }
+
+        .ring-label {
+            font-size: 0.9rem;
+            color: var(--gray-500)
+        }
+
+        body.dark-mode .course-card {
+            background: #1e293b;
+            border-color: #334155
+        }
+
+        body.dark-mode .course-card-info {
+            border-top-color: #334155
+        }
+
+        body.dark-mode .progress-ring {
+            background: #0f172a
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <button class="sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <div class="sidebar-brand">Edu<span>Gestión</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <button class="nav-item active" onclick="mostrarSeccion('dashboard',this)">
+                    <i class="fas fa-home"></i> Mi Inicio
+                </button>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Académico</div>
+                <button class="nav-item" onclick="mostrarSeccion('cursos',this)">
+                    <i class="fas fa-book-open"></i> Mis Cursos
+                </button>
+                <button class="nav-item" onclick="mostrarSeccion('calificaciones',this)">
+                    <i class="fas fa-clipboard-list"></i> Calificaciones
+                </button>
+                <button class="nav-item" onclick="mostrarSeccion('horario',this)">
+                    <i class="fas fa-calendar-alt"></i> Mi Horario
+                </button>
+                <button class="nav-item" onclick="mostrarSeccion('actividades',this)">
+                    <i class="fas fa-tasks"></i> Actividades
+                </button>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="theme-switch">
+                <span><i class="fas fa-moon"></i> Modo oscuro</span>
+                <label class="switch"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"><span
+                        class="slider"></span></label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h1 class="header-title" id="headerTitle">Mi <span>Inicio</span></h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar" style="background:linear-gradient(135deg,#10b981,#059669)">
+                        --</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Cargando...</div>
+                        <div class="user-role" id="userRole">Estudiante</div>
+                    </div>
+                </div>
+                <div style="position:relative">
+                    <button class="notif-bell" id="bellBtn" onclick="toggleNotifDropdown()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-count" id="notifCount" style="display:none">0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-dropdown-header"><i class="fas fa-bell"></i> Notificaciones</div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty"><i class="fas fa-bell-slash"></i><br>Sin notificaciones</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="confirmarLogout()"><i class="fas fa-sign-out-alt"></i>
+                    <span>Salir</span></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <!-- DASHBOARD -->
+            <div class="section active" id="secDashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon violet"><i class="fas fa-book-open"></i></div>
+                        </div>
+                        <div class="stat-value" id="statMaterias">—</div>
+                        <div class="stat-label">Materias Inscritas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green"><i class="fas fa-star"></i></div>
+                        </div>
+                        <div class="stat-value" id="statPromedio">—</div>
+                        <div class="stat-label">Mi Promedio</div>
+                        <div class="stat-bar">
+                            <div class="stat-bar-fill green" id="barPromedio" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon coral"><i class="fas fa-clipboard-check"></i></div>
+                        </div>
+                        <div class="stat-value" id="statAprobadas">—</div>
+                        <div class="stat-label">Aprobadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                        </div>
+                        <div class="stat-value" id="statEnCurso">—</div>
+                        <div class="stat-label">En Curso</div>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:24px">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-line"></i> Mi Rendimiento</h3>
+                        </div>
+                        <div style="height:280px"><canvas id="chartRendimiento"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-book"></i> Mis Materias</h3>
+                        </div>
+                        <div id="listaMaterias" class="user-list" style="max-height:280px;overflow-y:auto">
+                            <p style="text-align:center;color:var(--gray-400);padding:20px">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIS CURSOS -->
+            <div class="section" id="secCursos">
+                <div class="course-cards" id="containerCursos">
+                    <p style="text-align:center;color:var(--gray-400);padding:40px;grid-column:1/-1">Cargando cursos...
+                    </p>
+                </div>
+            </div>
+
+            <!-- CALIFICACIONES -->
+            <div class="section" id="secCalificaciones">
+                <div class="progress-ring" id="progressRing">
+                    <div style="text-align:center">
+                        <div class="ring-value" id="ringPromedio">—</div>
+                        <div class="ring-label">Promedio General</div>
+                    </div>
+                    <div style="height:1px;width:40px;background:var(--gray-300)"></div>
+                    <div style="display:flex;gap:24px">
+                        <div style="text-align:center">
+                            <div style="font-size:1.3rem;font-weight:700;color:var(--success)" id="ringAprobadas">0
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--gray-500)">Aprobadas</div>
+                        </div>
+                        <div style="text-align:center">
+                            <div style="font-size:1.3rem;font-weight:700;color:var(--warning)" id="ringEnCurso">0</div>
+                            <div style="font-size:0.75rem;color:var(--gray-500)">En curso</div>
+                        </div>
+                        <div style="text-align:center">
+                            <div style="font-size:1.3rem;font-weight:700;color:var(--danger)" id="ringReprobadas">0
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--gray-500)">En riesgo</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vista resumen -->
+                <div class="card" id="cardResumenCal">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Mis Calificaciones</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Profesor</th>
+                                    <th>Reg. Diario</th>
+                                    <th>Intermedios</th>
+                                    <th>Examen Final</th>
+                                    <th>Definitiva</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyCalificaciones">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;padding:30px;color:var(--gray-400)">
+                                        Cargando calificaciones...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p style="text-align:center;color:var(--gray-400);font-size:0.8rem;padding:12px 0"><i
+                            class="fas fa-mouse-pointer"></i> Haz clic en una materia para ver el detalle de
+                        calificaciones</p>
+                </div>
+
+                <!-- Vista detalle materia -->
+                <div class="card" id="cardDetalleCal" style="display:none">
+                    <div class="card-header" style="flex-wrap:wrap;gap:8px">
+                        <div style="display:flex;align-items:center;gap:12px">
+                            <button class="btn btn-secondary" onclick="volverResumenCal()" style="padding:6px 12px"><i
+                                    class="fas fa-arrow-left"></i></button>
+                            <h3 class="card-title" id="detalleMateriaTitulo"><i class="fas fa-book"></i> Detalle</h3>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <select class="form-input" style="width:auto" id="selTipoNotaEst"
+                                onchange="onTipoNotaEstChange()">
+                                <option value="">Tipo de registro</option>
+                                <option value="D">Registro Diario</option>
+                                <option value="I">Proc-Intermedios</option>
+                                <option value="IP">Proc-Intermedios Prof.</option>
+                                <option value="F">Examen Final</option>
+                                <option value="FP">Examen Final Prof.</option>
+                                <option value="C1">Credito 1</option>
+                                <option value="C2">Credito 2</option>
+                                <option value="CG">Credito G11</option>
+                                <option value="N">NIVELACION</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Concepto</th>
+                                    <th>Comp. 1</th>
+                                    <th>Comp. 2</th>
+                                    <th>Comp. 3</th>
+                                    <th>Nota</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyDetalleCal">
+                                <tr>
+                                    <td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">
+                                        Seleccione un tipo de registro</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MI HORARIO -->
+            <div class="section" id="secHorario">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Mi Horario</h3>
+                    </div>
+                    <div id="contenidoHorario" style="padding:20px;text-align:center;color:var(--gray-400)">
+                        <p>Cargando horario...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVIDADES -->
+            <div class="section" id="secActividades">
+                <div id="listaTareasEst">
+                    <p style="text-align:center;color:var(--gray-400);padding:40px">Cargando actividades...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENTREGAR TAREA -->
+    <div id="modalEntregarOverlay"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000">
+    </div>
+    <div id="modalEntregar"
+        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        <h3 style="color:#fff;margin-bottom:8px"><i class="fas fa-upload" style="color:var(--primary)"></i> Entregar
+            Actividad</h3>
+        <p style="color:var(--gray-400);font-size:0.85rem;margin-bottom:20px" id="entregarTareaInfo"></p>
+        <input type="hidden" id="entregarTareaId">
+        <div style="margin-bottom:14px">
+            <label style="color:var(--gray-400);font-size:0.85rem;margin-bottom:6px;display:block">Enlace de entrega
+                *</label>
+            <input class="form-input" id="entregarEnlace" placeholder="https://drive.google.com/... o link externo"
+                style="width:100%">
+            <small style="color:var(--gray-500);font-size:0.75rem">Pega el enlace de Google Drive, OneDrive, Dropbox u
+                otro servicio</small>
+        </div>
+        <div style="margin-bottom:14px">
+            <label style="color:var(--gray-400);font-size:0.85rem;margin-bottom:6px;display:block">Comentario
+                (opcional)</label>
+            <textarea class="form-input" id="entregarComentario" rows="2" placeholder="Notas adicionales..."
+                style="width:100%;resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
+            <button class="btn btn-secondary" onclick="cerrarEntregar()">Cancelar</button>
+            <button class="btn btn-primary" onclick="enviarEntrega()"><i class="fas fa-paper-plane"></i> Enviar</button>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div class="logout-overlay" id="logoutOverlay"></div>
+    <div class="logout-modal" id="logoutModal">
+        <div class="logout-icon"><i class="fas fa-sign-out-alt"></i></div>
+        <h3>¿Cerrar sesión?</h3>
+        <p>Se cerrará tu sesión actual en EduGestión</p>
+        <div class="logout-actions">
+            <button class="btn btn-secondary" onclick="cerrarLogout()">Cancelar</button>
+            <button class="btn btn-primary" style="background:var(--danger)"
+                onclick="sessionStorage.removeItem('eduGestionUser');window.location.href='/login'">Cerrar
+                sesión</button>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api';
+        let dashData = null;
+
+        // Session check
+        const userData = JSON.parse(sessionStorage.getItem('eduGestionUser') || 'null');
+        if (!userData || !userData.estudiante_id) {
+            console.warn('No hay sesión de estudiante activa');
+        }
+
+        // UI Helpers
+        function mostrarSeccion(id, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const map = { dashboard: 'secDashboard', cursos: 'secCursos', calificaciones: 'secCalificaciones', horario: 'secHorario', actividades: 'secActividades' };
+            document.getElementById(map[id]).classList.add('active');
+            if (btn) btn.classList.add('active');
+            const titles = { dashboard: 'Mi <span>Inicio</span>', cursos: 'Mis <span>Cursos</span>', calificaciones: 'Mis <span>Calificaciones</span>', horario: 'Mi <span>Horario</span>', actividades: 'Mis <span>Actividades</span>' };
+            document.getElementById('headerTitle').innerHTML = titles[id];
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('active') }
+        const dm = document.getElementById('darkModeToggle'); dm.checked = localStorage.getItem('darkMode') === 'true'; if (dm.checked) document.body.classList.add('dark-mode');
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); document.documentElement.classList.toggle('dark-mode'); localStorage.setItem('darkMode', dm.checked) }
+        function confirmarLogout() { document.getElementById('logoutOverlay').classList.add('show'); document.getElementById('logoutModal').classList.add('show') }
+        function cerrarLogout() { document.getElementById('logoutOverlay').classList.remove('show'); document.getElementById('logoutModal').classList.remove('show') }
+        document.getElementById('logoutOverlay').addEventListener('click', cerrarLogout);
+
+        function getInitials(nombre) {
+            if (!nombre) return '??';
+            return nombre.split(' ').filter(w => w.length > 1).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function colorNota(n) {
+            n = parseFloat(n);
+            if (isNaN(n) || n === 0) return 'var(--gray-400)';
+            if (n < 70) return '#ef4444';
+            if (n < 80) return '#f59e0b';
+            if (n < 95) return '#3b82f6';
+            return '#10b981';
+        }
+
+        // ── Load student data ──
+        async function cargarDatosEstudiante() {
+            const estId = userData?.estudiante_id;
+            if (!estId) {
+                document.getElementById('userName').textContent = 'Estudiante (sin sesión)';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/estudiante/dashboard?estudiante_id=${estId}`);
+                dashData = await res.json();
+
+                // Header
+                const nombre = dashData.estudiante?.nombre || userData.name || 'Estudiante';
+                document.getElementById('userName').textContent = nombre;
+                document.getElementById('userRole').textContent = `Estudiante • ${dashData.curso?.nombre || ''}`;
+                document.getElementById('userAvatar').textContent = getInitials(nombre);
+
+                // Stats
+                document.getElementById('statMaterias').textContent = dashData.totalMaterias;
+                document.getElementById('statPromedio').textContent = dashData.promedio || '—';
+                document.getElementById('barPromedio').style.width = `${dashData.promedio}%`;
+                document.getElementById('statAprobadas').textContent = dashData.aprobadas;
+                document.getElementById('statEnCurso').textContent = dashData.enCurso;
+
+                // Calificaciones ring
+                document.getElementById('ringPromedio').textContent = dashData.promedio || '—';
+                document.getElementById('ringAprobadas').textContent = dashData.aprobadas;
+                document.getElementById('ringEnCurso').textContent = dashData.enCurso;
+                document.getElementById('ringReprobadas').textContent = dashData.reprobadas;
+
+                renderCursos();
+                renderCalificaciones();
+                renderListaMaterias();
+                renderChart();
+                renderHorario();
+            } catch (err) {
+                console.error('Error cargando datos:', err);
+            }
+        }
+
+        // ── Render course cards ──
+        function renderCursos() {
+            if (!dashData) return;
+            const container = document.getElementById('containerCursos');
+            const colors = ['violet', 'coral', 'green', 'orange', 'blue'];
+            const icons = ['fa-flask', 'fa-calculator', 'fa-pen-fancy', 'fa-landmark', 'fa-globe', 'fa-running', 'fa-cross', 'fa-book', 'fa-music', 'fa-palette'];
+
+            let html = '';
+            dashData.materias.forEach((m, i) => {
+                const col = colors[i % colors.length];
+                const ico = icons[i % icons.length];
+                html += `<div class="course-card ${col}">
+                    <div class="course-card-header">
+                        <div class="course-card-icon ${col}"><i class="fas ${ico}"></i></div>
+                        <div>
+                            <h4>${m.asignatura}</h4>
+                            <p class="course-prof"><i class="fas fa-user"></i> ${m.profesor}</p>
+                        </div>
+                    </div>
+                    <div class="course-card-info">
+                        <div><div class="val" style="color:${colorNota(m.notaD)}">${m.notaD || '—'}</div><div class="lbl">Reg. Diario</div></div>
+                        <div><div class="val" style="color:${colorNota(m.notaI)}">${m.notaI || '—'}</div><div class="lbl">Intermedios</div></div>
+                        <div><div class="val">${m.intensidad}h</div><div class="lbl">Int. Horaria</div></div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html || '<p style="text-align:center;color:var(--gray-400);padding:40px;grid-column:1/-1">Sin materias asignadas</p>';
+        }
+
+        // ── Render grades table (clickable rows) ──
+        let allNotasMateria = [];
+        let selectedPensumId = null;
+
+        function renderCalificaciones() {
+            if (!dashData) return;
+            const tbody = document.getElementById('tbodyCalificaciones');
+            if (!dashData.materias.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-400)">Sin calificaciones</td></tr>';
+                return;
+            }
+            tbody.innerHTML = dashData.materias.map((m, i) => {
+                const def = m.definitiva || m.notaD || 0;
+                let estado = '<span class="badge badge-violet">Pendiente</span>';
+                if (def >= 70) estado = '<span class="badge badge-success">Aprobada</span>';
+                else if (def > 0 && def < 70) estado = '<span class="badge badge-danger">En riesgo</span>';
+                return `<tr onclick="verDetalleMateria(${i})" style="cursor:pointer" title="Ver detalle de ${m.asignatura}">
+                    <td><strong style="color:var(--primary)">${m.asignatura}</strong> <i class="fas fa-chevron-right" style="font-size:0.65rem;color:var(--gray-400)"></i></td>
+                    <td>${m.profesor}</td>
+                    <td style="text-align:center;font-weight:600;color:${colorNota(m.notaD)}">${m.notaD || '—'}</td>
+                    <td style="text-align:center;font-weight:600;color:${colorNota(m.notaI)}">${m.notaI || '—'}</td>
+                    <td style="text-align:center;font-weight:600;color:${colorNota(m.notaF)}">${m.notaF || '—'}</td>
+                    <td style="text-align:center"><strong style="color:${colorNota(def)}">${def || '—'}</strong></td>
+                    <td>${estado}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── Drill-down: show detail for a materia ──
+        async function verDetalleMateria(idx) {
+            const m = dashData.materias[idx];
+            if (!m) return;
+            selectedPensumId = m.pensum_id;
+
+            document.getElementById('cardResumenCal').style.display = 'none';
+            document.getElementById('progressRing').style.display = 'none';
+            document.getElementById('cardDetalleCal').style.display = 'block';
+            document.getElementById('detalleMateriaTitulo').innerHTML = `<i class="fas fa-book"></i> ${m.asignatura} <small style="color:var(--gray-400);font-weight:400">— ${m.profesor}</small>`;
+            document.getElementById('selTipoNotaEst').value = '';
+            document.getElementById('tbodyDetalleCal').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Seleccione un tipo de registro</td></tr>';
+
+            // Preload all notas for this materia
+            const estId = userData?.estudiante_id;
+            try {
+                const res = await fetch(`${API}/estudiante/notas?estudiante_id=${estId}&pensum_id=${selectedPensumId}`);
+                allNotasMateria = await res.json();
+            } catch (err) { console.error(err); allNotasMateria = []; }
+        }
+
+        function volverResumenCal() {
+            document.getElementById('cardDetalleCal').style.display = 'none';
+            document.getElementById('cardResumenCal').style.display = 'block';
+            document.getElementById('progressRing').style.display = 'flex';
+        }
+
+        function onTipoNotaEstChange() {
+            const tipo = document.getElementById('selTipoNotaEst').value;
+            const tbody = document.getElementById('tbodyDetalleCal');
+            if (!tipo) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Seleccione un tipo de registro</td></tr>';
+                return;
+            }
+            const filtered = allNotasMateria.filter(n => n.codigo === tipo);
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">No hay registros de este tipo</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(n => `<tr>
+                <td style="text-align:center;font-weight:600">${n.registro}</td>
+                <td>${n.concepto}</td>
+                <td style="text-align:center;font-weight:600;color:${colorNota(n.comp_1)}">${n.comp_1 || '—'}</td>
+                <td style="text-align:center;font-weight:600;color:${colorNota(n.comp_2)}">${n.comp_2 || '—'}</td>
+                <td style="text-align:center;font-weight:600;color:${colorNota(n.comp_3)}">${n.comp_3 || '—'}</td>
+                <td style="text-align:center"><strong style="color:${colorNota(n.nota)}">${n.nota || '—'}</strong></td>
+            </tr>`).join('');
+        }
+
+        // ── Materias list in dashboard ──
+        function renderListaMaterias() {
+            if (!dashData) return;
+            const container = document.getElementById('listaMaterias');
+            const colors = ['#6C63FF', '#FF6584', '#10b981', '#f59e0b', '#8B5CF6', '#06b6d4', '#ec4899'];
+            let html = '';
+            dashData.materias.forEach((m, i) => {
+                const col = colors[i % colors.length];
+                html += `<div class="user-item">
+                    <div class="user-item-info">
+                        <div class="user-item-avatar" style="background:${col};width:36px;height:36px;font-size:0.7rem;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:10px">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="user-item-details">
+                            <h4>${m.asignatura}</h4>
+                            <p>${m.profesor} • IH: ${m.intensidad}h</p>
+                        </div>
+                    </div>
+                    <span class="badge" style="background:${m.notaD >= 70 ? 'var(--success)' : m.notaD > 0 ? '#ef4444' : 'var(--gray-400)'};color:#fff;font-size:0.75rem">${m.notaD || '—'}</span>
+                </div>`;
+            });
+            container.innerHTML = html || '<p style="text-align:center;color:var(--gray-400);padding:20px">Sin materias</p>';
+        }
+
+        // ── Chart ──
+        function renderChart() {
+            if (!dashData || !dashData.materias.length) return;
+            const labels = dashData.materias.map(m => m.asignatura.length > 15 ? m.asignatura.substring(0, 15) + '…' : m.asignatura);
+            const data = dashData.materias.map(m => m.notaD || 0);
+            new Chart(document.getElementById('chartRendimiento'), {
+                type: 'radar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Mi rendimiento',
+                        data,
+                        backgroundColor: 'rgba(108,99,255,0.15)',
+                        borderColor: '#6C63FF',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#6C63FF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { min: 0, max: 100, ticks: { stepSize: 20 } } },
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // ── Horario ──
+        function renderHorario() {
+            if (!dashData) return;
+            const container = document.getElementById('contenidoHorario');
+            const horas = ['7:00 - 8:00', '8:00 - 9:00', '9:00 - 10:00', '10:00 - 10:30', '10:30 - 11:30', '11:30 - 12:30'];
+            const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+            let html = '<div class="table-container"><table class="data-table"><thead><tr><th>Hora</th>';
+            dias.forEach(d => { html += `<th>${d}</th>`; });
+            html += '</tr></thead><tbody>';
+
+            const cells = {};
+            let idx = 0;
+            dashData.materias.forEach(m => {
+                const ih = parseInt(m.intensidad) || 1;
+                for (let h = 0; h < ih && idx < horas.length * dias.length; h++) {
+                    const dia = idx % dias.length;
+                    const hora = Math.floor(idx / dias.length);
+                    if (hora === 3) { idx++; continue; } // skip break
+                    cells[`${hora}_${dia}`] = { asignatura: m.asignatura, profesor: m.profesor };
+                    idx++;
+                }
+            });
+
+            horas.forEach((h, hi) => {
+                if (hi === 3) {
+                    html += `<tr><td><strong>${h}</strong></td><td colspan="5" style="text-align:center;color:var(--gray-400);font-style:italic">🍎 Descanso</td></tr>`;
+                    return;
+                }
+                html += `<tr><td><strong>${h}</strong></td>`;
+                dias.forEach((d, di) => {
+                    const key = `${hi}_${di}`;
+                    if (cells[key]) {
+                        html += `<td><div style="background:var(--primary-light,rgba(108,99,255,0.1));padding:8px;border-radius:8px;font-size:0.8rem">
+                            <strong>${cells[key].asignatura.length > 12 ? cells[key].asignatura.substring(0, 12) + '…' : cells[key].asignatura}</strong><br>
+                            <small style="color:var(--gray-500)">${cells[key].profesor.split(' ').slice(0, 2).join(' ')}</small>
+                        </div></td>`;
+                    } else {
+                        html += '<td style="text-align:center;color:var(--gray-300)">—</td>';
+                    }
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Init
+        cargarDatosEstudiante();
+
+        // ── ACTIVIDADES ESTUDIANTE ──
+        let tareasEstudiante = [];
+
+        async function cargarTareasEst() {
+            const estId = userData?.estudiante_id;
+            if (!estId) return;
+            try {
+                const res = await fetch(`${API}/estudiante/tareas?estudiante_id=${estId}`);
+                tareasEstudiante = await res.json();
+                renderTareasEst();
+            } catch (err) { console.error('Error cargando tareas:', err); }
+        }
+
+        function renderTareasEst() {
+            const container = document.getElementById('listaTareasEst');
+            if (!tareasEstudiante.length) {
+                container.innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--gray-400)"><i class="fas fa-inbox" style="font-size:2rem;margin-bottom:12px"></i><p>No tienes actividades asignadas</p></div>';
+                return;
+            }
+
+            const statusConfig = {
+                pendiente: { badge: 'badge-warning', icon: 'fa-clock', text: 'Pendiente' },
+                entregada: { badge: 'badge-success', icon: 'fa-check-circle', text: 'Entregada' },
+                vencida: { badge: 'badge-danger', icon: 'fa-times-circle', text: 'Vencida' },
+                tardia_permitida: { badge: 'badge-warning', icon: 'fa-exclamation-triangle', text: 'Tardía permitida' }
+            };
+
+            container.innerHTML = tareasEstudiante.map((t, i) => {
+                const cfg = statusConfig[t.status] || statusConfig.pendiente;
+                const limite = new Date(t.fecha_limite);
+                const now = new Date();
+                const diasRestantes = Math.ceil((limite - now) / (1000 * 60 * 60 * 24));
+                let tiempoText = '';
+                if (t.status === 'entregada') tiempoText = `<span style="color:var(--success)"><i class="fas fa-check"></i> Entregada el ${t.entrega.fecha_entrega}</span>`;
+                else if (diasRestantes < 0) tiempoText = `<span style="color:#ef4444"><i class="fas fa-exclamation-circle"></i> Venció hace ${Math.abs(diasRestantes)} día(s)</span>`;
+                else if (diasRestantes === 0) tiempoText = `<span style="color:#f59e0b"><i class="fas fa-fire"></i> Vence hoy</span>`;
+                else if (diasRestantes <= 3) tiempoText = `<span style="color:#f59e0b"><i class="fas fa-clock"></i> Faltan ${diasRestantes} día(s)</span>`;
+                else tiempoText = `<span style="color:var(--gray-400)"><i class="fas fa-calendar"></i> ${limite.toLocaleDateString('es-CO')}</span>`;
+
+                return `<div class="card" style="margin-bottom:16px;border-left:4px solid ${t.status === 'entregada' ? 'var(--success)' : t.status === 'vencida' ? '#ef4444' : 'var(--primary)'}">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;padding:20px">
+                        <div style="flex:1;min-width:200px">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                                <span class="badge badge-violet" style="font-size:0.75rem">${t.asignatura}</span>
+                                <span class="badge ${cfg.badge}" style="font-size:0.7rem"><i class="fas ${cfg.icon}"></i> ${cfg.text}</span>
+                            </div>
+                            <h4 style="color:var(--gray-900);font-size:1.05rem;margin-bottom:4px">${t.titulo}</h4>
+                            <p style="color:var(--gray-500);font-size:0.85rem"><i class="fas fa-user"></i> ${t.profesor}</p>
+                            <div style="margin-top:8px;font-size:0.85rem">${tiempoText}</div>
+                            ${t.permite_tardia ? '<div style="margin-top:4px;font-size:0.75rem;color:var(--gray-500)"><i class="fas fa-info-circle"></i> Se permite entrega tardía</div>' : ''}
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                            <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.85rem" onclick="verDetalleTarea(${i})"><i class="fas fa-eye"></i> Detalles</button>
+                            ${t.status !== 'vencida' ? `<button class="btn btn-primary" style="padding:6px 14px;font-size:0.85rem" onclick="abrirEntregar(${i})"><i class="fas fa-upload"></i> ${t.status === 'entregada' ? 'Actualizar' : 'Entregar'}</button>` : ''}
+                        </div>
+                    </div>
+                    <div id="detalleTarea${i}" style="display:none;padding:0 20px 20px;border-top:1px solid var(--gray-200)">
+                        <div style="padding-top:16px">
+                            <h5 style="color:var(--gray-900);margin-bottom:8px">Descripción de la actividad</h5>
+                            <p style="color:var(--gray-500);font-size:0.9rem;white-space:pre-wrap">${t.descripcion || 'Sin descripción proporcionada.'}</p>
+                            ${t.entrega ? `<div style="margin-top:12px;padding:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:8px">
+                                <strong style="color:var(--success);font-size:0.85rem"><i class="fas fa-check-circle"></i> Tu entrega</strong>
+                                <div style="margin-top:6px;font-size:0.85rem;color:var(--gray-400)"><i class="fas fa-calendar"></i> ${t.entrega.fecha_entrega} ${t.entrega.es_tardia ? '<span class="badge badge-warning" style="font-size:0.65rem">Tardía</span>' : ''}</div>
+                                <a href="${t.entrega.enlace}" target="_blank" style="color:var(--primary);font-size:0.85rem;text-decoration:none;margin-top:4px;display:inline-block"><i class="fas fa-external-link-alt"></i> Ver mi entrega</a>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function verDetalleTarea(idx) {
+            const el = document.getElementById('detalleTarea' + idx);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function abrirEntregar(idx) {
+            const t = tareasEstudiante[idx];
+            document.getElementById('entregarTareaId').value = t._id;
+            document.getElementById('entregarTareaInfo').textContent = `${t.titulo} — ${t.asignatura}`;
+            document.getElementById('entregarEnlace').value = t.entrega?.enlace || '';
+            document.getElementById('entregarComentario').value = '';
+            document.getElementById('modalEntregarOverlay').style.display = 'block';
+            document.getElementById('modalEntregar').style.display = 'block';
+        }
+        function cerrarEntregar() {
+            document.getElementById('modalEntregarOverlay').style.display = 'none';
+            document.getElementById('modalEntregar').style.display = 'none';
+        }
+        document.getElementById('modalEntregarOverlay').addEventListener('click', cerrarEntregar);
+
+        async function enviarEntrega() {
+            const tareaId = document.getElementById('entregarTareaId').value;
+            const enlace = document.getElementById('entregarEnlace').value.trim();
+            const comentario = document.getElementById('entregarComentario').value.trim();
+            if (!enlace) { alert('Debe proporcionar un enlace de entrega'); return; }
+
+            try {
+                const res = await fetch(`${API}/estudiante/tareas/entregar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tarea_id: tareaId, estudiante_id: userData.estudiante_id, enlace, comentario })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    cerrarEntregar();
+                    cargarTareasEst();
+                } else { alert('Error: ' + (data.error || 'No se pudo enviar')); }
+            } catch (err) { alert('Error de conexión'); console.error(err); }
+        }
+
+        // Load tasks on init
+        cargarTareasEst();
+
+        // ── NOTIFICACIONES ──
+        async function cargarNotificaciones() {
+            try {
+                const res = await fetch(`${API}/notificaciones`);
+                const notifs = await res.json();
+                const list = document.getElementById('notifList');
+                const count = document.getElementById('notifCount');
+                const bell = document.getElementById('bellBtn');
+                if (!notifs.length) {
+                    list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><br>Sin notificaciones</div>';
+                    count.style.display = 'none';
+                    bell.classList.remove('has-notif');
+                    return;
+                }
+                count.textContent = notifs.length;
+                count.style.display = 'flex';
+                bell.classList.add('has-notif');
+                const iconMap = { noticia: 'fa-bullhorn', evento: 'fa-calendar-check', aviso: 'fa-exclamation-triangle' };
+                list.innerHTML = notifs.map(n => {
+                    const ago = tiempoRelativo(n.fecha_creacion);
+                    return `<div class="notif-item">
+                        <div class="notif-item-icon ${n.tipo}"><i class="fas ${n.icono || iconMap[n.tipo] || 'fa-bell'}"></i></div>
+                        <div class="notif-item-body">
+                            <div class="notif-item-title">${n.titulo}</div>
+                            <div class="notif-item-msg">${n.mensaje}</div>
+                            <div class="notif-item-time">${ago}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) { console.error('Error cargando notificaciones:', err); }
+        }
+        function tiempoRelativo(fecha) {
+            const diff = Date.now() - new Date(fecha).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Justo ahora';
+            if (mins < 60) return `Hace ${mins} min`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `Hace ${hrs}h`;
+            const dias = Math.floor(hrs / 24);
+            return `Hace ${dias}d`;
+        }
+        function toggleNotifDropdown() {
+            document.getElementById('notifDropdown').classList.toggle('show');
+        }
+        document.addEventListener('click', e => {
+            const bell = document.querySelector('.notif-bell');
+            const dd = document.getElementById('notifDropdown');
+            if (bell && dd && !bell.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show');
+        });
+        cargarNotificaciones();
+    </script>
+</body>
+
+</html>

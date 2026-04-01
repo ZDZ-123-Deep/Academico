@@ -1,0 +1,19 @@
+{
+    "name": "edu-gestion-academico",
+    "version": "1.0.0",
+    "description": "Sistema de gestión académica EduGestión - Panel académico independiente",
+    "main": "server-academico.js",
+    "scripts": {
+        "start": "node server-academico.js",
+        "dev": "node server-academico.js"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "mongoose": "^7.6.3"
+    }
+}
