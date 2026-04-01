@@ -201,6 +201,7 @@
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <aside class="sidebar" id="sidebar">
+        <button class="sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         <div class="sidebar-header">
             <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
             <div class="sidebar-brand">Edu<span>Gestión</span></div>
@@ -308,8 +309,7 @@
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-users"></i> Resumen por Hijo</h3>
                     </div>
-                    <div id="dashHijosGrid"
-                        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
+                    <div id="dashHijosGrid" class="hijos-grid">
                         <p style="text-align:center;color:var(--gray-400);padding:30px;grid-column:1/-1">Cargando
                             información de sus hijos...</p>
                     </div>
@@ -328,8 +328,7 @@
 
             <!-- MIS HIJOS -->
             <div class="section" id="secHijos">
-                <div id="listaHijos"
-                    style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">
+                <div id="listaHijos" class="hijos-grid">
                     <p style="text-align:center;color:var(--gray-400);padding:40px;grid-column:1/-1">Cargando...</p>
                 </div>
             </div>
@@ -342,8 +341,7 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Seleccione un Hijo</h3>
                         </div>
-                        <div id="calHijosGrid"
-                            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+                        <div id="calHijosGrid" class="hijos-grid-sm">
                             <p style="text-align:center;color:var(--gray-400);padding:30px;grid-column:1/-1">Cargando...
                             </p>
                         </div>
@@ -648,7 +646,7 @@
                             <span class="badge badge-success" style="font-size:0.7rem">${h.jornada || 'Completa'}</span>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem">
+                    <div class="hijo-info-grid">
                         <div><i class="fas fa-id-card" style="color:var(--primary);width:20px"></i> <strong>Documento:</strong> ${h.documento || '—'}</div>
                         <div><i class="fas fa-birthday-cake" style="color:var(--accent);width:20px"></i> <strong>F. Nacimiento:</strong> ${h.f_nacimiento || '—'}</div>
                         <div><i class="fas fa-envelope" style="color:var(--info);width:20px"></i> <strong>Correo:</strong> ${h.correo || '—'}</div>

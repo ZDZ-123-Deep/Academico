@@ -1441,6 +1441,7 @@ body.dark .obs-tab.active {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
     overflow: hidden
 }
 
@@ -1818,3 +1819,179 @@ body.dark-mode .notif-item-msg {
         max-width: 300px
     }
 }
+
+/* =============================================
+   🎯 CLASES NUEVAS - VistaPadre & Componentes
+   ============================================= */
+
+/* Grids de hijos/tarjetas */
+.hijos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px
+}
+
+.hijos-grid-sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px
+}
+
+/* Grilla de info del hijo (2 columnas → 1 en móvil) */
+.hijo-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    font-size: 0.85rem
+}
+
+/* =============================================
+   📱 RESPONSIVE ADICIONAL PROFUNDO (768px)
+   ============================================= */
+@media (max-width: 768px) {
+
+    /* ---- VistaPadre: grids de hijos apilados ---- */
+    .hijos-grid,
+    .hijos-grid-sm {
+        grid-template-columns: 1fr !important
+    }
+
+    .hijo-info-grid {
+        grid-template-columns: 1fr !important
+    }
+
+    /* ---- Tabs de calificaciones (Admin) ---- */
+    #secCalificaciones > div:first-child {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-wrap: nowrap;
+        white-space: nowrap
+    }
+
+    #secCalificaciones .calTabBtn {
+        white-space: nowrap;
+        font-size: 0.82rem;
+        padding: 8px 14px !important
+    }
+
+    /* ---- Card-header: botones en columna ---- */
+    .card-header > div[style*="display:flex"] {
+        flex-wrap: wrap !important
+    }
+
+    /* ---- Pago-row en VistaPadre ---- */
+    .pago-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px
+    }
+
+    /* ---- Cartera cards ---- */
+    .cartera-card {
+        padding: 16px
+    }
+
+    .cartera-big {
+        font-size: 1.5rem
+    }
+
+    /* ---- Tabs de calificaciones custom (flex inline sin clase) ---- */
+    [style*="display:flex;gap:0;margin-bottom:20px"] {
+        overflow-x: auto;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch
+    }
+
+    /* ---- Selector de nota bar ---- */
+    #calNotaBar {
+        flex-direction: column;
+        align-items: stretch
+    }
+
+    #calNotaBar .btn {
+        width: 100%
+    }
+
+    #calNotaBar select {
+        width: 100% !important;
+        min-width: unset !important
+    }
+
+    /* ---- Filtros en calificaciones ---- */
+    #calSelectPeriodo,
+    #calSelectDocente,
+    #calSelectPensum,
+    #calSelectNota {
+        min-width: unset !important;
+        width: 100% !important
+    }
+
+    /* ---- Header: overflow prevención ---- */
+    .header-left {
+        min-width: 0;
+        overflow: hidden
+    }
+
+    .header-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px
+    }
+
+    /* ---- Selects en card-header no overflow ---- */
+    .card-header select {
+        max-width: 100%
+    }
+
+    /* ---- Grade-ring / progress ring VistaPadre ---- */
+    .grade-ring {
+        width: 80px;
+        height: 80px;
+        font-size: 1.3rem
+    }
+
+    /* ---- Hijo-card padding ajustado ---- */
+    .hijo-card {
+        padding: 16px
+    }
+
+    /* ---- Calificaciones tabs en VistaProfesor/Estudiante ---- */
+    .cal-tab-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* ---- hijos-grid: 1 col ---- */
+    .hijos-grid,
+    .hijos-grid-sm {
+        gap: 12px
+    }
+
+    /* ---- Stats 1 columna ya declarada, asegurar gap ---- */
+    .stats-grid {
+        gap: 10px
+    }
+
+    /* ---- Hijo-card a pantalla completa ---- */
+    .hijo-card {
+        padding: 14px 12px
+    }
+
+    /* ---- Stat-card más compacta ---- */
+    .stat-card {
+        padding: 12px
+    }
+
+    /* ---- user-item-avatar aún más pequeño ---- */
+    .user-item-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem
+    }
+}
