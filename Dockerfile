@@ -8,7 +8,7 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Production runner
 FROM base AS runner
