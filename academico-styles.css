@@ -1473,3 +1473,327 @@ body.dark-mode .notif-item-title {
 body.dark-mode .notif-item-msg {
     color: #94a3b8
 }
+
+/* =============================================
+   📱 RESPONSIVE MÓVIL - COMPLETO
+   Breakpoints: 768px (tablet/mobile) y 480px (small phone)
+   ============================================= */
+
+@media (max-width: 768px) {
+
+    /* ---- SIDEBAR como drawer ---- */
+    .hamburger-btn,
+    .sidebar-close,
+    .sidebar-overlay {
+        display: block
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 200;
+        width: 280px
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.2)
+    }
+
+    .sidebar-close {
+        display: flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .sidebar-overlay {
+        display: block
+    }
+
+    /* ---- MAIN CONTENT sin margen ---- */
+    .main-content {
+        margin-left: 0 !important
+    }
+
+    /* ---- HEADER compacto ---- */
+    .header {
+        padding: 0 12px;
+        height: 60px
+    }
+
+    .header-title {
+        font-size: 1rem
+    }
+
+    .header-title span {
+        display: none
+    }
+
+    .user-info {
+        display: none
+    }
+
+    .btn-logout {
+        padding: 8px 12px
+    }
+
+    .btn-logout span {
+        display: none
+    }
+
+    /* ---- PAGE CONTENT ---- */
+    .page-content {
+        padding: 12px
+    }
+
+    /* ---- STATS GRID 2 columnas ---- */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px
+    }
+
+    .stat-card {
+        padding: 16px
+    }
+
+    .stat-value {
+        font-size: 1.5rem
+    }
+
+    /* ---- CARDS ---- */
+    .card {
+        padding: 16px;
+        margin-bottom: 16px
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px
+    }
+
+    .card-header .btn {
+        width: 100%
+    }
+
+    /* ---- FORM GRID una columna ---- */
+    .form-grid {
+        grid-template-columns: 1fr
+    }
+
+    .form-group.full-width {
+        grid-column: span 1
+    }
+
+    /* ---- TABLAS scrollables ---- */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-sm)
+    }
+
+    .data-table {
+        min-width: 520px
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        white-space: nowrap
+    }
+
+    .actions {
+        flex-wrap: nowrap;
+        gap: 4px
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.78rem
+    }
+
+    /* ---- MODALES fullscreen en móvil ---- */
+    .modal-content {
+        width: 95%;
+        max-width: 100%;
+        margin: 10px;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto
+    }
+
+    .modal-actions {
+        flex-direction: column
+    }
+
+    .modal-actions .btn {
+        width: 100%
+    }
+
+    /* ---- NOTIFICACIONES dropdown ancho completo ---- */
+    .notif-dropdown {
+        width: calc(100vw - 24px);
+        right: -60px;
+        left: auto
+    }
+
+    /* ---- TABS de observador scrollables ---- */
+    .obs-tabs-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+        gap: 0;
+        flex-wrap: nowrap
+    }
+
+    .obs-tab {
+        white-space: nowrap;
+        padding: 8px 14px !important;
+        font-size: 0.82rem
+    }
+
+    /* ---- USER ITEM stacking ---- */
+    .user-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px
+    }
+
+    .user-item-actions {
+        width: 100%;
+        justify-content: flex-end
+    }
+
+    /* ---- TABLA DE HORARIO ---- */
+    .schedule-table {
+        min-width: 480px
+    }
+
+    /* ---- INPUTS DE NOTA ---- */
+    .grade-input {
+        width: 50px;
+        padding: 4px 6px;
+        font-size: 0.85rem
+    }
+
+    /* ---- LOGOUT MODAL ---- */
+    .logout-modal {
+        width: 92%;
+        padding: 24px
+    }
+
+    .logout-actions {
+        flex-direction: column
+    }
+
+    .logout-actions .btn {
+        width: 100%
+    }
+
+    /* ---- BÚSQUEDA compacta ---- */
+    .search-bar,
+    input[type="search"],
+    input[type="text"].buscar {
+        width: 100% !important
+    }
+
+    /* ---- GRIDS de 2 columnas a 1 ---- */
+    .grid-2,
+    .two-col,
+    [style*="grid-template-columns: 1fr 1fr"],
+    [style*="grid-template-columns: repeat(2"] {
+        grid-template-columns: 1fr !important
+    }
+
+    /* ---- Botones de acción en card-header ---- */
+    .card-header .header-actions-group,
+    .card-header > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%
+    }
+
+    /* Texto de sections ocultos en header */
+    .page-section-title {
+        font-size: 1.1rem
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* ---- STATS en 1 columna ---- */
+    .stats-grid {
+        grid-template-columns: 1fr
+    }
+
+    /* ---- HEADER acciones ---- */
+    .header-actions {
+        gap: 6px
+    }
+
+    /* ---- Padding mínimo ---- */
+    .page-content {
+        padding: 10px 8px
+    }
+
+    .card {
+        padding: 14px 12px
+    }
+
+    /* ---- Fuentes más pequeñas ---- */
+    .stat-value {
+        font-size: 1.3rem
+    }
+
+    .stat-label {
+        font-size: 0.78rem
+    }
+
+    .card-title {
+        font-size: 0.95rem
+    }
+
+    /* ---- Tabla mínima legible ---- */
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+        font-size: 0.8rem
+    }
+
+    /* ---- Botones de roles en header ---- */
+    .role-tab {
+        font-size: 0.72rem;
+        padding: 6px 4px
+    }
+
+    /* ---- Modal más ajustado ---- */
+    .modal-content {
+        padding: 16px;
+        margin: 8px
+    }
+
+    .modal-title {
+        font-size: 1rem
+    }
+
+    /* ---- Notif dropdown ---- */
+    .notif-dropdown {
+        width: calc(100vw - 16px);
+        right: -20px
+    }
+
+    /* ---- User item avatar más pequeño ---- */
+    .user-item-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem
+    }
+
+    /* ---- Sidebar más estrecho en pantallas muy pequeñas ---- */
+    .sidebar {
+        width: 85vw;
+        max-width: 300px
+    }
+}
