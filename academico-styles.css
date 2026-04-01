@@ -512,6 +512,21 @@ input:checked+.slider:before {
     gap: 20px
 }
 
+/* Grid de 2 columnas del dashboard (Calendario + Actividad Reciente, etc.) */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px
+}
+
+.dashboard-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px
+}
+
 .form-group {
     margin-bottom: 0
 }
@@ -1576,13 +1591,19 @@ body.dark-mode .notif-item-msg {
         width: 100%
     }
 
-    /* ---- FORM GRID una columna ---- */
+    /* ---- FORM GRID una columna (override de inline styles con !important) ---- */
     .form-grid {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr !important
     }
 
     .form-group.full-width {
-        grid-column: span 1
+        grid-column: span 1 !important
+    }
+
+    /* ---- DASHBOARD GRIDS apilados ---- */
+    .dashboard-grid,
+    .dashboard-grid-2 {
+        grid-template-columns: 1fr !important
     }
 
     /* ---- TABLAS scrollables ---- */

@@ -124,7 +124,7 @@
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+                <div class="dashboard-grid-2">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-chart-bar"></i> Estudiantes por Curso</h3>
@@ -209,7 +209,7 @@
                 style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;transition:opacity .3s">
             </div>
             <div id="modalRegistro"
-                style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+                style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:min(420px,92vw);box-shadow:0 20px 60px rgba(0,0,0,0.5)">
                 <h3 style="color:#fff;margin-bottom:20px"><i class="fas fa-plus-circle"
                         style="color:var(--primary)"></i> Crear Nuevo Registro</h3>
                 <div style="margin-bottom:16px">
@@ -328,7 +328,7 @@
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000">
     </div>
     <div id="modalTarea"
-        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:min(480px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
         <h3 style="color:#fff;margin-bottom:20px"><i class="fas fa-plus-circle" style="color:var(--primary)"></i> Crear
             Actividad</h3>
         <div style="margin-bottom:14px"><label
@@ -372,7 +372,7 @@
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000">
     </div>
     <div id="modalEntregas"
-        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+        style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:1px solid rgba(108,99,255,0.3);border-radius:16px;padding:32px;z-index:1001;width:min(600px,92vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
             <h3 style="color:#fff"><i class="fas fa-inbox" style="color:var(--primary)"></i> Entregas</h3>
             <button class="btn btn-secondary" onclick="cerrarModalEntregas()" style="padding:6px 12px"><i
