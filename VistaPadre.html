@@ -5,10 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGestión - Panel Padre de Familia</title>
+
+    <!-- PERFORMANCE: Resource hints para CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <script>if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');</script>
     <link rel="stylesheet" href="academico-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
     <style>
         .hijo-card {
             background: var(--white);
@@ -523,6 +535,28 @@
 
     <script>
         const API = '/api';
+
+        // 🔒 JWT: Interceptor global de fetch
+        const _originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            const token = sessionStorage.getItem('eduGestionToken');
+            if (token) {
+                options.headers = options.headers || {};
+                if (options.headers instanceof Headers) {
+                    options.headers.set('Authorization', 'Bearer ' + token);
+                } else {
+                    options.headers['Authorization'] = 'Bearer ' + token;
+                }
+            }
+            return _originalFetch(url, options).then(response => {
+                if (response.status === 401) {
+                    sessionStorage.clear();
+                    window.location.href = '/login';
+                }
+                return response;
+            });
+        };
+
         const userData = JSON.parse(sessionStorage.getItem('eduGestionUser') || 'null');
         if (!userData || userData.rol !== 'padre') {
             console.warn('No hay sesión de padre activa');
@@ -738,12 +772,7 @@
             } catch (err) { console.error(err); tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Error cargando</td></tr>'; }
         }
 
-        function colorNotaPadre(v) {
-            if (!v || v === 0) return 'var(--gray-400)';
-            if (v >= 70) return 'var(--success)';
-            if (v >= 30) return 'var(--warning)';
-            return 'var(--danger)';
-        }
+        function colorNotaPadre(v) { v = parseFloat(v); if (!v || isNaN(v) || v === 0) return 'var(--gray-400)'; if (v >= 95) return '#27ae60'; if (v >= 80) return '#2980b9'; if (v >= 70) return '#e6a817'; return '#e74c3c'; }
 
         // Step 3: Drill into individual materia
         let allNotasMateriaPadre = [];

@@ -26,3 +26,10 @@ Thumbs.db
 tmp
 temp
 *.tmp
+tmp_*.js
+
+# SEGURIDAD: Datos sensibles - NUNCA incluir en imagen Docker
+mongodump*
+check_types.js
+*.bson
+*.metadata.json

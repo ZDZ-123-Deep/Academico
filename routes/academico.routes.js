@@ -1,5 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const { generarToken, verificarToken } = require('../middleware/auth');
+
+// 🔒 SEGURIDAD: Escapar caracteres especiales de regex para evitar ReDoS
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+const isProduction = process.env.NODE_ENV === 'production';
+
 
 // Modelos
 const Estudiante = require('../models/Estudiante');
@@ -33,7 +42,7 @@ router.get('/dashboard/stats', async (req, res) => {
             Docente.countDocuments({ estado: 'A' }),
             Curso.countDocuments({ estado: 'A' }),
             Asignatura.countDocuments({ estado: 'A' }),
-            Empresa.findOne()
+            Empresa.findOne().lean()
         ]);
 
         // Rendimiento por curso: promedios reales desde Pensum
@@ -78,7 +87,7 @@ router.get('/dashboard/stats', async (req, res) => {
 
         res.json({ estudiantes, docentes, cursos, asignaturas, empresa, rendimientoCursos, actividadReciente });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -87,10 +96,10 @@ router.get('/dashboard/stats', async (req, res) => {
 // ========================================
 router.get('/empresa', async (req, res) => {
     try {
-        const empresa = await Empresa.findOne();
+        const empresa = await Empresa.findOne().lean();
         res.json(empresa);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -106,7 +115,7 @@ router.put('/empresa', async (req, res) => {
         }
         res.json({ success: true, empresa });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -117,7 +126,7 @@ router.get('/estudiantes', async (req, res) => {
     try {
         const { buscar, curso, page = 1, limit = 50 } = req.query;
         const filtro = {};
-        if (buscar) filtro.nombre = { $regex: buscar, $options: 'i' };
+        if (buscar) filtro.nombre = { $regex: escapeRegex(buscar), $options: 'i' };
         if (curso) filtro.curso_id = curso;
 
         const total = await Estudiante.countDocuments(filtro);
@@ -129,8 +138,23 @@ router.get('/estudiantes', async (req, res) => {
 
         res.json({ total, pagina: parseInt(page), estudiantes });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
+});
+
+// Actualizar solo la foto de un estudiante
+router.patch('/estudiantes/:id/foto', async (req, res) => {
+    try {
+        const { foto } = req.body;
+        if (!foto) return res.status(400).json({ error: 'foto es obligatoria' });
+        const est = await Estudiante.findOneAndUpdate(
+            { estudiante_id: req.params.id },
+            { $set: { foto } },
+            { new: true }
+        );
+        if (!est) return res.status(404).json({ error: 'Estudiante no encontrado' });
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.get('/estudiantes/:id', async (req, res) => {
@@ -139,7 +163,7 @@ router.get('/estudiantes/:id', async (req, res) => {
         if (!est) return res.status(404).json({ error: 'Estudiante no encontrado' });
         res.json(est);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -152,7 +176,7 @@ router.post('/estudiantes/nombres', async (req, res) => {
         const mapa = {};
         estudiantes.forEach(e => { mapa[e.estudiante_id] = e.nombre; });
         res.json(mapa);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Crear estudiante
@@ -168,7 +192,7 @@ router.post('/estudiantes', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, estudiante: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -181,7 +205,7 @@ router.put('/estudiantes/:id', async (req, res) => {
         await est.save();
         res.json({ success: true, estudiante: est.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -193,7 +217,7 @@ router.delete('/estudiantes/:id', async (req, res) => {
         await Estudiante.deleteOne({ estudiante_id: req.params.id });
         res.json({ success: true, message: 'Estudiante eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -205,7 +229,7 @@ router.get('/docentes', async (req, res) => {
         const docentes = await Docente.find({ estado: 'A' }).sort({ nombre: 1 }).lean();
         res.json(docentes);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -215,7 +239,7 @@ router.get('/docentes/:id', async (req, res) => {
         if (!doc) return res.status(404).json({ error: 'Docente no encontrado' });
         res.json(doc);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -234,7 +258,7 @@ router.post('/docentes', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, docente: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -247,7 +271,7 @@ router.put('/docentes/:id', async (req, res) => {
         await doc.save();
         res.json({ success: true, docente: doc.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -259,7 +283,7 @@ router.delete('/docentes/:id', async (req, res) => {
         await Docente.deleteOne({ teacher_id: req.params.id });
         res.json({ success: true, message: 'Docente eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -270,7 +294,7 @@ router.get('/acudientes', async (req, res) => {
     try {
         const { buscar, page = 1, limit = 50 } = req.query;
         const filtro = {};
-        if (buscar) filtro.nombre_asistente = { $regex: buscar, $options: 'i' };
+        if (buscar) filtro.nombre_asistente = { $regex: escapeRegex(buscar), $options: 'i' };
 
         const total = await Acudiente.countDocuments(filtro);
         const acudientes = await Acudiente.find(filtro)
@@ -280,7 +304,7 @@ router.get('/acudientes', async (req, res) => {
 
         res.json({ total, pagina: parseInt(page), acudientes });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -290,7 +314,7 @@ router.get('/acudientes/:id', async (req, res) => {
         if (!acud) return res.status(404).json({ error: 'Acudiente no encontrado' });
         res.json(acud);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -302,7 +326,7 @@ router.post('/acudientes', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, acudiente: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -314,7 +338,7 @@ router.put('/acudientes/:id', async (req, res) => {
         await acud.save();
         res.json({ success: true, acudiente: acud.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -325,7 +349,7 @@ router.delete('/acudientes/:id', async (req, res) => {
         await Acudiente.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Acudiente eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -337,7 +361,7 @@ router.get('/asignaturas', async (req, res) => {
         const asignaturas = await Asignatura.find({ estado: 'A' }).sort({ nombre: 1 }).lean();
         res.json(asignaturas);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -347,7 +371,7 @@ router.get('/asignaturas/:id', async (req, res) => {
         if (!asig) return res.status(404).json({ error: 'Asignatura no encontrada' });
         res.json(asig);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -362,7 +386,7 @@ router.post('/asignaturas', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, asignatura: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -374,7 +398,7 @@ router.put('/asignaturas/:id', async (req, res) => {
         await asig.save();
         res.json({ success: true, asignatura: asig.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -385,7 +409,7 @@ router.delete('/asignaturas/:id', async (req, res) => {
         await Asignatura.deleteOne({ subject_id: req.params.id });
         res.json({ success: true, message: 'Asignatura eliminada' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -396,7 +420,7 @@ router.get('/cursos', async (req, res) => {
     try {
         const cursos = await Curso.find({ estado: 'A' }).sort({ orden: 1 }).lean();
         // Enriquecer con nombre del docente director
-        const docentes = await Docente.find().lean();
+        const docentes = await Docente.find().select('teacher_id nombre').lean();
         const docenteMap = {};
         docentes.forEach(d => { docenteMap[d.teacher_id] = d.nombre; });
 
@@ -406,7 +430,7 @@ router.get('/cursos', async (req, res) => {
         }));
         res.json(result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -416,7 +440,7 @@ router.get('/cursos/:id', async (req, res) => {
         if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
         res.json(curso);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -431,7 +455,7 @@ router.post('/cursos', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, curso: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -443,7 +467,7 @@ router.put('/cursos/:id', async (req, res) => {
         await curso.save();
         res.json({ success: true, curso: curso.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -454,7 +478,7 @@ router.delete('/cursos/:id', async (req, res) => {
         await Curso.deleteOne({ curso_id: req.params.id });
         res.json({ success: true, message: 'Curso eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -471,8 +495,8 @@ router.get('/pensum', async (req, res) => {
 
         // Cargar docentes, asignaturas y cursos para enriquecer
         const [docentes, asignaturas, cursos] = await Promise.all([
-            Docente.find().lean(),
-            Asignatura.find().lean(),
+            Docente.find().select('teacher_id nombre').lean(),
+            Asignatura.find().select('subject_id Id nombre').lean(),
             Curso.find().lean()
         ]);
 
@@ -492,7 +516,7 @@ router.get('/pensum', async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -502,7 +526,7 @@ router.get('/pensum/:id', async (req, res) => {
         if (!p) return res.status(404).json({ error: 'Pensum no encontrado' });
         res.json(p);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -517,7 +541,7 @@ router.post('/pensum', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, pensum: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -529,7 +553,7 @@ router.put('/pensum/:id', async (req, res) => {
         await p.save();
         res.json({ success: true, pensum: p.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -540,7 +564,7 @@ router.delete('/pensum/:id', async (req, res) => {
         await Pensum.deleteOne({ subject_id: req.params.id });
         res.json({ success: true, message: 'Pensum eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -552,7 +576,7 @@ router.get('/indicadores', async (req, res) => {
         const indicadores = await Indicador.find().sort({ tipo: 1 }).lean();
         res.json(indicadores);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -562,7 +586,7 @@ router.get('/indicadores/:id', async (req, res) => {
         if (!ind) return res.status(404).json({ error: 'Indicador no encontrado' });
         res.json(ind);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -575,7 +599,7 @@ router.post('/indicadores', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, indicador: nuevo.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -587,7 +611,7 @@ router.put('/indicadores/:id', async (req, res) => {
         await ind.save();
         res.json({ success: true, indicador: ind.toObject() });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -596,7 +620,7 @@ router.delete('/indicadores/:id', async (req, res) => {
         await Indicador.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Indicador eliminado' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -613,7 +637,7 @@ router.get('/logros', async (req, res) => {
         const logros = await Logro.find(filtro).limit(100).lean();
         res.json(logros);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -622,7 +646,7 @@ router.get('/logros/:id', async (req, res) => {
         const logro = await Logro.findById(req.params.id).lean();
         if (!logro) return res.status(404).json({ error: 'Logro no encontrado' });
         res.json(logro);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.post('/logros', async (req, res) => {
@@ -633,7 +657,7 @@ router.post('/logros', async (req, res) => {
         const nuevo = new Logro(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/logros/:id', async (req, res) => {
@@ -641,14 +665,14 @@ router.put('/logros/:id', async (req, res) => {
         const logro = await Logro.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!logro) return res.status(404).json({ error: 'Logro no encontrado' });
         res.json(logro);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/logros/:id', async (req, res) => {
     try {
         await Logro.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -670,7 +694,7 @@ router.get('/calificaciones', async (req, res) => {
 
         res.json({ total, pagina: parseInt(page), calificaciones });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -691,7 +715,7 @@ router.get('/calificaciones/detalle', async (req, res) => {
 
         res.json({ total, pagina: parseInt(page), notas });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -701,8 +725,62 @@ router.put('/calificaciones/detalle/:id', async (req, res) => {
         const nota = await PlanillaDetalle.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!nota) return res.status(404).json({ error: 'Nota no encontrada' });
         res.json(nota);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
+
+// Crear nota detalle individual
+router.post('/calificaciones/detalle', async (req, res) => {
+    try {
+        const { codigo_est, codigo_pensum, id_nota, concepto, tipo_nota, planilla } = req.body;
+        if (!codigo_est || !codigo_pensum || !id_nota) {
+            return res.status(400).json({ error: 'codigo_est, codigo_pensum, id_nota son obligatorios' });
+        }
+        const maxDoc = await PlanillaDetalle.findOne().sort({ Id: -1 }).lean();
+        const nextId = String((parseInt(maxDoc?.Id || '0') + 1));
+        const nuevo = await PlanillaDetalle.create({
+            Id: nextId,
+            codigo_est, codigo_pensum, id_nota,
+            concepto: concepto || '', tipo_nota: tipo_nota || '',
+            planilla: planilla || '',
+            comp_1: 0, comp_2: 0, comp_3: 0, nota: 0,
+            fecha_insert: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        });
+        res.status(201).json({ success: true, detalle: nuevo });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// Crear grupo de notas detalle en masa (para todos los estudiantes de un curso)
+router.post('/calificaciones/detalle/bulk', async (req, res) => {
+    try {
+        const { estudiantes, codigo_pensum, id_nota, concepto, tipo_nota, planilla } = req.body;
+        if (!Array.isArray(estudiantes) || !estudiantes.length || !codigo_pensum || !id_nota) {
+            return res.status(400).json({ error: 'estudiantes[], codigo_pensum, id_nota son obligatorios' });
+        }
+        // Obtener el último Id para auto-incremento
+        const maxDoc = await PlanillaDetalle.findOne().sort({ Id: -1 }).lean();
+        let lastId = parseInt(maxDoc?.Id || '0');
+        const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+        const docs = estudiantes.map(cod_est => {
+            lastId++;
+            return {
+                Id: String(lastId),
+                codigo_est: String(cod_est),
+                codigo_pensum: String(codigo_pensum),
+                id_nota: String(id_nota),
+                concepto: concepto || '',
+                tipo_nota: tipo_nota || '',
+                planilla: planilla || '',
+                comp_1: 0, comp_2: 0, comp_3: 0, nota: 0,
+                fecha_insert: now
+            };
+        });
+
+        const insertados = await PlanillaDetalle.insertMany(docs, { ordered: false });
+        res.json({ success: true, creados: insertados.length });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
 
 router.post('/calificaciones', async (req, res) => {
     try {
@@ -711,7 +789,7 @@ router.post('/calificaciones', async (req, res) => {
         const nuevo = new PlanillaConsulta(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/calificaciones/:id', async (req, res) => {
@@ -719,14 +797,14 @@ router.put('/calificaciones/:id', async (req, res) => {
         const cal = await PlanillaConsulta.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!cal) return res.status(404).json({ error: 'Calificación no encontrada' });
         res.json(cal);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/calificaciones/:id', async (req, res) => {
     try {
         await PlanillaConsulta.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -738,7 +816,7 @@ router.get('/planillas', async (req, res) => {
         if (req.query.estado) filtro.estado = req.query.estado;
         const planillas = await Planilla.find(filtro).sort({ anno: -1, periodo: 1 }).lean();
         res.json(planillas);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -753,7 +831,7 @@ router.get('/id-notas', async (req, res) => {
         filtro.estado = 'A';
         const notas = await IdNota.find(filtro).sort({ fecha_insert: 1 }).lean();
         res.json(notas);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -775,7 +853,7 @@ router.get('/asistencia', async (req, res) => {
         const total = await AsistenciaDet.countDocuments(filtro);
         res.json({ total, registros });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -786,7 +864,7 @@ router.post('/asistencia', async (req, res) => {
         const nuevo = new AsistenciaDet(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/asistencia/:id', async (req, res) => {
@@ -794,14 +872,14 @@ router.put('/asistencia/:id', async (req, res) => {
         const reg = await AsistenciaDet.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!reg) return res.status(404).json({ error: 'Registro no encontrado' });
         res.json(reg);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/asistencia/:id', async (req, res) => {
     try {
         await AsistenciaDet.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -823,7 +901,7 @@ router.get('/observaciones', async (req, res) => {
 
         res.json({ total, pagina: parseInt(page), observaciones });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -837,7 +915,7 @@ router.post('/observaciones', async (req, res) => {
         await nuevo.save();
         res.status(201).json({ success: true, _id: nuevo._id });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
 
@@ -846,14 +924,14 @@ router.put('/observaciones/:id', async (req, res) => {
         const obs = await ObservacionDocente.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!obs) return res.status(404).json({ error: 'Observación no encontrada' });
         res.json(obs);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/observaciones/:id', async (req, res) => {
     try {
         await ObservacionDocente.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 
@@ -865,7 +943,7 @@ router.get('/horarios-atencion', async (req, res) => {
     try {
         const horarios = await HorarioAtencion.find().limit(100).lean();
         res.json(horarios);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.post('/horarios-atencion', async (req, res) => {
@@ -876,7 +954,7 @@ router.post('/horarios-atencion', async (req, res) => {
         const nuevo = new HorarioAtencion(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.get('/horarios-atencion/:id', async (req, res) => {
@@ -884,7 +962,7 @@ router.get('/horarios-atencion/:id', async (req, res) => {
         const h = await HorarioAtencion.findById(req.params.id).lean();
         if (!h) return res.status(404).json({ error: 'No encontrado' });
         res.json(h);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/horarios-atencion/:id', async (req, res) => {
@@ -892,14 +970,14 @@ router.put('/horarios-atencion/:id', async (req, res) => {
         const h = await HorarioAtencion.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!h) return res.status(404).json({ error: 'No encontrado' });
         res.json(h);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/horarios-atencion/:id', async (req, res) => {
     try {
         await HorarioAtencion.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -909,7 +987,7 @@ router.get('/anuncios', async (req, res) => {
     try {
         const anuncios = await Anuncio.find().sort({ fecha: -1 }).limit(50).lean();
         res.json(anuncios);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.post('/anuncios', async (req, res) => {
@@ -921,7 +999,7 @@ router.post('/anuncios', async (req, res) => {
         const nuevo = new Anuncio(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.get('/anuncios/:id', async (req, res) => {
@@ -929,7 +1007,7 @@ router.get('/anuncios/:id', async (req, res) => {
         const a = await Anuncio.findById(req.params.id).lean();
         if (!a) return res.status(404).json({ error: 'No encontrado' });
         res.json(a);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/anuncios/:id', async (req, res) => {
@@ -937,14 +1015,14 @@ router.put('/anuncios/:id', async (req, res) => {
         const a = await Anuncio.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!a) return res.status(404).json({ error: 'No encontrado' });
         res.json(a);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/anuncios/:id', async (req, res) => {
     try {
         await Anuncio.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -954,7 +1032,7 @@ router.get('/pagos', async (req, res) => {
     try {
         const pagos = await Pago.find().sort({ fecha: -1 }).limit(100).lean();
         res.json(pagos);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.get('/pagos/stats', async (req, res) => {
@@ -967,7 +1045,7 @@ router.get('/pagos/stats', async (req, res) => {
         const pendientesAll = await Pago.find({ estado: { $ne: 'Pagado' } }).lean();
         const pendienteCobro = pendientesAll.reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
         res.json({ total, pagados, pendientes, recaudado, pendienteCobro });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.post('/pagos', async (req, res) => {
@@ -979,7 +1057,7 @@ router.post('/pagos', async (req, res) => {
         const nuevo = new Pago(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/pagos/:id', async (req, res) => {
@@ -987,14 +1065,14 @@ router.put('/pagos/:id', async (req, res) => {
         const p = await Pago.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!p) return res.status(404).json({ error: 'No encontrado' });
         res.json(p);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/pagos/:id', async (req, res) => {
     try {
         await Pago.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1007,7 +1085,7 @@ router.get('/horarios', async (req, res) => {
         if (curso) filtro.curso = curso;
         const horarios = await Horario.find(filtro).limit(200).lean();
         res.json(horarios);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.post('/horarios', async (req, res) => {
@@ -1017,7 +1095,7 @@ router.post('/horarios', async (req, res) => {
         const nuevo = new Horario(data);
         await nuevo.save();
         res.status(201).json(nuevo);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.put('/horarios/:id', async (req, res) => {
@@ -1025,14 +1103,14 @@ router.put('/horarios/:id', async (req, res) => {
         const h = await Horario.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!h) return res.status(404).json({ error: 'Horario no encontrado' });
         res.json(h);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 router.delete('/horarios/:id', async (req, res) => {
     try {
         await Horario.findByIdAndDelete(req.params.id);
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1074,7 +1152,7 @@ router.get('/reportes/stats', async (req, res) => {
             pagosPagados, pagosPendientes, obsRecientes,
             totalCalif, aprobados
         });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1085,57 +1163,94 @@ router.get('/boletines/intermedio', async (req, res) => {
         const { curso_id, periodo } = req.query;
         if (!curso_id) return res.status(400).json({ error: 'curso_id es requerido' });
 
-        // 1. Get students in this course
+        // 1. Estudiantes del curso
         const estudiantes = await Estudiante.find({ curso_id: String(curso_id) }).sort({ nombre: 1 }).lean();
 
-        // 2. Get all pensum for this course
+        // 2. Pensum del curso
         const pensums = await Pensum.find({ class_id: String(curso_id), estado: 'A' }).lean();
-        const pensumIds = pensums.map(p => p.subject_id);
+        const pensumIds = pensums.map(p => String(p.subject_id));
 
-        // 3. Get subject names
-        const asignaturas = await Asignatura.find().lean();
+        // 3. Nombres de asignaturas
+        const asignaturas = await Asignatura.find().select('subject_id Id nombre').lean();
         const asigMap = {};
-        asignaturas.forEach(a => { asigMap[a.subject_id || a.Id] = a.nombre; });
+        asignaturas.forEach(a => { asigMap[String(a.subject_id || a.Id)] = a.nombre; });
 
-        // 4. Get pensum with subject names
         const pensumMap = {};
         pensums.forEach(p => {
-            pensumMap[p.subject_id] = {
-                subject_id: p.subject_id,
-                asignatura_nombre: asigMap[p.asignatura_id] || p.nombre,
+            pensumMap[String(p.subject_id)] = {
+                subject_id: String(p.subject_id),
+                asignatura_nombre: asigMap[String(p.asignatura_id)] || p.nombre || 'N/A',
                 teacher_id: p.teacher_id,
                 intensidad: p.intensidad
             };
         });
 
-        // 5. Get planilla_consulta for all students in this course for the selected period
-        const estudianteIds = estudiantes.map(e => e.estudiante_id);
-        const filtroConsulta = { estudiante: { $in: estudianteIds }, pensum: { $in: pensumIds } };
-        if (periodo) filtroConsulta.periodo = String(periodo);
-        const consultas = await PlanillaConsulta.find(filtroConsulta).lean();
+        // 4. Obtener id_notas para estos pensum (con filtro de planilla si se especifica)
+        const idNotaFiltro = { pensum: { $in: pensumIds }, estado: 'A' };
+        if (periodo) idNotaFiltro.per_id = String(periodo);
+        const idNotas = await IdNota.find(idNotaFiltro).lean();
 
-        // 6. Build boletin per student
+        // 5. Obtener planilla_detalle para todos los id_notas de este curso
+        const idNotaIds = idNotas.map(n => String(n.Id));
+        const estudianteIds = estudiantes.map(e => String(e.estudiante_id));
+
+        const detalles = await PlanillaDetalle.find({
+            id_nota: { $in: idNotaIds },
+            codigo_est: { $in: estudianteIds }
+        }).lean();
+
+        // Crear mapa: idNota.Id → { codigo, pensum }
+        const idNotaMap = {};
+        idNotas.forEach(n => {
+            idNotaMap[String(n.Id)] = { codigo: n.codigo, pensum: String(n.pensum) };
+        });
+
+        // 6. Agrupar notas por estudiante → pensum → tipo (D, I, F, etc.)
+        // Estructura: notasMap[estId][pensumId][codigo] = [nota1, nota2, ...]
+        const notasMap = {};
+        detalles.forEach(d => {
+            const estId   = String(d.codigo_est);
+            const pen     = String(d.codigo_pensum);
+            const info    = idNotaMap[String(d.id_nota)];
+            if (!info) return;
+            const codigo  = info.codigo;
+            const nota    = parseFloat(d.nota) || 0;
+
+            if (!notasMap[estId]) notasMap[estId] = {};
+            if (!notasMap[estId][pen]) notasMap[estId][pen] = {};
+            if (!notasMap[estId][pen][codigo]) notasMap[estId][pen][codigo] = [];
+            notasMap[estId][pen][codigo].push(nota);
+        });
+
+        // Helper: promedio de un array de notas
+        const prom = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+
+        // 7. Construir boletines
         const boletines = estudiantes.map(est => {
-            const estConsultas = consultas.filter(c => c.estudiante === est.estudiante_id);
+            const estId     = String(est.estudiante_id);
+            const estNotas  = notasMap[estId] || {};
+
             const materias = pensumIds.map(pensumId => {
-                const consulta = estConsultas.find(c => c.pensum === pensumId);
-                const info = pensumMap[pensumId] || {};
+                const tipoNotas = estNotas[pensumId] || {};
+                const info      = pensumMap[pensumId] || {};
                 return {
-                    pensum_id: pensumId,
+                    pensum_id:  pensumId,
                     asignatura: info.asignatura_nombre || 'N/A',
                     intensidad: info.intensidad || '0',
-                    D: consulta ? parseInt(consulta.D) || 0 : 0,
-                    I: consulta ? parseInt(consulta.I) || 0 : 0,
-                    F: consulta ? parseInt(consulta.F) || 0 : 0,
-                    IP: consulta ? parseInt(consulta.IP) || 0 : 0,
-                    FP: consulta ? parseInt(consulta.FP) || 0 : 0,
-                    C1: consulta ? parseInt(consulta.C1) || 0 : 0,
-                    C2: consulta ? parseInt(consulta.C2) || 0 : 0,
-                    CG: consulta ? parseInt(consulta.CG) || 0 : 0,
-                    def: consulta ? parseInt(consulta.def) || 0 : 0,
-                    niv: consulta ? consulta.niv || '0' : '0'
+                    D:  prom(tipoNotas['D']  || []),
+                    I:  prom(tipoNotas['I']  || []),
+                    F:  prom(tipoNotas['F']  || []),
+                    IP: prom(tipoNotas['IP'] || []),
+                    FP: prom(tipoNotas['FP'] || []),
+                    C1: prom(tipoNotas['C1'] || []),
+                    C2: prom(tipoNotas['C2'] || []),
+                    CG: prom(tipoNotas['CG'] || []),
+                    N:  prom(tipoNotas['N']  || []),
+                    def: 0,
+                    niv: '0'
                 };
             });
+
             return {
                 estudiante_id: est.estudiante_id,
                 nombre: est.nombre,
@@ -1145,8 +1260,116 @@ router.get('/boletines/intermedio', async (req, res) => {
         });
 
         res.json({ boletines, total: boletines.length });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 📋 BOLETINES / REGISTRO DIARIO — registros individuales D con C1 C2 C3 NT
+// GET /api/boletines/regdiario?curso_id=X&periodo=Y
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/boletines/regdiario', async (req, res) => {
+    try {
+        const { curso_id, periodo } = req.query;
+        if (!curso_id) return res.status(400).json({ error: 'curso_id es obligatorio' });
+
+        // 1. Estudiantes del curso
+        const estudiantes = await Estudiante.find({ curso_id: String(curso_id), estado_est: { $ne: 'R' } })
+            .sort({ nombre: 1 }).lean();
+        if (!estudiantes.length) return res.json({ boletines: [], total: 0 });
+
+        // 2. Pensum del curso
+        const pensums = await Pensum.find({ class_id: String(curso_id), estado: 'A' }).lean();
+        const pensumIds = [...new Set(pensums.map(p => String(p.subject_id)))];
+        const asignaturaIds = [...new Set(pensums.map(p => String(p.asignatura_id)))];
+
+        // 3. Nombres de asignaturas
+        const asigs = await Asignatura.find({ subject_id: { $in: asignaturaIds } }).lean();
+        const asigMap = {};
+        asigs.forEach(a => { asigMap[String(a.subject_id || a.Id)] = a.nombre; });
+        const pensumMap = {};
+        pensums.forEach(p => {
+            pensumMap[String(p.subject_id)] = asigMap[String(p.asignatura_id)] || 'N/A';
+        });
+
+        // 4. id_notas tipo D para el curso/periodo
+        const idNotaFiltro = { pensum: { $in: pensumIds }, estado: 'A' };
+        if (periodo) idNotaFiltro.per_id = String(periodo);
+        const idNotas = await IdNota.find(idNotaFiltro).lean();
+        // Solo notas de tipo D (Diario)
+        const idNotasD = idNotas.filter(n => (n.codigo || '').toUpperCase() === 'D');
+        const idNotaDMap = {};
+        idNotasD.forEach(n => { idNotaDMap[String(n.Id)] = String(n.pensum); });
+        const idNotaDIds = Object.keys(idNotaDMap);
+
+        // 5. planilla_detalle solo de tipo D
+        const estudianteIds = estudiantes.map(e => String(e.estudiante_id));
+        const detalles = await PlanillaDetalle.find({
+            id_nota: { $in: idNotaDIds },
+            codigo_est: { $in: estudianteIds }
+        }).lean();
+
+        // 6. Agrupar: estId → pensumId → [registros ordenados]
+        // Cada registro es un documento planilla_detalle con nota, concepto, etc.
+        const regMap = {}; // regMap[estId][pensumId] = [{nota, concepto, ...}, ...]
+        detalles.forEach(d => {
+            const estId = String(d.codigo_est);
+            const pen   = idNotaDMap[String(d.id_nota)];
+            if (!pen) return;
+            if (!regMap[estId]) regMap[estId] = {};
+            if (!regMap[estId][pen]) regMap[estId][pen] = [];
+            regMap[estId][pen].push(d);
+        });
+
+        // Helper
+        const safe = v => parseFloat(v) || 0;
+        const avg  = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
+
+        // 7. Construir boletines
+        const MAX_REG = 7;
+        const boletines = estudiantes.map(est => {
+            const estId = String(est.estudiante_id);
+            const materias = pensumIds.map(pensumId => {
+                const registros = (regMap[estId] && regMap[estId][pensumId]) || [];
+                // Cada registro D puede tener sub-campos: comp1, comp2, comp3, nota
+                // Tomamos hasta MAX_REG registros en orden
+                const regs = registros.slice(0, MAX_REG).map(r => {
+                    // Intentar leer sub-componentes si existen, si no usar nota como NT
+                    const c1 = safe(r.comp1 ?? r.nota);
+                    const c2 = safe(r.comp2 ?? r.nota);
+                    const c3 = safe(r.comp3 ?? r.nota);
+                    const nt = safe(r.nota || avg([c1,c2,c3]));
+                    return { c1, c2, c3, nt };
+                });
+                // Rellenar hasta MAX_REG con ceros
+                while (regs.length < MAX_REG) regs.push({ c1:0, c2:0, c3:0, nt:0 });
+
+                // PROMEDIOS (incluyendo ceros)
+                const promC1 = avg(regs.map(r=>r.c1));
+                const promC2 = avg(regs.map(r=>r.c2));
+                const promC3 = avg(regs.map(r=>r.c3));
+                const promNT = avg(regs.map(r=>r.nt));
+                const pct60  = Math.round(promNT * 0.6);
+
+                return {
+                    pensum_id:  pensumId,
+                    asignatura: pensumMap[pensumId] || 'N/A',
+                    registros:  regs,          // array de 7 objetos {c1,c2,c3,nt}
+                    promC1, promC2, promC3, promNT, pct60
+                };
+            });
+
+            return {
+                estudiante_id: est.estudiante_id,
+                nombre:        est.nombre,
+                curso_id:      est.curso_id,
+                materias
+            };
+        });
+
+        res.json({ boletines, total: boletines.length });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
 
 // ========================================
 // 🔐 AUTH - Login
@@ -1160,23 +1383,39 @@ router.post('/auth/login', async (req, res) => {
         if (rol === 'padre') {
             const acu = await Acudiente.findOne({ usuario_acud: cuenta, estado: 'A' }).lean();
             if (!acu) return res.status(401).json({ error: 'Acudiente no encontrado' });
-            if (acu.clave_acud !== password) return res.status(401).json({ error: 'Contraseña incorrecta' });
-            return res.json({
-                success: true,
-                usuario: {
-                    id: acu.Id,
-                    name: acu.nombre_asistente,
-                    cuenta: acu.usuario_acud,
-                    rol: 'padre',
-                    acudiente_id: acu.Id
-                }
-            });
+
+            // Soportar tanto contraseñas hasheadas (bcrypt) como texto plano (migración pendiente)
+            let passwordValid = false;
+            if (acu.clave_acud && acu.clave_acud.startsWith('$2')) {
+                passwordValid = await bcrypt.compare(password, acu.clave_acud);
+            } else {
+                passwordValid = (acu.clave_acud === password);
+            }
+            if (!passwordValid) return res.status(401).json({ error: 'Contraseña incorrecta' });
+
+            const usuarioData = {
+                id: acu.Id,
+                name: acu.nombre_asistente,
+                cuenta: acu.usuario_acud,
+                rol: 'padre',
+                acudiente_id: acu.Id
+            };
+            const token = generarToken({ ...usuarioData, level: 'P' });
+            return res.json({ success: true, token, usuario: usuarioData });
         }
 
         // ADMIN / PROFESOR / ESTUDIANTE: authenticate from usuarios collection
         const usuario = await UsuarioGA.findOne({ cuenta, estado: 'A' }).lean();
         if (!usuario) return res.status(401).json({ error: 'Usuario no encontrado' });
-        if (usuario.password !== password) return res.status(401).json({ error: 'Contraseña incorrecta' });
+
+        // Soportar tanto contraseñas hasheadas (bcrypt) como texto plano (migración pendiente)
+        let passwordValid = false;
+        if (usuario.password && usuario.password.startsWith('$2')) {
+            passwordValid = await bcrypt.compare(password, usuario.password);
+        } else {
+            passwordValid = (usuario.password === password);
+        }
+        if (!passwordValid) return res.status(401).json({ error: 'Contraseña incorrecta' });
 
         // Validate role matches user level
         const levelToRol = { 'A': 'admin', 'D': 'profesor', 'E': 'estudiante' };
@@ -1213,9 +1452,12 @@ router.post('/auth/login', async (req, res) => {
             }
         }
 
+        // Generar JWT
+        result.token = generarToken(result.usuario);
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
+
 
 // ========================================
 // 👨‍🎓 ESTUDIANTE - Dashboard
@@ -1297,7 +1539,7 @@ router.get('/estudiante/dashboard', async (req, res) => {
             enCurso: pensums.length - aprobadas - reprobadas,
             materias
         });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1336,7 +1578,7 @@ router.get('/estudiante/notas', async (req, res) => {
         });
 
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 
@@ -1401,7 +1643,7 @@ router.get('/profesor/dashboard', async (req, res) => {
             cursos: Object.values(cursoGroups),
             materias
         });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1446,7 +1688,7 @@ router.get('/profesor/estudiantes', async (req, res) => {
             email: e.email,
             notas: notasMap[e.estudiante_id] || []
         })));
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1466,7 +1708,7 @@ router.get('/profesor/registros', async (req, res) => {
             anno: r.anno,
             per_id: r.per_id
         })));
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Crear nuevo registro de nota
@@ -1499,7 +1741,7 @@ router.post('/profesor/registros', async (req, res) => {
         });
 
         res.json({ success: true, registro: { id: nextId, codigo, concepto, registro: nextRegistro, pensum: pensum_id } });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1518,7 +1760,7 @@ router.post('/profesor/tareas', async (req, res) => {
             fecha_limite, permite_tardia: !!permite_tardia
         });
         res.json({ success: true, tarea });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Profesor: Listar tareas
@@ -1557,7 +1799,7 @@ router.get('/profesor/tareas', async (req, res) => {
         }));
 
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Profesor: Ver entregas de una tarea
@@ -1577,7 +1819,7 @@ router.get('/profesor/tareas/:id/entregas', async (req, res) => {
             fecha_entrega: e.fecha_entrega,
             es_tardia: e.es_tardia
         })));
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Estudiante: Ver tareas asignadas
@@ -1636,7 +1878,7 @@ router.get('/estudiante/tareas', async (req, res) => {
         });
 
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Estudiante: Entregar tarea
@@ -1672,7 +1914,7 @@ router.post('/estudiante/tareas/entregar', async (req, res) => {
             tarea_id, estudiante_id: String(estudiante_id), enlace, comentario: comentario || '', es_tardia
         });
         res.json({ success: true, message: 'Entrega realizada', entrega });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1697,7 +1939,7 @@ router.get('/padre/dashboard', async (req, res) => {
         const cursoMap = {};
         cursos.forEach(c => { cursoMap[c.curso_id] = c.nombre || c.codigo; });
 
-        const asignaturas = await Asignatura.find().lean();
+        const asignaturas = await Asignatura.find().select('subject_id Id nombre').lean();
         const asigMap = {};
         asignaturas.forEach(a => { asigMap[a.subject_id] = a.nombre; });
 
@@ -1750,7 +1992,7 @@ router.get('/padre/dashboard', async (req, res) => {
             promedioGeneral: countPromedios > 0 ? Math.round((sumaPromedios / countPromedios) * 10) / 10 : 0,
             saldoPendiente: 0
         });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Resumen de notas por materia para un hijo (used by parent materia list)
@@ -1765,7 +2007,7 @@ router.get('/padre/notas-resumen', async (req, res) => {
         const pensums = await Pensum.find({ class_id: est.curso_id, estado: 'A' }).lean();
         const pensumIds = pensums.map(p => p.subject_id);
 
-        const asignaturas = await Asignatura.find().lean();
+        const asignaturas = await Asignatura.find().select('subject_id Id nombre').lean();
         const asigMap = {};
         asignaturas.forEach(a => { asigMap[a.subject_id] = a.nombre; });
 
@@ -1796,7 +2038,7 @@ router.get('/padre/notas-resumen', async (req, res) => {
         });
 
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Tipos de registro para un hijo
@@ -1820,7 +2062,7 @@ router.get('/padre/tipos-registro', async (req, res) => {
         });
 
         res.json(Object.values(tiposMap));
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Notas detalladas por hijo y tipo de registro
@@ -1835,7 +2077,7 @@ router.get('/padre/notas', async (req, res) => {
         const pensums = await Pensum.find({ class_id: est.curso_id, estado: 'A' }).lean();
         const pensumIds = pensums.map(p => p.subject_id);
 
-        const asignaturas = await Asignatura.find().lean();
+        const asignaturas = await Asignatura.find().select('subject_id Id nombre').lean();
         const asigMap = {};
         asignaturas.forEach(a => { asigMap[a.subject_id] = a.nombre; });
 
@@ -1881,7 +2123,7 @@ router.get('/padre/notas', async (req, res) => {
         });
 
         res.json(result);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Cartera del padre
@@ -1917,7 +2159,7 @@ router.get('/padre/cartera', async (req, res) => {
         });
 
         res.json({ totalPagado, saldoPendiente, mesesPagados, pagos: rows });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // ========================================
@@ -1929,7 +2171,7 @@ router.get('/notificaciones', async (req, res) => {
     try {
         const notifs = await Notificacion.find({ estado: 'A' }).sort({ fecha_creacion: -1 }).limit(20).lean();
         res.json(notifs);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Admin: Crear notificación
@@ -1941,7 +2183,7 @@ router.post('/admin/notificaciones', async (req, res) => {
             titulo, mensaje, tipo: tipo || 'noticia', icono: icono || 'fa-bullhorn', creado_por: creado_por || 'admin'
         });
         res.json({ success: true, notificacion: notif });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 // Admin: Eliminar notificación
@@ -1949,7 +2191,7 @@ router.delete('/admin/notificaciones/:id', async (req, res) => {
     try {
         await Notificacion.findByIdAndUpdate(req.params.id, { estado: 'I' });
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
 module.exports = router;

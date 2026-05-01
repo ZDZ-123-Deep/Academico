@@ -5,11 +5,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel Estudiante - EduGestión</title>
+
+    <!-- PERFORMANCE: Resource hints para CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');</script>
     <link href="academico-styles.css" rel="stylesheet">
+
     <style>
         .course-cards {
             display: grid;
@@ -487,6 +498,26 @@
         const API = '/api';
         let dashData = null;
 
+        // 🔒 JWT: Interceptor global de fetch
+        const _originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            const token = sessionStorage.getItem('eduGestionToken');
+            if (token) {
+                options.headers = options.headers || {};
+                if (options.headers instanceof Headers) {
+                    options.headers.set('Authorization', 'Bearer ' + token);
+                } else {
+                    options.headers['Authorization'] = 'Bearer ' + token;
+                }
+            }
+            return _originalFetch(url, options).then(response => {
+                if (response.status === 401) {
+                    sessionStorage.clear();
+                    window.location.href = '/login';
+                }
+                return response;
+            });
+        };
         // Session check
         const userData = JSON.parse(sessionStorage.getItem('eduGestionUser') || 'null');
         if (!userData || !userData.estudiante_id) {
@@ -516,14 +547,7 @@
             return nombre.split(' ').filter(w => w.length > 1).map(w => w[0]).join('').substring(0, 2).toUpperCase();
         }
 
-        function colorNota(n) {
-            n = parseFloat(n);
-            if (isNaN(n) || n === 0) return 'var(--gray-400)';
-            if (n < 70) return '#ef4444';
-            if (n < 80) return '#f59e0b';
-            if (n < 95) return '#3b82f6';
-            return '#10b981';
-        }
+        function colorNota(n) { n = parseFloat(n); if (isNaN(n) || n === 0) return 'var(--gray-400)'; if (n >= 95) return '#27ae60'; if (n >= 80) return '#2980b9'; if (n >= 70) return '#e6a817'; return '#e74c3c'; }
 
         // ── Load student data ──
         async function cargarDatosEstudiante() {
@@ -690,7 +714,7 @@
                             <p>${m.profesor} • IH: ${m.intensidad}h</p>
                         </div>
                     </div>
-                    <span class="badge" style="background:${m.notaD >= 70 ? 'var(--success)' : m.notaD > 0 ? '#ef4444' : 'var(--gray-400)'};color:#fff;font-size:0.75rem">${m.notaD || '—'}</span>
+                    <span class="badge" style="background:${!m.notaD ? 'var(--gray-400)' : m.notaD >= 95 ? '#27ae60' : m.notaD >= 80 ? '#2980b9' : m.notaD >= 70 ? '#e6a817' : '#e74c3c'};color:#fff;font-size:0.75rem">${m.notaD || '—'}</span>
                 </div>`;
             });
             container.innerHTML = html || '<p style="text-align:center;color:var(--gray-400);padding:20px">Sin materias</p>';

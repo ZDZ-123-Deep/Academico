@@ -50,3 +50,11 @@ tmp_*.js
 # Archivos de diagnóstico
 *.docx
 *.pdf
+
+# SEGURIDAD: Dumps de base de datos (contienen datos sensibles)
+mongodump*/
+*.bson
+*.metadata.json
+
+# SEGURIDAD: Scripts con credenciales
+check_types.js

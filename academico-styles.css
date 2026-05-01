@@ -708,6 +708,11 @@ input:checked+.slider:before {
     color: var(--primary)
 }
 
+.badge-info {
+    background: #dbeafe;
+    color: #2980b9
+}
+
 .actions {
     display: flex;
     gap: 8px
@@ -1031,6 +1036,11 @@ body.dark-mode .badge-danger {
 body.dark-mode .badge-violet {
     background: rgba(108, 99, 255, 0.2);
     color: #a78bfa
+}
+
+body.dark-mode .badge-info {
+    background: rgba(41, 128, 185, 0.2);
+    color: #60a5fa
 }
 
 body.dark-mode .mensaje.exito {

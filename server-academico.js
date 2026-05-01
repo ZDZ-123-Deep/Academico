@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Load environment variables
 const dotenv = require('dotenv');
@@ -14,18 +16,146 @@ const academicoRoutes = require('./routes/academico.routes');
 
 const app = express();
 const port = process.env.PORT || 5001;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // ========================================
-// 📌 Middleware
+// 🔒 SEGURIDAD - Headers HTTP
 // ========================================
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Helmet configura headers de seguridad automáticamente:
+// X-Content-Type-Options, X-Frame-Options, X-XSS-Protection,
+// Strict-Transport-Security, Content-Security-Policy, etc.
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com"
+            ],
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://fonts.googleapis.com",
+                "https://cdnjs.cloudflare.com",
+                "https://cdn.jsdelivr.net"
+            ],
+            fontSrc: [
+                "'self'",
+                "https://fonts.gstatic.com",
+                "https://cdnjs.cloudflare.com"
+            ],
+            imgSrc: ["'self'", "data:", "blob:"],
+            connectSrc: ["'self'"]
+        }
+    },
+    crossOriginEmbedderPolicy: false
+}));
 
 // ========================================
-// 📌 Archivos estáticos
+// 🔒 SEGURIDAD - CORS restringido
 // ========================================
-app.use(express.static(path.join(__dirname)));
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['http://localhost:5001', 'http://localhost:8080'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permitir requests sin origin (mobile apps, curl, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        }
+        return callback(new Error('Origen no permitido por CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true
+}));
+
+// ========================================
+// 🔒 SEGURIDAD - Rate Limiting
+// ========================================
+// Límite general: 200 requests por minuto por IP
+const generalLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Demasiadas solicitudes, intente de nuevo en un momento' }
+});
+
+// Límite estricto para login: 10 intentos por 15 minutos por IP
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Demasiados intentos de inicio de sesión. Espere 15 minutos.' }
+});
+
+app.use('/api', generalLimiter);
+app.use('/api/auth/login', loginLimiter);
+
+// ========================================
+// 📌 Body parsers
+// ========================================
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ========================================
+// 🔒 SEGURIDAD - Bloquear archivos sensibles
+// ========================================
+// CRÍTICO: Evitar acceso a mongodump, scripts con credenciales,
+// archivos de configuración y archivos internos del servidor
+app.use((req, res, next) => {
+    const blocked = [
+        /^\/mongodump/i,
+        /^\/\.env/i,
+        /^\/\.git/i,
+        /^\/config\//i,
+        /^\/models\//i,
+        /^\/routes\//i,
+        /^\/node_modules\//i,
+        /^\/check_types\.js/i,
+        /^\/tmp_/i,
+        /^\/server-academico\.js/i,
+        /^\/package\.json/i,
+        /^\/package-lock\.json/i,
+        /^\/Dockerfile/i,
+        /^\/\.dockerignore/i,
+        /^\/\.gitignore/i
+    ];
+
+    if (blocked.some(pattern => pattern.test(req.path))) {
+        return res.status(403).json({ error: 'Acceso denegado' });
+    }
+    next();
+});
+
+// ========================================
+// 📌 Archivos estáticos (solo HTML y assets)
+// ========================================
+app.use(express.static(path.join(__dirname), {
+    dotfiles: 'deny',
+    index: false
+}));
+
+// ========================================
+// 🔒 SEGURIDAD - JWT para proteger API
+// ========================================
+const { verificarToken } = require('./middleware/auth');
+
+// Proteger TODAS las rutas /api/* EXCEPTO login y health
+app.use('/api', (req, res, next) => {
+    // Rutas públicas (no requieren token)
+    const rutasPublicas = ['/auth/login', '/health'];
+    if (rutasPublicas.some(ruta => req.path === ruta)) {
+        return next();
+    }
+    // Todas las demás rutas requieren JWT válido
+    verificarToken(req, res, next);
+});
 
 // ========================================
 // 📌 Rutas API
@@ -55,20 +185,36 @@ app.get('/api/health', (req, res) => {
 });
 
 // ========================================
+// 🔒 SEGURIDAD - Manejo global de errores
+// ========================================
+// No enviar error.message en producción para evitar fuga de información
+app.use((err, req, res, next) => {
+    if (err.message && err.message.includes('CORS')) {
+        return res.status(403).json({ error: 'Origen no permitido' });
+    }
+    console.error('Error no manejado:', err.message);
+    res.status(500).json({
+        error: isProduction ? 'Error interno del servidor' : err.message
+    });
+});
+
+// ========================================
 // 📌 Conexión a DB y arranque
 // ========================================
 (async () => {
     try {
         await conectarDB();
         app.listen(port, () => {
-            console.log(`🎓 Servidor Académico corriendo en http://localhost:${port}`);
-            console.log(`📚 Panel Admin: http://localhost:${port}/admin`);
-            console.log(`👨‍🏫 Panel Profesor: http://localhost:${port}/profesor`);
-            console.log(`👨‍🎓 Panel Estudiante: http://localhost:${port}/estudiante`);
-            console.log(`👨‍👩‍👧 Panel Padre: http://localhost:${port}/padre`);
+            console.log(`🎓 Servidor Académico corriendo en puerto ${port}`);
+            if (!isProduction) {
+                console.log(`📚 Panel Admin: http://localhost:${port}/admin`);
+                console.log(`👨‍🏫 Panel Profesor: http://localhost:${port}/profesor`);
+                console.log(`👨‍🎓 Panel Estudiante: http://localhost:${port}/estudiante`);
+                console.log(`👨‍👩‍👧 Panel Padre: http://localhost:${port}/padre`);
+            }
         });
     } catch (err) {
-        console.error('❌ Error al iniciar servidor académico:', err);
+        console.error('❌ Error al iniciar servidor académico:', err.message);
         process.exit(1);
     }
 })();

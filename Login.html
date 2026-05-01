@@ -17,8 +17,17 @@
     <meta property="og:description" content="Plataforma integral de gestión académica para instituciones educativas" />
     <meta property="og:type" content="website" />
 
-    <!-- BOOTSTRAP -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- PERFORMANCE: Resource hints para CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <!-- BOOTSTRAP (non-render-blocking: custom CSS cubre todo el diseño) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" media="print" onload="this.media='all'">
 
     <!-- ICONOS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -321,7 +330,7 @@
     </div>
 
     <!-- JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
 
     <script>
         // ====== Cambio de rol ======
@@ -425,8 +434,9 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    // Guardar sesión
+                    // Guardar sesión y token JWT
                     sessionStorage.setItem('eduGestionUser', JSON.stringify(data.usuario));
+                    sessionStorage.setItem('eduGestionToken', data.token);
 
                     successMessage.querySelector('#successText').textContent = `¡Bienvenido, ${data.usuario.name || data.usuario.nombres}! Redirigiendo...`;
                     successMessage.classList.add('show');
