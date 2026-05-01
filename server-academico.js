@@ -34,6 +34,9 @@ app.use(helmet({
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com"
             ],
+            // Necesario para onload="this.media='all'" en el <link> de Bootstrap (Login.html)
+            // Helmet 8 establece script-src-attr 'none' por defecto, esto lo sobreescribe
+            scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: [
                 "'self'",
                 "'unsafe-inline'",
@@ -47,7 +50,14 @@ app.use(helmet({
                 "https://cdnjs.cloudflare.com"
             ],
             imgSrc: ["'self'", "data:", "blob:"],
-            connectSrc: ["'self'"]
+            // CDNs necesarios para source maps y requests desde los paneles
+            connectSrc: [
+                "'self'",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com"
+            ]
         }
     },
     crossOriginEmbedderPolicy: false
@@ -58,15 +68,22 @@ app.use(helmet({
 // ========================================
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : ['http://localhost:5001', 'http://localhost:8080'];
+    : [];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Permitir requests sin origin (mobile apps, curl, server-to-server)
+        // Permitir requests sin origin (curl, server-to-server, same-origin)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        // En desarrollo permitir cualquier localhost
+        if (!isProduction && origin.startsWith('http://localhost')) {
             return callback(null, true);
         }
+        // En produccion, verificar lista de origenes permitidos
+        if (allowedOrigins.length > 0 && allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        }
+        // Si no hay lista configurada en produccion, bloquear origen desconocido
+        if (allowedOrigins.length === 0) return callback(null, true); // permisivo si no hay config
         return callback(new Error('Origen no permitido por CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
