@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -2001,11 +2001,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ⚙️ CONFIGURACIÓN AVANZADA -->
-<div class="section" id="secConfigAvanzada">
+            <!-- ⚙️ CONFIGURACIÓN AVANZADA -->
+            <div class="section" id="secConfigAvanzada">
     <div class="card" style="padding:0;overflow:hidden">
         <!-- Tab navigation -->
         <div class="cfg-tabs" id="cfgTabs">
@@ -2214,9 +2212,11 @@
             <div id="sistemaFecha" style="margin-top:16px;font-size:0.8rem;color:var(--gray-400);text-align:right"></div>
         </div>
     </div>
-</div>
+        </div>
+    </div>
 
-<!-- MODAL USUARIO SISTEMA -->
+    <!-- MODAL USUARIO SISTEMA -->
+
 <div class="modal" id="modalUsuarioSistema">
     <div class="modal-content" style="max-width:480px">
         <div class="modal-header">
@@ -6917,6 +6917,7 @@
         let _cfgEmpresa = {};
         let _cfgUsuariosSistema = [];
         let _cfgAccesoModulos = {};
+        let _usuariosCargados = false;
 
         // Módulos configurables por rol
         const MODULOS_ACCESO = [
@@ -6945,7 +6946,7 @@
             document.querySelectorAll('.cfg-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('cfgTab-' + tab).classList.add('active');
-            if (tab === 'usuarios' && _cfgUsuariosSistema.length === 0) cargarUsuariosSistema();
+            if (tab === 'usuarios' && !_usuariosCargados) cargarUsuariosSistema();
             if (tab === 'acceso') renderTablaAcceso();
             if (tab === 'sistema') cargarSistemaStats();
             if (tab === 'academico') renderFechasPeriodos();
@@ -7077,6 +7078,7 @@
 
         // --- Tab 2: Usuarios del sistema ---
         async function cargarUsuariosSistema() {
+            _usuariosCargados = true;
             const res = await fetch(`${API}/usuarios-sistema`);
             _cfgUsuariosSistema = await res.json();
             renderTablaUsuarios();
