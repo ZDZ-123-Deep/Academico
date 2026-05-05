@@ -1,0 +1,58 @@
+feat: Configuracion Avanzada — panel completo de administracion del sistema
+
+BACKEND - 12 nuevas rutas en academico.routes.js:
+- GET/POST/PUT/DELETE /usuarios-sistema — CRUD de cuentas con bcrypt
+- PUT /usuarios-sistema/:id/password — cambio de contrasena seguro
+- GET/PUT /empresa/apariencia — colores, tipografia, tema, radius
+- GET/PUT /empresa/acceso-modulos — control de acceso por rol y modulo
+- GET/PUT /empresa/academico-config — escalas desempeno, fechas periodos
+- GET /sistema/stats — estadisticas de la BD en tiempo real
+
+FRONTEND - VistaAdmin.html:
+- Nuevo nav item "Configuracion Avanzada" con badge NUEVO en sidebar
+- Seccion secConfigAvanzada con 6 pestanas:
+
+  Tab 1 — Institucion:
+  - Upload de logo y logo de boletines (base64, max 2MB)
+  - Nombre, NIT, direccion, telefono, email, rector, jornada
+  - Lema, Mision, Vision institucional
+  - Escala de calificaciones y periodos
+
+  Tab 2 — Usuarios:
+  - Tabla paginada con rol, estado, cuenta
+  - Modal para crear/editar usuarios (bcrypt automatico)
+  - Eliminar con confirmacion
+  - Badges visuales por rol y estado
+
+  Tab 3 — Control de Acceso:
+  - Tabla de toggles (modulo x rol)
+  - 17 modulos configurables para 4 roles
+  - Guarda en empresa.acceso_modulos
+
+  Tab 4 — Apariencia:
+  - Color primario, secundario, acento con color pickers
+  - Tipografia (7 Google Fonts disponibles)
+  - Tema por defecto (claro/oscuro/auto)
+  - Radio de bordes
+  - Preview en tiempo real de colores y fuente
+
+  Tab 5 — Academico Avanzado:
+  - Escalas de desempeno editables (nombre, min, max, color)
+  - Fechas de inicio/fin por periodo academico
+
+  Tab 6 — Sistema:
+  - Grid de estadisticas de la BD (6 colecciones)
+  - Cambio de contrasena con verificacion de actual
+  - Exportar configuracion completa como JSON
+  - Actualizacion de stats en tiempo real
+
+CSS (academico-styles.css):
+- Sistema de pestanas cfg-tabs/cfg-panel con animacion fadeIn
+- Toggle switches para control de acceso
+- Badge NUEVO animado en nav item
+- Responsive: tabs se comprimen en mobile
+
+UX:
+- Toast global para feedback (exito/error) en todas las operaciones
+- Preview de fuente en tiempo real al cambiar tipografia
+- Aplicacion automatica de colores personalizados al cargar el panel

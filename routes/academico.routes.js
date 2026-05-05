@@ -2194,4 +2194,134 @@ router.delete('/admin/notificaciones/:id', async (req, res) => {
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
+// ========================================
+// ⚙️ CONFIGURACIÓN AVANZADA — Usuarios del sistema
+// ========================================
+router.get('/usuarios-sistema', async (req, res) => {
+    try {
+        const usuarios = await UsuarioGA.find({}).select('-password').lean();
+        res.json(usuarios);
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.post('/usuarios-sistema', async (req, res) => {
+    try {
+        const { cuenta, password, name, level, estado } = req.body;
+        if (!cuenta || !password || !level) return res.status(400).json({ error: 'Cuenta, contraseña y nivel son obligatorios' });
+        const existe = await UsuarioGA.findOne({ cuenta }).lean();
+        if (existe) return res.status(409).json({ error: 'Ya existe un usuario con esa cuenta' });
+        const hash = await bcrypt.hash(password, 10);
+        const nuevo = new UsuarioGA({ cuenta, password: hash, name: name || cuenta, level, estado: estado || 'A' });
+        await nuevo.save();
+        const obj = nuevo.toObject();
+        delete obj.password;
+        res.status(201).json({ success: true, usuario: obj });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/usuarios-sistema/:id', async (req, res) => {
+    try {
+        const { name, level, estado, password } = req.body;
+        const update = {};
+        if (name !== undefined) update.name = name;
+        if (level !== undefined) update.level = level;
+        if (estado !== undefined) update.estado = estado;
+        if (password && password.trim()) update.password = await bcrypt.hash(password.trim(), 10);
+        const usuario = await UsuarioGA.findByIdAndUpdate(req.params.id, { $set: update }, { new: true }).select('-password').lean();
+        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+        res.json({ success: true, usuario });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.delete('/usuarios-sistema/:id', async (req, res) => {
+    try {
+        await UsuarioGA.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/usuarios-sistema/:id/password', async (req, res) => {
+    try {
+        const { actual, nueva } = req.body;
+        if (!actual || !nueva) return res.status(400).json({ error: 'Se requiere la contraseña actual y la nueva' });
+        const usuario = await UsuarioGA.findById(req.params.id).lean();
+        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+        const valid = usuario.password && usuario.password.startsWith('$2')
+            ? await bcrypt.compare(actual, usuario.password)
+            : (usuario.password === actual);
+        if (!valid) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+        await UsuarioGA.findByIdAndUpdate(req.params.id, { $set: { password: await bcrypt.hash(nueva, 10) } });
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// ⚙️ CONFIGURACIÓN AVANZADA — Apariencia
+router.get('/empresa/apariencia', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne().lean();
+        res.json(emp ? (emp.apariencia || {}) : {});
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/empresa/apariencia', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne();
+        if (!emp) return res.status(404).json({ error: 'Configuración no encontrada' });
+        emp.set('apariencia', req.body);
+        await emp.save();
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// ⚙️ CONFIGURACIÓN AVANZADA — Control de acceso por módulo
+router.get('/empresa/acceso-modulos', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne().lean();
+        res.json(emp ? (emp.acceso_modulos || {}) : {});
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/empresa/acceso-modulos', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne();
+        if (!emp) return res.status(404).json({ error: 'Configuración no encontrada' });
+        emp.set('acceso_modulos', req.body);
+        await emp.save();
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// ⚙️ CONFIGURACIÓN AVANZADA — Parámetros académicos avanzados
+router.get('/empresa/academico-config', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne().lean();
+        res.json(emp ? (emp.academico_avanzado || {}) : {});
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/empresa/academico-config', async (req, res) => {
+    try {
+        const emp = await Empresa.findOne();
+        if (!emp) return res.status(404).json({ error: 'Configuración no encontrada' });
+        emp.set('academico_avanzado', req.body);
+        await emp.save();
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// ⚙️ CONFIGURACIÓN AVANZADA — Estadísticas del sistema
+router.get('/sistema/stats', async (req, res) => {
+    try {
+        const [usuarios, estudiantes, docentes, acudientes, cursos, asignaturas] = await Promise.all([
+            UsuarioGA.countDocuments({}),
+            Estudiante.countDocuments({ estado_est: { $ne: 'R' } }),
+            Docente.countDocuments({ estado: 'A' }),
+            Acudiente.countDocuments({ estado: 'A' }),
+            Curso.countDocuments({ estado: 'A' }),
+            Asignatura.countDocuments({ estado: 'A' })
+        ]);
+        res.json({ usuarios, estudiantes, docentes, acudientes, cursos, asignaturas, fecha: new Date().toISOString() });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
 module.exports = router;

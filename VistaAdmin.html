@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -105,6 +105,9 @@
                 </button>
                 <button class="nav-item" onclick="mostrarSeccion('configuracion',this)">
                     <i class="fas fa-cog"></i> Configuración
+                </button>
+                <button class="nav-item" id="navConfigAvanzada" onclick="mostrarSeccion('configAvanzada',this)">
+                    <i class="fas fa-sliders-h"></i> Configuración Avanzada
                 </button>
                 <button class="nav-item" onclick="mostrarSeccion('notificaciones',this)">
                     <i class="fas fa-bell"></i> Notificaciones
@@ -2001,6 +2004,256 @@
         </div>
     </div>
 
+    <!-- ⚙️ CONFIGURACIÓN AVANZADA -->
+<div class="section" id="secConfigAvanzada">
+    <div class="card" style="padding:0;overflow:hidden">
+        <!-- Tab navigation -->
+        <div class="cfg-tabs" id="cfgTabs">
+            <button class="cfg-tab active" onclick="switchCfgTab('institucion',this)"><i class="fas fa-school"></i> Institución</button>
+            <button class="cfg-tab" onclick="switchCfgTab('usuarios',this)"><i class="fas fa-users-cog"></i> Usuarios</button>
+            <button class="cfg-tab" onclick="switchCfgTab('acceso',this)"><i class="fas fa-shield-alt"></i> Control de Acceso</button>
+            <button class="cfg-tab" onclick="switchCfgTab('apariencia',this)"><i class="fas fa-palette"></i> Apariencia</button>
+            <button class="cfg-tab" onclick="switchCfgTab('academico',this)"><i class="fas fa-graduation-cap"></i> Académico</button>
+            <button class="cfg-tab" onclick="switchCfgTab('sistema',this)"><i class="fas fa-server"></i> Sistema</button>
+        </div>
+
+        <!-- TAB 1: INSTITUCIÓN -->
+        <div class="cfg-panel active" id="cfgTab-institucion" style="padding:24px">
+            <div class="form-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+                <div class="form-group" style="grid-column:span 2">
+                    <label class="form-label">Logo de la Institución</label>
+                    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+                        <div id="logoPreview" style="width:96px;height:96px;border-radius:16px;background:var(--gray-100);border:2px dashed var(--gray-300);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="document.getElementById('logoFileInput').click()">
+                            <img id="logoImg" src="" style="width:100%;height:100%;object-fit:contain;display:none">
+                            <i class="fas fa-image" style="font-size:2rem;color:var(--gray-400);display:block" id="logoPlaceholder"></i>
+                        </div>
+                        <div>
+                            <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="previewLogo(this,'logo')">
+                            <button class="btn btn-secondary" style="font-size:0.85rem" onclick="document.getElementById('logoFileInput').click()"><i class="fas fa-upload"></i> Subir logo</button>
+                            <button class="btn btn-secondary" style="font-size:0.85rem;margin-left:8px;background:var(--danger-light,#fee2e2);color:var(--danger)" onclick="eliminarLogo('logo')"><i class="fas fa-trash"></i></button>
+                            <p style="font-size:0.75rem;color:var(--gray-400);margin-top:6px">PNG, JPG, SVG. Máx 2MB</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column:span 2">
+                    <label class="form-label">Logo para Boletines (opcional)</label>
+                    <div style="display:flex;align-items:center;gap:20px">
+                        <div id="logoBolPreview" style="width:80px;height:80px;border-radius:12px;background:var(--gray-100);border:2px dashed var(--gray-300);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="document.getElementById('logoBolFileInput').click()">
+                            <img id="logoBolImg" src="" style="width:100%;height:100%;object-fit:contain;display:none">
+                            <i class="fas fa-file-image" style="font-size:1.5rem;color:var(--gray-400)" id="logoBolPlaceholder"></i>
+                        </div>
+                        <div>
+                            <input type="file" id="logoBolFileInput" accept="image/*" style="display:none" onchange="previewLogo(this,'logoBol')">
+                            <button class="btn btn-secondary" style="font-size:0.85rem" onclick="document.getElementById('logoBolFileInput').click()"><i class="fas fa-upload"></i> Subir</button>
+                            <button class="btn btn-secondary" style="font-size:0.85rem;margin-left:8px;background:var(--danger-light,#fee2e2);color:var(--danger)" onclick="eliminarLogo('logoBol')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Nombre de la Institución</label><input class="form-input" id="advNombre"></div>
+                <div class="form-group"><label class="form-label">NIT</label><input class="form-input" id="advNit"></div>
+                <div class="form-group"><label class="form-label">Dirección</label><input class="form-input" id="advDireccion"></div>
+                <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="advTelefono"></div>
+                <div class="form-group"><label class="form-label">Email Institucional</label><input class="form-input" type="email" id="advEmail"></div>
+                <div class="form-group"><label class="form-label">Rector(a)</label><input class="form-input" id="advRector"></div>
+                <div class="form-group"><label class="form-label">Año Lectivo</label><input class="form-input" type="number" id="advAnio" value="2026"></div>
+                <div class="form-group"><label class="form-label">Jornada</label><select class="form-input" id="advJornada"><option>Mañana</option><option>Tarde</option><option>Completa</option><option>Nocturna</option></select></div>
+                <div class="form-group"><label class="form-label">Periodos Académicos</label><select class="form-input" id="advPeriodos"><option value="3">3 Periodos</option><option value="4">4 Periodos</option></select></div>
+                <div class="form-group"><label class="form-label">Nota Mínima</label><input class="form-input" type="number" step="0.1" id="advNotaMin"></div>
+                <div class="form-group"><label class="form-label">Nota Máxima</label><input class="form-input" type="number" step="0.1" id="advNotaMax"></div>
+                <div class="form-group"><label class="form-label">Nota Aprobatoria</label><input class="form-input" type="number" step="0.1" id="advNotaAprobatoria"></div>
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Lema Institucional</label><input class="form-input" id="advLema" placeholder="Ej: Formando líderes del mañana"></div>
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Misión</label><textarea class="form-input" id="advMision" rows="3" placeholder="Misión institucional..."></textarea></div>
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Visión</label><textarea class="form-input" id="advVision" rows="3" placeholder="Visión institucional..."></textarea></div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:12px;justify-content:flex-end">
+                <button class="btn btn-secondary" onclick="initConfigAvanzada()"><i class="fas fa-undo"></i> Restablecer</button>
+                <button class="btn btn-primary" onclick="guardarInstitucion()"><i class="fas fa-save"></i> Guardar Institución</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: USUARIOS -->
+        <div class="cfg-panel" id="cfgTab-usuarios" style="padding:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+                <h4 style="margin:0;font-size:1rem;color:var(--text-primary)"><i class="fas fa-users-cog" style="color:var(--primary)"></i> Cuentas del Sistema</h4>
+                <button class="btn btn-primary" onclick="abrirModalUsuario()"><i class="fas fa-plus"></i> Nuevo Usuario</button>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="data-table" id="tablaUsuariosSistema">
+                    <thead><tr><th>Cuenta</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody id="tbodyUsuariosSistema"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: CONTROL DE ACCESO -->
+        <div class="cfg-panel" id="cfgTab-acceso" style="padding:24px">
+            <p style="color:var(--gray-500);font-size:0.875rem;margin-bottom:20px">Define qué módulos son visibles para cada rol. Los cambios aplican al próximo inicio de sesión de cada usuario.</p>
+            <div style="overflow-x:auto">
+                <table class="data-table" id="tablaAcceso">
+                    <thead><tr><th>Módulo / Sección</th><th style="text-align:center"><i class="fas fa-user-shield" style="color:#6366f1"></i> Admin</th><th style="text-align:center"><i class="fas fa-chalkboard-teacher" style="color:#10b981"></i> Profesor</th><th style="text-align:center"><i class="fas fa-user-graduate" style="color:#f59e0b"></i> Estudiante</th><th style="text-align:center"><i class="fas fa-user-friends" style="color:#ec4899"></i> Padre</th></tr></thead>
+                    <tbody id="tbodyAcceso"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:20px;display:flex;justify-content:flex-end">
+                <button class="btn btn-primary" onclick="guardarAccesoModulos()"><i class="fas fa-save"></i> Guardar Control de Acceso</button>
+            </div>
+        </div>
+
+        <!-- TAB 4: APARIENCIA -->
+        <div class="cfg-panel" id="cfgTab-apariencia" style="padding:24px">
+            <div class="form-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px">
+                <div class="form-group">
+                    <label class="form-label">Color Primario</label>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <input type="color" id="aparienciaColorPrimario" value="#6366f1" style="width:48px;height:40px;border:none;border-radius:8px;cursor:pointer;padding:2px">
+                        <input class="form-input" id="aparienciaColorPrimarioHex" value="#6366f1" style="font-family:monospace" onchange="syncColor('aparienciaColorPrimario',this.value)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color Secundario</label>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <input type="color" id="aparienciaColorSecundario" value="#8b5cf6" style="width:48px;height:40px;border:none;border-radius:8px;cursor:pointer;padding:2px">
+                        <input class="form-input" id="aparienciaColorSecundarioHex" value="#8b5cf6" style="font-family:monospace" onchange="syncColor('aparienciaColorSecundario',this.value)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color de Acento</label>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <input type="color" id="aparienciaColorAccent" value="#10b981" style="width:48px;height:40px;border:none;border-radius:8px;cursor:pointer;padding:2px">
+                        <input class="form-input" id="aparienciaColorAccentHex" value="#10b981" style="font-family:monospace" onchange="syncColor('aparienciaColorAccent',this.value)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tipografía</label>
+                    <select class="form-input" id="aparienciaFuente" onchange="previewFuente(this.value)">
+                        <option value="Inter">Inter (por defecto)</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Nunito">Nunito</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Outfit">Outfit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tema por defecto</label>
+                    <select class="form-input" id="aparienciaTema">
+                        <option value="light">☀️ Claro</option>
+                        <option value="dark">🌙 Oscuro</option>
+                        <option value="auto">⚙️ Seguir sistema</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Radio de bordes</label>
+                    <select class="form-input" id="aparienciaRadius">
+                        <option value="4px">Cuadrado (4px)</option>
+                        <option value="8px" selected>Normal (8px)</option>
+                        <option value="16px">Redondeado (16px)</option>
+                        <option value="24px">Muy redondeado (24px)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:16px;padding:16px;background:var(--gray-50,#f9fafb);border-radius:12px;border:1px solid var(--gray-200)">
+                <p style="margin:0;font-size:0.85rem;color:var(--gray-500)"><i class="fas fa-eye"></i> Vista previa — los cambios se aplican en tiempo real en esta pantalla</p>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:12px;justify-content:flex-end">
+                <button class="btn btn-secondary" onclick="resetApariencia()"><i class="fas fa-undo"></i> Restablecer</button>
+                <button class="btn btn-primary" onclick="guardarApariencia()"><i class="fas fa-save"></i> Guardar Apariencia</button>
+            </div>
+        </div>
+
+        <!-- TAB 5: ACADÉMICO AVANZADO -->
+        <div class="cfg-panel" id="cfgTab-academico" style="padding:24px">
+            <h4 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem"><i class="fas fa-graduation-cap" style="color:var(--primary)"></i> Escalas de Desempeño</h4>
+            <p style="color:var(--gray-500);font-size:0.85rem;margin-bottom:16px">Define los rangos para cada nivel de desempeño académico.</p>
+            <div style="overflow-x:auto">
+                <table class="data-table" id="tablaEscalas">
+                    <thead><tr><th>Nivel</th><th>Nota Mínima</th><th>Nota Máxima</th><th>Color</th></tr></thead>
+                    <tbody id="tbodyEscalas">
+                        <tr><td><input class="form-input" value="SUPERIOR" id="esc0_nombre" style="font-weight:600;color:#10b981"></td><td><input class="form-input" type="number" step="0.01" id="esc0_min" value="4.6"></td><td><input class="form-input" type="number" step="0.01" id="esc0_max" value="5.0"></td><td><input type="color" id="esc0_color" value="#10b981" style="width:40px;height:34px;border:none;border-radius:6px;cursor:pointer"></td></tr>
+                        <tr><td><input class="form-input" value="ALTO" id="esc1_nombre" style="font-weight:600;color:#2980b9"></td><td><input class="form-input" type="number" step="0.01" id="esc1_min" value="4.0"></td><td><input class="form-input" type="number" step="0.01" id="esc1_max" value="4.5"></td><td><input type="color" id="esc1_color" value="#2980b9" style="width:40px;height:34px;border:none;border-radius:6px;cursor:pointer"></td></tr>
+                        <tr><td><input class="form-input" value="BÁSICO" id="esc2_nombre" style="font-weight:600;color:#f59e0b"></td><td><input class="form-input" type="number" step="0.01" id="esc2_min" value="3.0"></td><td><input class="form-input" type="number" step="0.01" id="esc2_max" value="3.9"></td><td><input type="color" id="esc2_color" value="#f59e0b" style="width:40px;height:34px;border:none;border-radius:6px;cursor:pointer"></td></tr>
+                        <tr><td><input class="form-input" value="BAJO" id="esc3_nombre" style="font-weight:600;color:#e74c3c"></td><td><input class="form-input" type="number" step="0.01" id="esc3_min" value="0.0"></td><td><input class="form-input" type="number" step="0.01" id="esc3_max" value="2.9"></td><td><input type="color" id="esc3_color" value="#e74c3c" style="width:40px;height:34px;border:none;border-radius:6px;cursor:pointer"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:24px">
+                <h4 style="margin:0 0 12px;color:var(--text-primary);font-size:1rem"><i class="fas fa-calendar-alt" style="color:var(--primary)"></i> Fechas de Periodos</h4>
+                <div class="form-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px" id="gridFechasPeriodos"></div>
+            </div>
+            <div style="margin-top:20px;display:flex;justify-content:flex-end">
+                <button class="btn btn-primary" onclick="guardarAcademicoConfig()"><i class="fas fa-save"></i> Guardar Configuración Académica</button>
+            </div>
+        </div>
+
+        <!-- TAB 6: SISTEMA -->
+        <div class="cfg-panel" id="cfgTab-sistema" style="padding:24px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-bottom:28px" id="statsGrid">
+                <div class="stat-card" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statUsuarios">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Usuarios</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statEstudiantes">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Estudiantes</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statDocentes">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Docentes</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#ec4899,#be185d);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statAcudientes">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Acudientes</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#06b6d4,#0e7490);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statCursos">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Cursos</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:16px;padding:20px;color:#fff;text-align:center"><div style="font-size:2rem;font-weight:700" id="statAsignaturas">-</div><div style="font-size:0.8rem;opacity:0.9;margin-top:4px">Asignaturas</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap">
+                <div class="card" style="padding:20px">
+                    <h4 style="margin:0 0 16px;font-size:1rem;color:var(--text-primary)"><i class="fas fa-key" style="color:var(--primary)"></i> Cambiar Contraseña</h4>
+                    <div class="form-group"><label class="form-label">Contraseña Actual</label><input class="form-input" type="password" id="pwdActual" placeholder="••••••••"></div>
+                    <div class="form-group"><label class="form-label">Nueva Contraseña</label><input class="form-input" type="password" id="pwdNueva" placeholder="••••••••"></div>
+                    <div class="form-group"><label class="form-label">Confirmar Nueva</label><input class="form-input" type="password" id="pwdConfirmar" placeholder="••••••••"></div>
+                    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="cambiarPassword()"><i class="fas fa-key"></i> Cambiar Contraseña</button>
+                </div>
+                <div class="card" style="padding:20px">
+                    <h4 style="margin:0 0 16px;font-size:1rem;color:var(--text-primary)"><i class="fas fa-download" style="color:var(--primary)"></i> Exportar Configuración</h4>
+                    <p style="color:var(--gray-500);font-size:0.875rem;margin-bottom:16px">Descarga un respaldo de toda la configuración del sistema (institución, apariencia, acceso).</p>
+                    <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onclick="exportarConfig()"><i class="fas fa-file-json"></i> Exportar JSON</button>
+                    <button class="btn btn-secondary" style="width:100%" onclick="cargarSistemaStats()"><i class="fas fa-sync"></i> Actualizar Estadísticas</button>
+                </div>
+            </div>
+            <div id="sistemaFecha" style="margin-top:16px;font-size:0.8rem;color:var(--gray-400);text-align:right"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL USUARIO SISTEMA -->
+<div class="modal" id="modalUsuarioSistema">
+    <div class="modal-content" style="max-width:480px">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalUsuarioTitulo"><i class="fas fa-user-plus" style="color:var(--primary)"></i> Nuevo Usuario</h3>
+            <button class="modal-close" onclick="document.getElementById('modalUsuarioSistema').classList.remove('show')">&times;</button>
+        </div>
+        <div class="modal-form" style="padding:20px 24px">
+            <input type="hidden" id="usuarioSistemaEditId">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Cuenta (usuario) *</label><input class="form-input" id="us_cuenta" placeholder="usuario@correo.com o alias"></div>
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Nombre completo</label><input class="form-input" id="us_name" placeholder="Nombre visible en el sistema"></div>
+                <div class="form-group"><label class="form-label">Rol *</label>
+                    <select class="form-input" id="us_level">
+                        <option value="A">Administrador</option>
+                        <option value="D">Docente / Profesor</option>
+                        <option value="E">Estudiante</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Estado</label>
+                    <select class="form-input" id="us_estado">
+                        <option value="A">Activo</option>
+                        <option value="I">Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column:span 2"><label class="form-label">Contraseña *</label><input class="form-input" type="password" id="us_password" placeholder="Mínimo 6 caracteres"></div>
+                <div class="form-group" style="grid-column:span 2" id="us_pwd_hint" style="display:none"><p style="font-size:0.8rem;color:var(--gray-400);margin:0"><i class="fas fa-info-circle"></i> Dejar en blanco para no cambiar la contraseña actual</p></div>
+            </div>
+            <div class="modal-actions" style="margin-top:16px;border-top:1px solid var(--gray-200);padding-top:16px">
+                <button class="btn btn-secondary" onclick="document.getElementById('modalUsuarioSistema').classList.remove('show')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarUsuarioSistema()"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
     <!-- MODAL INDICADOR -->
     <div class="modal" id="modalIndicador">
         <div class="modal-content" style="max-width:500px">
@@ -2830,10 +3083,10 @@
         function mostrarSeccion(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', configuracion: 'secConfiguracion', reportes: 'secReportes', notificaciones: 'secNotificaciones' };
+            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', configuracion: 'secConfiguracion', reportes: 'secReportes', notificaciones: 'secNotificaciones', configAvanzada: 'secConfigAvanzada' };
             document.getElementById(secMap[id]).classList.add('active');
             if (btn) btn.classList.add('active');
-            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', configuracion: '<span>Configuración</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>' };
+            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', configuracion: '<span>Configuración</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>', configAvanzada: '⚙️ Configuración <span>Avanzada</span>' };
             document.getElementById('headerTitle').innerHTML = titles[id] || 'Panel <span>Administrador</span>';
             if (window.innerWidth <= 768) toggleSidebar();
             // Cargar datos al navegar
@@ -2910,6 +3163,7 @@
                     case 'anuncios': await cargarAnuncios(); break;
                     case 'reportes': await cargarReportes(); break;
                     case 'configuracion': await cargarEmpresa(); break;
+                    case 'configAvanzada': await initConfigAvanzada(); break;
                 }
             } catch (err) {
                 console.error(`Error cargando ${id}:`, err);
@@ -6655,6 +6909,436 @@
             if (bell && dd && !bell.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show');
         });
         cargarNotificaciones();
+        // =============================================
+        // ⚙️ CONFIGURACIÓN AVANZADA — Funciones JS
+        // =============================================
+
+        // --- Datos en memoria ---
+        let _cfgEmpresa = {};
+        let _cfgUsuariosSistema = [];
+        let _cfgAccesoModulos = {};
+
+        // Módulos configurables por rol
+        const MODULOS_ACCESO = [
+            { id: 'estudiantes', label: 'Estudiantes', roles: ['admin'] },
+            { id: 'profesores', label: 'Docentes', roles: ['admin'] },
+            { id: 'acudientes', label: 'Acudientes', roles: ['admin'] },
+            { id: 'asignaturas', label: 'Asignaturas', roles: ['admin'] },
+            { id: 'cursos', label: 'Cursos', roles: ['admin'] },
+            { id: 'calificaciones', label: 'Calificaciones', roles: ['admin', 'profesor', 'estudiante'] },
+            { id: 'asistencia', label: 'Asistencia', roles: ['admin', 'profesor'] },
+            { id: 'observador', label: 'Observador', roles: ['admin', 'profesor'] },
+            { id: 'horarios', label: 'Horario General', roles: ['admin', 'profesor', 'estudiante'] },
+            { id: 'horarioAtencion', label: 'Horario Atención', roles: ['admin', 'profesor'] },
+            { id: 'pagos', label: 'Pagos', roles: ['admin', 'padre'] },
+            { id: 'boletines', label: 'Boletines', roles: ['admin', 'profesor'] },
+            { id: 'anuncios', label: 'Anuncios', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'logros', label: 'Logros', roles: ['admin'] },
+            { id: 'indicadores', label: 'Indicadores', roles: ['admin'] },
+            { id: 'pensum', label: 'Pensum', roles: ['admin'] },
+            { id: 'reportes', label: 'Reportes', roles: ['admin'] },
+        ];
+
+        // --- Tab switching ---
+        function switchCfgTab(tab, btn) {
+            document.querySelectorAll('.cfg-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.cfg-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('cfgTab-' + tab).classList.add('active');
+            if (tab === 'usuarios' && _cfgUsuariosSistema.length === 0) cargarUsuariosSistema();
+            if (tab === 'acceso') renderTablaAcceso();
+            if (tab === 'sistema') cargarSistemaStats();
+            if (tab === 'academico') renderFechasPeriodos();
+        }
+
+        // --- Inicialización global ---
+        async function initConfigAvanzada() {
+            try {
+                const [empRes, accRes, aparRes, acaRes] = await Promise.all([
+                    fetch(`${API}/empresa`),
+                    fetch(`${API}/empresa/acceso-modulos`),
+                    fetch(`${API}/empresa/apariencia`),
+                    fetch(`${API}/empresa/academico-config`)
+                ]);
+                _cfgEmpresa = await empRes.json() || {};
+                _cfgAccesoModulos = await accRes.json() || {};
+                const apariencia = await aparRes.json() || {};
+                const academico = await acaRes.json() || {};
+
+                // Rellenar Tab 1 — Institución
+                ['Nombre','Nit','Direccion','Telefono','Email','Rector','Lema','Mision','Vision'].forEach(k => {
+                    const el = document.getElementById('adv' + k);
+                    if (el) el.value = _cfgEmpresa[k.toLowerCase()] || _cfgEmpresa[k] || '';
+                });
+                document.getElementById('advAnio').value = _cfgEmpresa.anio || 2026;
+                document.getElementById('advJornada').value = _cfgEmpresa.jornada || 'Mañana';
+                document.getElementById('advPeriodos').value = _cfgEmpresa.periodos || '4';
+                document.getElementById('advNotaMin').value = _cfgEmpresa.nota_min || 1.0;
+                document.getElementById('advNotaMax').value = _cfgEmpresa.nota_max || 5.0;
+                document.getElementById('advNotaAprobatoria').value = _cfgEmpresa.nota_aprobatoria || 3.0;
+
+                // Logos
+                if (_cfgEmpresa.logo) setLogoPreview('logo', _cfgEmpresa.logo);
+                if (_cfgEmpresa.logo_boletin) setLogoPreview('logoBol', _cfgEmpresa.logo_boletin);
+
+                // Tab 4 — Apariencia
+                if (apariencia.color_primario) {
+                    document.getElementById('aparienciaColorPrimario').value = apariencia.color_primario;
+                    document.getElementById('aparienciaColorPrimarioHex').value = apariencia.color_primario;
+                }
+                if (apariencia.color_secundario) {
+                    document.getElementById('aparienciaColorSecundario').value = apariencia.color_secundario;
+                    document.getElementById('aparienciaColorSecundarioHex').value = apariencia.color_secundario;
+                }
+                if (apariencia.color_accent) {
+                    document.getElementById('aparienciaColorAccent').value = apariencia.color_accent;
+                    document.getElementById('aparienciaColorAccentHex').value = apariencia.color_accent;
+                }
+                if (apariencia.fuente) document.getElementById('aparienciaFuente').value = apariencia.fuente;
+                if (apariencia.tema) document.getElementById('aparienciaTema').value = apariencia.tema;
+                if (apariencia.radius) document.getElementById('aparienciaRadius').value = apariencia.radius;
+
+                // Tab 5 — Académico
+                if (academico.escalas) {
+                    academico.escalas.forEach((e, i) => {
+                        if (i < 4) {
+                            document.getElementById(`esc${i}_nombre`).value = e.nombre || '';
+                            document.getElementById(`esc${i}_min`).value = e.min ?? '';
+                            document.getElementById(`esc${i}_max`).value = e.max ?? '';
+                            if (e.color) document.getElementById(`esc${i}_color`).value = e.color;
+                        }
+                    });
+                }
+                if (academico.periodos) {
+                    window._cfgFechasPeriodos = academico.periodos;
+                    renderFechasPeriodos();
+                }
+
+                // Aplicar apariencia al DOM
+                aplicarApariencia(apariencia);
+
+            } catch(err) { console.error('initConfigAvanzada:', err); }
+        }
+
+        // --- Logos ---
+        function previewLogo(input, key) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { alert('❌ El archivo supera 2MB'); return; }
+            const reader = new FileReader();
+            reader.onload = e => {
+                window['_logo_' + key] = e.target.result;
+                setLogoPreview(key, e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+        function setLogoPreview(key, src) {
+            const img = document.getElementById(key + 'Img');
+            const placeholder = document.getElementById(key + 'Placeholder');
+            if (img) { img.src = src; img.style.display = 'block'; }
+            if (placeholder) placeholder.style.display = 'none';
+        }
+        function eliminarLogo(key) {
+            window['_logo_' + key] = null;
+            const img = document.getElementById(key + 'Img');
+            const placeholder = document.getElementById(key + 'Placeholder');
+            if (img) { img.src = ''; img.style.display = 'none'; }
+            if (placeholder) placeholder.style.display = 'block';
+        }
+
+        // --- Tab 1: Guardar Institución ---
+        async function guardarInstitucion() {
+            const body = {
+                nombre: document.getElementById('advNombre').value.trim(),
+                nit: document.getElementById('advNit').value.trim(),
+                direccion: document.getElementById('advDireccion').value.trim(),
+                telefono: document.getElementById('advTelefono').value.trim(),
+                email: document.getElementById('advEmail').value.trim(),
+                rector: document.getElementById('advRector').value.trim(),
+                lema: document.getElementById('advLema').value.trim(),
+                mision: document.getElementById('advMision').value.trim(),
+                vision: document.getElementById('advVision').value.trim(),
+                anio: parseInt(document.getElementById('advAnio').value) || 2026,
+                jornada: document.getElementById('advJornada').value,
+                periodos: document.getElementById('advPeriodos').value,
+                nota_min: parseFloat(document.getElementById('advNotaMin').value) || 1.0,
+                nota_max: parseFloat(document.getElementById('advNotaMax').value) || 5.0,
+                nota_aprobatoria: parseFloat(document.getElementById('advNotaAprobatoria').value) || 3.0,
+            };
+            if (window._logo_logo) body.logo = window._logo_logo;
+            if (window._logo_logoBol) body.logo_boletin = window._logo_logoBol;
+            if (window._logo_logo === null) body.logo = '';
+            if (window._logo_logoBol === null) body.logo_boletin = '';
+            const res = await fetch(`${API}/empresa`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (data.success) mostrarToast('✅ Institución guardada correctamente', 'success');
+            else mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
+        }
+
+        // --- Tab 2: Usuarios del sistema ---
+        async function cargarUsuariosSistema() {
+            const res = await fetch(`${API}/usuarios-sistema`);
+            _cfgUsuariosSistema = await res.json();
+            renderTablaUsuarios();
+        }
+        function renderTablaUsuarios() {
+            const levels = { A: '🛡️ Admin', D: '👨‍🏫 Docente', E: '🎓 Estudiante' };
+            const tbody = document.getElementById('tbodyUsuariosSistema');
+            tbody.innerHTML = _cfgUsuariosSistema.map(u => `
+                <tr>
+                    <td><code style="font-size:0.85rem">${u.cuenta || ''}</code></td>
+                    <td>${u.name || u.nombre || ''}</td>
+                    <td><span class="badge" style="background:var(--primary-light);color:var(--primary);font-size:0.78rem;padding:3px 8px;border-radius:6px">${levels[u.level] || u.level}</span></td>
+                    <td><span class="badge" style="background:${u.estado==='A'?'#dcfce7':'#fee2e2'};color:${u.estado==='A'?'#16a34a':'#dc2626'};font-size:0.78rem;padding:3px 8px;border-radius:6px">${u.estado==='A'?'Activo':'Inactivo'}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;margin-right:4px" onclick="editarUsuarioSistema('${u._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;background:#fee2e2;color:#dc2626" onclick="eliminarUsuarioSistema('${u._id}','${(u.cuenta||'').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400)">Sin usuarios</td></tr>';
+        }
+        function abrirModalUsuario() {
+            document.getElementById('modalUsuarioTitulo').innerHTML = '<i class="fas fa-user-plus" style="color:var(--primary)"></i> Nuevo Usuario';
+            document.getElementById('usuarioSistemaEditId').value = '';
+            ['us_cuenta','us_name','us_password'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('us_level').value = 'A';
+            document.getElementById('us_estado').value = 'A';
+            document.getElementById('us_cuenta').disabled = false;
+            document.getElementById('us_pwd_hint').style.display = 'none';
+            document.getElementById('modalUsuarioSistema').classList.add('show');
+        }
+        function editarUsuarioSistema(id) {
+            const u = _cfgUsuariosSistema.find(x => x._id === id);
+            if (!u) return;
+            document.getElementById('modalUsuarioTitulo').innerHTML = '<i class="fas fa-user-edit" style="color:var(--primary)"></i> Editar Usuario';
+            document.getElementById('usuarioSistemaEditId').value = id;
+            document.getElementById('us_cuenta').value = u.cuenta || '';
+            document.getElementById('us_cuenta').disabled = true;
+            document.getElementById('us_name').value = u.name || u.nombre || '';
+            document.getElementById('us_level').value = u.level || 'A';
+            document.getElementById('us_estado').value = u.estado || 'A';
+            document.getElementById('us_password').value = '';
+            document.getElementById('us_pwd_hint').style.display = 'block';
+            document.getElementById('modalUsuarioSistema').classList.add('show');
+        }
+        async function guardarUsuarioSistema() {
+            const id = document.getElementById('usuarioSistemaEditId').value;
+            const body = {
+                cuenta: document.getElementById('us_cuenta').value.trim(),
+                name: document.getElementById('us_name').value.trim(),
+                level: document.getElementById('us_level').value,
+                estado: document.getElementById('us_estado').value,
+                password: document.getElementById('us_password').value,
+            };
+            if (!id && !body.password) { mostrarToast('❌ La contraseña es obligatoria para usuarios nuevos', 'error'); return; }
+            const url = id ? `${API}/usuarios-sistema/${id}` : `${API}/usuarios-sistema`;
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (data.success || data.usuario) {
+                document.getElementById('modalUsuarioSistema').classList.remove('show');
+                mostrarToast('✅ Usuario guardado', 'success');
+                await cargarUsuariosSistema();
+            } else { mostrarToast('❌ ' + (data.error || 'Error'), 'error'); }
+        }
+        async function eliminarUsuarioSistema(id, cuenta) {
+            if (!confirm(`¿Eliminar el usuario "${cuenta}"? Esta acción no se puede deshacer.`)) return;
+            const res = await fetch(`${API}/usuarios-sistema/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) { mostrarToast('✅ Usuario eliminado', 'success'); await cargarUsuariosSistema(); }
+            else mostrarToast('❌ ' + (data.error || 'Error'), 'error');
+        }
+
+        // --- Tab 3: Control de Acceso ---
+        function renderTablaAcceso() {
+            const tbody = document.getElementById('tbodyAcceso');
+            tbody.innerHTML = MODULOS_ACCESO.map(m => {
+                const rolesCells = ['admin','profesor','estudiante','padre'].map(rol => {
+                    if (!m.roles.includes(rol)) return '<td style="text-align:center"><span style="color:var(--gray-300)">—</span></td>';
+                    const checked = _cfgAccesoModulos[m.id] ? _cfgAccesoModulos[m.id].includes(rol) : m.roles.includes(rol);
+                    return `<td style="text-align:center"><label class="toggle-switch"><input type="checkbox" id="acc_${m.id}_${rol}" ${checked ? 'checked' : ''}><span class="toggle-slider"></span></label></td>`;
+                }).join('');
+                return `<tr><td style="font-weight:500">${m.label}</td>${rolesCells}</tr>`;
+            }).join('');
+        }
+        async function guardarAccesoModulos() {
+            const result = {};
+            MODULOS_ACCESO.forEach(m => {
+                result[m.id] = ['admin','profesor','estudiante','padre'].filter(rol => {
+                    const el = document.getElementById(`acc_${m.id}_${rol}`);
+                    return el && el.checked;
+                });
+            });
+            const res = await fetch(`${API}/empresa/acceso-modulos`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result) });
+            const data = await res.json();
+            if (data.success) { _cfgAccesoModulos = result; mostrarToast('✅ Control de acceso guardado', 'success'); }
+            else mostrarToast('❌ ' + (data.error || 'Error'), 'error');
+        }
+
+        // --- Tab 4: Apariencia ---
+        function syncColor(inputId, value) {
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) document.getElementById(inputId).value = value;
+        }
+        document.getElementById('aparienciaColorPrimario').addEventListener('input', function() {
+            document.getElementById('aparienciaColorPrimarioHex').value = this.value;
+            document.documentElement.style.setProperty('--primary', this.value);
+        });
+        document.getElementById('aparienciaColorSecundario').addEventListener('input', function() {
+            document.getElementById('aparienciaColorSecundarioHex').value = this.value;
+        });
+        document.getElementById('aparienciaColorAccent').addEventListener('input', function() {
+            document.getElementById('aparienciaColorAccentHex').value = this.value;
+            document.documentElement.style.setProperty('--accent', this.value);
+        });
+        document.getElementById('aparienciaRadius').addEventListener('change', function() {
+            document.documentElement.style.setProperty('--radius', this.value);
+        });
+        function previewFuente(font) {
+            const link = document.getElementById('customFontLink') || (() => {
+                const l = document.createElement('link'); l.id = 'customFontLink'; l.rel = 'stylesheet';
+                document.head.appendChild(l); return l;
+            })();
+            link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g,'+')}:wght@400;500;600;700&display=swap`;
+            document.body.style.fontFamily = `'${font}', sans-serif`;
+        }
+        function aplicarApariencia(ap) {
+            if (!ap) return;
+            if (ap.color_primario) document.documentElement.style.setProperty('--primary', ap.color_primario);
+            if (ap.color_accent) document.documentElement.style.setProperty('--accent', ap.color_accent);
+            if (ap.radius) document.documentElement.style.setProperty('--radius', ap.radius);
+            if (ap.fuente) previewFuente(ap.fuente);
+        }
+        function resetApariencia() {
+            document.getElementById('aparienciaColorPrimario').value = '#6C63FF';
+            document.getElementById('aparienciaColorPrimarioHex').value = '#6C63FF';
+            document.getElementById('aparienciaColorSecundario').value = '#8b5cf6';
+            document.getElementById('aparienciaColorSecundarioHex').value = '#8b5cf6';
+            document.getElementById('aparienciaColorAccent').value = '#FF6584';
+            document.getElementById('aparienciaColorAccentHex').value = '#FF6584';
+            document.getElementById('aparienciaFuente').value = 'Inter';
+            document.getElementById('aparienciaRadius').value = '8px';
+            document.getElementById('aparienciaTema').value = 'light';
+            document.documentElement.style.setProperty('--primary', '#6C63FF');
+            document.documentElement.style.setProperty('--accent', '#FF6584');
+            document.documentElement.style.setProperty('--radius', '8px');
+        }
+        async function guardarApariencia() {
+            const body = {
+                color_primario: document.getElementById('aparienciaColorPrimario').value,
+                color_secundario: document.getElementById('aparienciaColorSecundario').value,
+                color_accent: document.getElementById('aparienciaColorAccent').value,
+                fuente: document.getElementById('aparienciaFuente').value,
+                tema: document.getElementById('aparienciaTema').value,
+                radius: document.getElementById('aparienciaRadius').value,
+            };
+            const res = await fetch(`${API}/empresa/apariencia`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (data.success) mostrarToast('✅ Apariencia guardada y aplicada', 'success');
+            else mostrarToast('❌ ' + (data.error || 'Error'), 'error');
+        }
+
+        // --- Tab 5: Académico ---
+        function renderFechasPeriodos() {
+            const grid = document.getElementById('gridFechasPeriodos');
+            const periodos = parseInt(document.getElementById('advPeriodos')?.value || 4);
+            const saved = window._cfgFechasPeriodos || {};
+            grid.innerHTML = '';
+            for (let p = 1; p <= periodos; p++) {
+                grid.innerHTML += `
+                <div class="form-group"><label class="form-label">Periodo ${p} — Inicio</label><input class="form-input" type="date" id="pFecha${p}Ini" value="${saved[`p${p}_inicio`]||''}"></div>
+                <div class="form-group"><label class="form-label">Periodo ${p} — Fin</label><input class="form-input" type="date" id="pFecha${p}Fin" value="${saved[`p${p}_fin`]||''}"></div>`;
+            }
+        }
+        async function guardarAcademicoConfig() {
+            const escalas = [0,1,2,3].map(i => ({
+                nombre: document.getElementById(`esc${i}_nombre`)?.value || '',
+                min: parseFloat(document.getElementById(`esc${i}_min`)?.value) || 0,
+                max: parseFloat(document.getElementById(`esc${i}_max`)?.value) || 0,
+                color: document.getElementById(`esc${i}_color`)?.value || '#000000',
+            }));
+            const periodos = parseInt(document.getElementById('advPeriodos')?.value || 4);
+            const periodosFechas = {};
+            for (let p = 1; p <= periodos; p++) {
+                periodosFechas[`p${p}_inicio`] = document.getElementById(`pFecha${p}Ini`)?.value || '';
+                periodosFechas[`p${p}_fin`] = document.getElementById(`pFecha${p}Fin`)?.value || '';
+            }
+            const body = { escalas, periodos: periodosFechas };
+            const res = await fetch(`${API}/empresa/academico-config`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (data.success) mostrarToast('✅ Configuración académica guardada', 'success');
+            else mostrarToast('❌ ' + (data.error || 'Error'), 'error');
+        }
+
+        // --- Tab 6: Sistema ---
+        async function cargarSistemaStats() {
+            try {
+                const res = await fetch(`${API}/sistema/stats`);
+                const data = await res.json();
+                document.getElementById('statUsuarios').textContent = data.usuarios ?? '-';
+                document.getElementById('statEstudiantes').textContent = data.estudiantes ?? '-';
+                document.getElementById('statDocentes').textContent = data.docentes ?? '-';
+                document.getElementById('statAcudientes').textContent = data.acudientes ?? '-';
+                document.getElementById('statCursos').textContent = data.cursos ?? '-';
+                document.getElementById('statAsignaturas').textContent = data.asignaturas ?? '-';
+                if (data.fecha) document.getElementById('sistemaFecha').textContent = 'Última actualización: ' + new Date(data.fecha).toLocaleString('es-CO');
+            } catch(e) { console.error('stats:', e); }
+        }
+        async function cambiarPassword() {
+            const actual = document.getElementById('pwdActual').value;
+            const nueva = document.getElementById('pwdNueva').value;
+            const conf = document.getElementById('pwdConfirmar').value;
+            if (!actual || !nueva) { mostrarToast('❌ Completa todos los campos', 'error'); return; }
+            if (nueva !== conf) { mostrarToast('❌ Las contraseñas nuevas no coinciden', 'error'); return; }
+            if (nueva.length < 6) { mostrarToast('❌ La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+            const user = JSON.parse(sessionStorage.getItem('eduGestionUser') || '{}');
+            if (!user.id && !user._id) { mostrarToast('❌ No se encontró el usuario en sesión', 'error'); return; }
+            const uid = user._id || user.id;
+            const res = await fetch(`${API}/usuarios-sistema/${uid}/password`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actual, nueva }) });
+            const data = await res.json();
+            if (data.success) {
+                ['pwdActual','pwdNueva','pwdConfirmar'].forEach(id => document.getElementById(id).value = '');
+                mostrarToast('✅ Contraseña actualizada correctamente', 'success');
+            } else mostrarToast('❌ ' + (data.error || 'Error'), 'error');
+        }
+        async function exportarConfig() {
+            try {
+                const [empRes, aparRes, accRes, acaRes] = await Promise.all([
+                    fetch(`${API}/empresa`), fetch(`${API}/empresa/apariencia`),
+                    fetch(`${API}/empresa/acceso-modulos`), fetch(`${API}/empresa/academico-config`)
+                ]);
+                const exportData = {
+                    fecha_exportacion: new Date().toISOString(),
+                    empresa: await empRes.json(),
+                    apariencia: await aparRes.json(),
+                    acceso_modulos: await accRes.json(),
+                    academico: await acaRes.json()
+                };
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `config_edugestion_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                mostrarToast('✅ Configuración exportada', 'success');
+            } catch(e) { mostrarToast('❌ Error al exportar', 'error'); }
+        }
+
+        // --- Toast global ---
+        function mostrarToast(msg, tipo = 'success') {
+            let toast = document.getElementById('globalToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'globalToast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;color:#fff;font-size:0.9rem;font-weight:500;z-index:9999;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:opacity 0.3s,transform 0.3s;opacity:0;transform:translateY(16px)';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.background = tipo === 'success' ? '#10b981' : tipo === 'error' ? '#ef4444' : '#6366f1';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(16px)'; }, 3500);
+        }
+
+
     </script>
 </body>
 

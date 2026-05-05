@@ -2004,4 +2004,101 @@ body.dark-mode .notif-item-msg {
         height: 32px;
         font-size: 0.75rem
     }
-}
+}
+
+/* =============================================
+   ⚙️ CONFIGURACIÓN AVANZADA — Tab system
+   ============================================= */
+.cfg-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--gray-200);
+    background: var(--gray-50);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+}
+.cfg-tabs::-webkit-scrollbar { display: none; }
+
+.cfg-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.cfg-tab:hover { color: var(--primary); background: var(--primary-light); }
+.cfg-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: var(--white);
+    font-weight: 600;
+}
+
+.cfg-panel { display: none; }
+.cfg-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Toggle switch for acceso-modulos table */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--gray-300);
+    border-radius: 22px;
+    transition: 0.25s;
+}
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.25s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+/* Nav highlight for Configuración Avanzada */
+#navConfigAvanzada { position: relative; }
+#navConfigAvanzada::after {
+    content: 'NUEVO';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    background: var(--accent);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    .cfg-tab { padding: 12px 14px; font-size: 0.8rem; }
+    .cfg-tab i { display: none; }
+    #secConfigAvanzada .form-grid { grid-template-columns: 1fr !important; }
+    #secConfigAvanzada [style*="grid-column:span 2"] { grid-column: span 1 !important; }
+}
+
