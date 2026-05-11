@@ -177,6 +177,18 @@ app.use('/api', (req, res, next) => {
 // ========================================
 // 📌 Rutas API
 // ========================================
+// Middleware: garantizar conexión a DB en cada request (crítico en serverless)
+// En prod normal es instantáneo (cache hit). En cold start espera la conexión.
+app.use('/api', async (req, res, next) => {
+    try {
+        await conectarDB();
+        next();
+    } catch (err) {
+        console.error('DB no disponible:', err.message);
+        res.status(503).json({ error: 'Base de datos no disponible, intente de nuevo en unos segundos.' });
+    }
+});
+
 app.use('/api', academicoRoutes);
 
 // ========================================
