@@ -164,8 +164,8 @@
                 </div>
                 <!-- Sede selector -->
                 <div class="sede-selector" id="sedeSelectorWrap" style="display:none">
-                    <i class="fas fa-map-marker-alt" style="color:var(--primary);font-size:0.9rem"></i>
-                    <select id="sedeSelect" onchange="cambiarSede(this.value)" style="border:1px solid var(--gray-200);border-radius:8px;padding:6px 10px;font-size:0.85rem;font-family:inherit;color:var(--gray-700);background:var(--white);cursor:pointer;max-width:180px">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <select id="sedeSelect" onchange="cambiarSede(this.value)">
                         <option value="todas">🌐 Todas las sedes</option>
                     </select>
                 </div>
@@ -2014,8 +2014,8 @@
 
             <!-- 🏫 SEDES -->
             <div class="section" id="secSedes">
-                <!-- Stats rápidas -->
-                <div class="stats-grid" id="sedesStatsGrid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:20px"></div>
+                <!-- Stats rápidas por sede -->
+                <div class="stats-grid" id="sedesStatsGrid"></div>
 
                 <div class="card">
                     <div class="card-header">
@@ -2039,23 +2039,23 @@
                                 </tr>
                             </thead>
                             <tbody id="tbodySedes">
-                                <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr>
+                                <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
                 <!-- Info panel -->
-                <div class="card" style="margin-top:20px;background:linear-gradient(135deg,var(--primary-light),#f0f9ff)">
-                    <div style="display:flex;align-items:flex-start;gap:16px;padding:4px">
-                        <i class="fas fa-info-circle" style="color:var(--primary);font-size:1.5rem;margin-top:2px"></i>
-                        <div>
-                            <h4 style="margin:0 0 8px;color:var(--primary)">¿Cómo funciona el sistema de sedes?</h4>
-                            <p style="margin:0;color:var(--gray-600);font-size:0.875rem;line-height:1.6">
-                                Al seleccionar una sede en el menú superior <strong>🌐 Todas las sedes / 🏫 Sede X</strong>, el sistema filtra automáticamente todos los datos (estudiantes, docentes, cursos, calificaciones, asistencia, pagos y horarios) para mostrar solo los de esa sede.<br>
-                                Al crear o editar registros mientras una sede está activa, estos se asocian automáticamente a dicha sede.
-                            </p>
-                        </div>
+                <div class="sede-info-banner">
+                    <i class="fas fa-info-circle info-icon"></i>
+                    <div>
+                        <h4>¿Cómo funciona el sistema de sedes?</h4>
+                        <p>
+                            Al seleccionar una sede en el menú superior <strong>🌐 Todas las sedes / 🏫 Sede X</strong>,
+                            el sistema filtra automáticamente todos los datos (estudiantes, docentes, cursos,
+                            calificaciones, asistencia, pagos y horarios) para mostrar solo los de esa sede.<br>
+                            Al crear o editar registros mientras una sede está activa, estos se asocian automáticamente a dicha sede.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -7526,24 +7526,31 @@
         function renderTablaSedes() {
             const tbody = document.getElementById('tbodySedes');
             if (!_sedes.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--gray-400)"><i class="fas fa-map-marker-alt" style="font-size:2rem;margin-bottom:12px;display:block;opacity:.3"></i>No hay sedes registradas.<br><small>Crea la primera sede con el boton "Nueva Sede".</small></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:48px 16px">' +
+                    '<i class="fas fa-map-marker-alt" style="font-size:2.5rem;color:var(--gray-300);display:block;margin-bottom:12px"></i>' +
+                    '<span style="color:var(--gray-500);font-size:0.95rem">No hay sedes registradas.</span><br>' +
+                    '<small style="color:var(--gray-400)">Crea la primera sede con el botón "Nueva Sede".</small>' +
+                    '</td></tr>';
                 return;
             }
             tbody.innerHTML = _sedes.map(s => {
                 const color = s.color || '#6366f1';
                 const activa = s.activa !== false;
                 return '<tr>' +
-                    '<td><div style="width:28px;height:28px;border-radius:50%;background:' + color + ';margin:0 auto;box-shadow:0 2px 6px ' + color + '55"></div></td>' +
-                    '<td><strong>' + s.nombre + '</strong></td>' +
-                    '<td><code style="font-size:0.82rem;background:var(--gray-100);padding:2px 6px;border-radius:4px">' + (s.codigo || '—') + '</code></td>' +
-                    '<td style="color:var(--gray-600)">' + (s.direccion || '—') + '</td>' +
-                    '<td style="color:var(--gray-600)">' + (s.telefono || '—') + '</td>' +
-                    '<td style="color:var(--gray-600)">' + (s.rector_sede || '—') + '</td>' +
-                    '<td><span class="badge" style="background:' + (activa ? '#dcfce7' : '#fee2e2') + ';color:' + (activa ? '#16a34a' : '#dc2626') + ';padding:3px 10px;border-radius:6px;font-size:0.78rem">' + (activa ? 'Activa' : 'Inactiva') + '</span></td>' +
-                    '<td>' +
-                        '<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;margin-right:4px" title="Editar" onclick="editarSede(\'' + s._id + '\')"><i class="fas fa-edit"></i></button>' +
-                        '<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;background:' + (activa ? '#fee2e2' : '#dcfce7') + ';color:' + (activa ? '#dc2626' : '#16a34a') + '" title="' + (activa ? 'Desactivar' : 'Activar') + '" onclick="toggleSede(\'' + s._id + '\',' + activa + ')">' + (activa ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-check"></i>') + '</button>' +
-                    '</td></tr>';
+                    '<td style="text-align:center"><span class="sede-color-dot" style="background:' + color + '"></span></td>' +
+                    '<td><strong style="color:var(--gray-900)">' + s.nombre + '</strong></td>' +
+                    '<td><code style="font-size:0.8rem;background:var(--gray-100);padding:2px 8px;border-radius:4px;color:var(--gray-600)">' + (s.codigo || '—') + '</code></td>' +
+                    '<td>' + (s.direccion || '<span style="color:var(--gray-400)">—</span>') + '</td>' +
+                    '<td>' + (s.telefono || '<span style="color:var(--gray-400)">—</span>') + '</td>' +
+                    '<td>' + (s.rector_sede || '<span style="color:var(--gray-400)">—</span>') + '</td>' +
+                    '<td><span class="badge ' + (activa ? 'badge-success' : 'badge-danger') + '">' + (activa ? 'Activa' : 'Inactiva') + '</span></td>' +
+                    '<td><div class="actions">' +
+                        '<button class="btn btn-sm btn-edit" title="Editar sede" onclick="editarSede(\'' + s._id + '\')"><i class="fas fa-edit"></i></button>' +
+                        '<button class="btn btn-sm ' + (activa ? 'btn-delete' : 'btn-success') + '" title="' + (activa ? 'Desactivar' : 'Activar') + '" onclick="toggleSede(\'' + s._id + '\',' + activa + ')">' +
+                            (activa ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-check"></i>') +
+                        '</button>' +
+                    '</div></td>' +
+                    '</tr>';
             }).join('');
         }
 
