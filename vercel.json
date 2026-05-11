@@ -5,6 +5,7 @@
             "src": "server-academico.js",
             "use": "@vercel/node",
             "config": {
+                "maxLambdaSize": "50mb",
                 "includeFiles": [
                     "*.html",
                     "*.css",
@@ -21,10 +22,5 @@
             "src": "/(.*)",
             "dest": "server-academico.js"
         }
-    ],
-    "functions": {
-        "server-academico.js": {
-            "maxDuration": 30
-        }
-    }
+    ]
 }
