@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -109,6 +109,9 @@
                 <button class="nav-item" id="navConfigAvanzada" onclick="mostrarSeccion('configAvanzada',this)">
                     <i class="fas fa-sliders-h"></i> Configuración Avanzada
                 </button>
+                <button class="nav-item" onclick="mostrarSeccion('sedes',this)">
+                    <i class="fas fa-map-marker-alt"></i> Sedes
+                </button>
                 <button class="nav-item" onclick="mostrarSeccion('notificaciones',this)">
                     <i class="fas fa-bell"></i> Notificaciones
                 </button>
@@ -158,6 +161,13 @@
                             <div class="notif-empty"><i class="fas fa-bell-slash"></i><br>Sin notificaciones</div>
                         </div>
                     </div>
+                </div>
+                <!-- Sede selector -->
+                <div class="sede-selector" id="sedeSelectorWrap" style="display:none">
+                    <i class="fas fa-map-marker-alt" style="color:var(--primary);font-size:0.9rem"></i>
+                    <select id="sedeSelect" onchange="cambiarSede(this.value)" style="border:1px solid var(--gray-200);border-radius:8px;padding:6px 10px;font-size:0.85rem;font-family:inherit;color:var(--gray-700);background:var(--white);cursor:pointer;max-width:180px">
+                        <option value="todas">🌐 Todas las sedes</option>
+                    </select>
                 </div>
                 <button class="btn-logout" onclick="confirmarLogout()">
                     <i class="fas fa-sign-out-alt"></i> <span>Salir</span>
@@ -2002,6 +2012,54 @@
                 </div>
             </div>
 
+            <!-- 🏫 SEDES -->
+            <div class="section" id="secSedes">
+                <!-- Stats rápidas -->
+                <div class="stats-grid" id="sedesStatsGrid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:20px"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Sedes de la Institución</h3>
+                        <button class="btn btn-primary" onclick="abrirModalSede()">
+                            <i class="fas fa-plus"></i> Nueva Sede
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Color</th>
+                                    <th>Nombre</th>
+                                    <th>Código</th>
+                                    <th>Dirección</th>
+                                    <th>Teléfono</th>
+                                    <th>Rector de Sede</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodySedes">
+                                <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Info panel -->
+                <div class="card" style="margin-top:20px;background:linear-gradient(135deg,var(--primary-light),#f0f9ff)">
+                    <div style="display:flex;align-items:flex-start;gap:16px;padding:4px">
+                        <i class="fas fa-info-circle" style="color:var(--primary);font-size:1.5rem;margin-top:2px"></i>
+                        <div>
+                            <h4 style="margin:0 0 8px;color:var(--primary)">¿Cómo funciona el sistema de sedes?</h4>
+                            <p style="margin:0;color:var(--gray-600);font-size:0.875rem;line-height:1.6">
+                                Al seleccionar una sede en el menú superior <strong>🌐 Todas las sedes / 🏫 Sede X</strong>, el sistema filtra automáticamente todos los datos (estudiantes, docentes, cursos, calificaciones, asistencia, pagos y horarios) para mostrar solo los de esa sede.<br>
+                                Al crear o editar registros mientras una sede está activa, estos se asocian automáticamente a dicha sede.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ⚙️ CONFIGURACIÓN AVANZADA -->
             <div class="section" id="secConfigAvanzada">
     <div class="card" style="padding:0;overflow:hidden">
@@ -2212,6 +2270,63 @@
             <div id="sistemaFecha" style="margin-top:16px;font-size:0.8rem;color:var(--gray-400);text-align:right"></div>
         </div>
     </div>
+        </div>
+    </div>
+
+    <!-- MODAL SEDE -->
+    <div class="modal" id="modalSede">
+        <div class="modal-content" style="max-width:560px">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalSedeTitulo"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Nueva Sede</h3>
+                <button class="modal-close" onclick="document.getElementById('modalSede').classList.remove('show')">&times;</button>
+            </div>
+            <div class="modal-form" style="padding:20px 24px">
+                <input type="hidden" id="sedeEditId">
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+                    <div class="form-group" style="grid-column:span 2">
+                        <label class="form-label">Nombre de la Sede *</label>
+                        <input class="form-input" id="sede_nombre" placeholder="Ej: Sede Norte, Sede Centro...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Código</label>
+                        <input class="form-input" id="sede_codigo" placeholder="Ej: SN-01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Color identificador</label>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <input type="color" id="sede_color" value="#6366f1" style="width:44px;height:38px;border-radius:8px;border:1px solid var(--gray-200);cursor:pointer;padding:2px">
+                            <input class="form-input" id="sede_color_hex" placeholder="#6366f1" style="flex:1" oninput="document.getElementById('sede_color').value=this.value">
+                        </div>
+                    </div>
+                    <div class="form-group" style="grid-column:span 2">
+                        <label class="form-label">Dirección</label>
+                        <input class="form-input" id="sede_direccion" placeholder="Dirección física de la sede">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-input" id="sede_telefono" placeholder="Teléfono de contacto">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email de sede</label>
+                        <input class="form-input" type="email" id="sede_email" placeholder="email@sede.edu.co">
+                    </div>
+                    <div class="form-group" style="grid-column:span 2">
+                        <label class="form-label">Rector / Director de sede</label>
+                        <input class="form-input" id="sede_rector" placeholder="Nombre del rector o director">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        <select class="form-input" id="sede_activa">
+                            <option value="true">Activa</option>
+                            <option value="false">Inactiva</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions" style="margin-top:20px;border-top:1px solid var(--gray-200);padding-top:16px">
+                    <button class="btn btn-secondary" onclick="document.getElementById('modalSede').classList.remove('show')">Cancelar</button>
+                    <button class="btn btn-primary" onclick="guardarSede()"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -3083,10 +3198,10 @@
         function mostrarSeccion(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', configuracion: 'secConfiguracion', reportes: 'secReportes', notificaciones: 'secNotificaciones', configAvanzada: 'secConfigAvanzada' };
+            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', configuracion: 'secConfiguracion', reportes: 'secReportes', notificaciones: 'secNotificaciones', configAvanzada: 'secConfigAvanzada', sedes: 'secSedes' };
             document.getElementById(secMap[id]).classList.add('active');
             if (btn) btn.classList.add('active');
-            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', configuracion: '<span>Configuración</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>', configAvanzada: '⚙️ Configuración <span>Avanzada</span>' };
+            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', configuracion: '<span>Configuración</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>', configAvanzada: '⚙️ Configuración <span>Avanzada</span>', sedes: '🏫 Gestión de <span>Sedes</span>' };
             document.getElementById('headerTitle').innerHTML = titles[id] || 'Panel <span>Administrador</span>';
             if (window.innerWidth <= 768) toggleSidebar();
             // Cargar datos al navegar
@@ -3164,6 +3279,7 @@
                     case 'reportes': await cargarReportes(); break;
                     case 'configuracion': await cargarEmpresa(); break;
                     case 'configAvanzada': await initConfigAvanzada(); break;
+                    case 'sedes': await cargarSedes(); break;
                 }
             } catch (err) {
                 console.error(`Error cargando ${id}:`, err);
@@ -7340,6 +7456,214 @@
             toast._t = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(16px)'; }, 3500);
         }
 
+
+    
+        // =============================================
+        // 🏫 SEDES — Gestión y Selector Global
+        // =============================================
+        let _sedes = [];
+
+        // ── Obtener sede activa desde sessionStorage ──
+        function getSede() {
+            try { return JSON.parse(sessionStorage.getItem('sedeActual') || 'null'); } catch { return null; }
+        }
+        function getSedeId() {
+            const s = getSede();
+            return (s && s._id) ? s._id : 'todas';
+        }
+
+        // ── Cambiar sede desde el selector del header ──
+        async function cambiarSede(val) {
+            if (val === 'todas') {
+                sessionStorage.removeItem('sedeActual');
+                document.getElementById('sedeSelect').style.borderColor = '';
+            } else {
+                const sede = _sedes.find(s => s._id === val);
+                if (sede) {
+                    sessionStorage.setItem('sedeActual', JSON.stringify(sede));
+                    document.getElementById('sedeSelect').style.borderColor = sede.color || 'var(--primary)';
+                }
+            }
+            const activeSection = document.querySelector('.nav-item.active');
+            if (activeSection) {
+                const onclick = activeSection.getAttribute('onclick') || '';
+                const match = onclick.match(/mostrarSeccion\('([^']+)'/);
+                if (match) await cargarDatosSeccion(match[1]);
+            }
+            mostrarToast(val === 'todas' ? '🌐 Viendo todas las sedes' : ('🏫 Sede: ' + (getSede()?.nombre || '')), 'info');
+        }
+
+        // ── Poblar selector de sedes en header ──
+        async function cargarSedesEnHeader() {
+            try {
+                const res = await fetch(API + '/sedes/todas');
+                _sedes = await res.json();
+                const select = document.getElementById('sedeSelect');
+                const wrap = document.getElementById('sedeSelectorWrap');
+                select.innerHTML = '<option value="todas">🌐 Todas las sedes</option>';
+                _sedes.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s._id;
+                    opt.textContent = '🏫 ' + s.nombre;
+                    select.appendChild(opt);
+                });
+                const sedeActual = getSede();
+                if (sedeActual) { select.value = sedeActual._id; select.style.borderColor = sedeActual.color || 'var(--primary)'; }
+                wrap.style.display = _sedes.length > 0 ? 'flex' : 'none';
+            } catch(e) { console.warn('No se pudieron cargar sedes:', e.message); }
+        }
+
+        // ── Cargar y renderizar tabla de sedes ──
+        async function cargarSedes() {
+            try {
+                const res = await fetch(API + '/sedes/todas');
+                _sedes = await res.json();
+                renderTablaSedes();
+                renderSedesStats();
+            } catch(e) { mostrarToast('❌ Error cargando sedes', 'error'); }
+        }
+
+        function renderTablaSedes() {
+            const tbody = document.getElementById('tbodySedes');
+            if (!_sedes.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--gray-400)"><i class="fas fa-map-marker-alt" style="font-size:2rem;margin-bottom:12px;display:block;opacity:.3"></i>No hay sedes registradas.<br><small>Crea la primera sede con el boton "Nueva Sede".</small></td></tr>';
+                return;
+            }
+            tbody.innerHTML = _sedes.map(s => {
+                const color = s.color || '#6366f1';
+                const activa = s.activa !== false;
+                return '<tr>' +
+                    '<td><div style="width:28px;height:28px;border-radius:50%;background:' + color + ';margin:0 auto;box-shadow:0 2px 6px ' + color + '55"></div></td>' +
+                    '<td><strong>' + s.nombre + '</strong></td>' +
+                    '<td><code style="font-size:0.82rem;background:var(--gray-100);padding:2px 6px;border-radius:4px">' + (s.codigo || '—') + '</code></td>' +
+                    '<td style="color:var(--gray-600)">' + (s.direccion || '—') + '</td>' +
+                    '<td style="color:var(--gray-600)">' + (s.telefono || '—') + '</td>' +
+                    '<td style="color:var(--gray-600)">' + (s.rector_sede || '—') + '</td>' +
+                    '<td><span class="badge" style="background:' + (activa ? '#dcfce7' : '#fee2e2') + ';color:' + (activa ? '#16a34a' : '#dc2626') + ';padding:3px 10px;border-radius:6px;font-size:0.78rem">' + (activa ? 'Activa' : 'Inactiva') + '</span></td>' +
+                    '<td>' +
+                        '<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;margin-right:4px" title="Editar" onclick="editarSede(\'' + s._id + '\')"><i class="fas fa-edit"></i></button>' +
+                        '<button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;background:' + (activa ? '#fee2e2' : '#dcfce7') + ';color:' + (activa ? '#dc2626' : '#16a34a') + '" title="' + (activa ? 'Desactivar' : 'Activar') + '" onclick="toggleSede(\'' + s._id + '\',' + activa + ')">' + (activa ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-check"></i>') + '</button>' +
+                    '</td></tr>';
+            }).join('');
+        }
+
+        async function renderSedesStats() {
+            const grid = document.getElementById('sedesStatsGrid');
+            if (!grid || !_sedes.length) return;
+            const results = await Promise.allSettled(_sedes.map(s =>
+                fetch(API + '/sedes/' + s._id + '/stats').then(r => r.json()).then(d => Object.assign({}, d, { sede: s }))
+            ));
+            grid.innerHTML = results.map(r => {
+                if (r.status !== 'fulfilled') return '';
+                const d = r.value;
+                const color = d.sede.color || '#6366f1';
+                return '<div class="stat-card" style="border-top:3px solid ' + color + '">' +
+                    '<div class="stat-header"><div class="stat-icon" style="background:' + color + '22;color:' + color + '"><i class="fas fa-map-marker-alt"></i></div></div>' +
+                    '<div class="stat-value" style="font-size:1rem;font-weight:700">' + d.sede.nombre + '</div>' +
+                    '<div class="stat-label">' + (d.estudiantes || 0) + ' est · ' + (d.docentes || 0) + ' doc · ' + (d.cursos || 0) + ' cursos</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // ── Modal Sede ──
+        function abrirModalSede() {
+            document.getElementById('modalSedeTitulo').innerHTML = '<i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Nueva Sede';
+            document.getElementById('sedeEditId').value = '';
+            ['sede_nombre','sede_codigo','sede_direccion','sede_telefono','sede_email','sede_rector'].forEach(id => { document.getElementById(id).value = ''; });
+            document.getElementById('sede_color').value = '#6366f1';
+            document.getElementById('sede_color_hex').value = '#6366f1';
+            document.getElementById('sede_activa').value = 'true';
+            document.getElementById('modalSede').classList.add('show');
+        }
+
+        function editarSede(id) {
+            const s = _sedes.find(x => x._id === id);
+            if (!s) return;
+            document.getElementById('modalSedeTitulo').innerHTML = '<i class="fas fa-edit" style="color:var(--primary)"></i> Editar Sede';
+            document.getElementById('sedeEditId').value = id;
+            document.getElementById('sede_nombre').value = s.nombre || '';
+            document.getElementById('sede_codigo').value = s.codigo || '';
+            document.getElementById('sede_direccion').value = s.direccion || '';
+            document.getElementById('sede_telefono').value = s.telefono || '';
+            document.getElementById('sede_email').value = s.email || '';
+            document.getElementById('sede_rector').value = s.rector_sede || '';
+            const color = s.color || '#6366f1';
+            document.getElementById('sede_color').value = color;
+            document.getElementById('sede_color_hex').value = color;
+            document.getElementById('sede_activa').value = s.activa !== false ? 'true' : 'false';
+            document.getElementById('modalSede').classList.add('show');
+        }
+
+        async function guardarSede() {
+            const id = document.getElementById('sedeEditId').value;
+            const nombre = document.getElementById('sede_nombre').value.trim();
+            if (!nombre) { mostrarToast('❌ El nombre es obligatorio', 'error'); return; }
+            const body = {
+                nombre,
+                codigo: document.getElementById('sede_codigo').value.trim(),
+                direccion: document.getElementById('sede_direccion').value.trim(),
+                telefono: document.getElementById('sede_telefono').value.trim(),
+                email: document.getElementById('sede_email').value.trim(),
+                rector_sede: document.getElementById('sede_rector').value.trim(),
+                color: document.getElementById('sede_color').value,
+                activa: document.getElementById('sede_activa').value === 'true',
+            };
+            try {
+                const url = id ? (API + '/sedes/' + id) : (API + '/sedes');
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                if (data.success || data.sede) {
+                    document.getElementById('modalSede').classList.remove('show');
+                    mostrarToast(id ? '✅ Sede actualizada' : '✅ Sede creada', 'success');
+                    await cargarSedes();
+                    await cargarSedesEnHeader();
+                } else { mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error'); }
+            } catch(e) { mostrarToast('❌ Error de conexión', 'error'); }
+        }
+
+        async function toggleSede(id, activa) {
+            if (!confirm('¿Deseas ' + (activa ? 'desactivar' : 'activar') + ' esta sede?')) return;
+            try {
+                const res = await fetch(API + '/sedes/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ activa: !activa })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    mostrarToast('✅ Sede ' + (activa ? 'desactivada' : 'activada'), 'success');
+                    await cargarSedes();
+                    await cargarSedesEnHeader();
+                } else { mostrarToast('❌ ' + (data.error || 'Error'), 'error'); }
+            } catch(e) { mostrarToast('❌ Error de conexión', 'error'); }
+        }
+
+        // ── Interceptor fetch: inyectar sede_id automáticamente ──
+        (function patchFetch() {
+            const _orig = window.fetch.bind(window);
+            window.fetch = function(url, opts) {
+                opts = opts || {};
+                if (typeof url === 'string' && url.includes('/api/')) {
+                    const sedeId = getSedeId();
+                    const method = (opts.method || 'GET').toUpperCase();
+                    if (sedeId !== 'todas') {
+                        if (method === 'GET') {
+                            url = url + (url.includes('?') ? '&' : '?') + 'sede_id=' + encodeURIComponent(sedeId);
+                        } else if ((method === 'POST' || method === 'PUT') && opts.body) {
+                            try {
+                                const b = JSON.parse(opts.body);
+                                if (!b.sede_id) { b.sede_id = sedeId; opts = Object.assign({}, opts, { body: JSON.stringify(b) }); }
+                            } catch(e) { /* body no es JSON */ }
+                        }
+                    }
+                }
+                return _orig(url, opts);
+            };
+        })();
+
+        // Cargar sedes en header al iniciar
+        cargarSedesEnHeader();
 
     </script>
 </body>

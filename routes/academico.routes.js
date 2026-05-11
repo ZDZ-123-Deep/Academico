@@ -31,6 +31,14 @@ const Horario = require('../models/Horario');
 const IdNota = require('../models/IdNota');
 const { Tarea, EntregaTarea } = require('../models/Tarea');
 const Notificacion = require('../models/Notificacion');
+const Sede = require('../models/Sede');
+
+// Helper: construir filtro de sede
+function filtroSede(query) {
+    const { sede_id } = query;
+    if (!sede_id || sede_id === 'todas') return {};
+    return { sede_id };
+}
 
 // ========================================
 // 📊 DASHBOARD - Estadísticas generales
@@ -125,7 +133,7 @@ router.put('/empresa', async (req, res) => {
 router.get('/estudiantes', async (req, res) => {
     try {
         const { buscar, curso, page = 1, limit = 50 } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (buscar) filtro.nombre = { $regex: escapeRegex(buscar), $options: 'i' };
         if (curso) filtro.curso_id = curso;
 
@@ -226,7 +234,8 @@ router.delete('/estudiantes/:id', async (req, res) => {
 // ========================================
 router.get('/docentes', async (req, res) => {
     try {
-        const docentes = await Docente.find({ estado: 'A' }).sort({ nombre: 1 }).lean();
+        const filtro = { estado: 'A', ...filtroSede(req.query) };
+        const docentes = await Docente.find(filtro).sort({ nombre: 1 }).lean();
         res.json(docentes);
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
@@ -358,7 +367,8 @@ router.delete('/acudientes/:id', async (req, res) => {
 // ========================================
 router.get('/asignaturas', async (req, res) => {
     try {
-        const asignaturas = await Asignatura.find({ estado: 'A' }).sort({ nombre: 1 }).lean();
+        const filtro = { estado: 'A', ...filtroSede(req.query) };
+        const asignaturas = await Asignatura.find(filtro).sort({ nombre: 1 }).lean();
         res.json(asignaturas);
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
@@ -418,7 +428,8 @@ router.delete('/asignaturas/:id', async (req, res) => {
 // ========================================
 router.get('/cursos', async (req, res) => {
     try {
-        const cursos = await Curso.find({ estado: 'A' }).sort({ orden: 1 }).lean();
+        const filtro = { estado: 'A', ...filtroSede(req.query) };
+        const cursos = await Curso.find(filtro).sort({ orden: 1 }).lean();
         // Enriquecer con nombre del docente director
         const docentes = await Docente.find().select('teacher_id nombre').lean();
         const docenteMap = {};
@@ -840,7 +851,7 @@ router.get('/id-notas', async (req, res) => {
 router.get('/asistencia', async (req, res) => {
     try {
         const { fecha, pensum, page = 1, limit = 100 } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (fecha) filtro.fecha = fecha;
         if (pensum) filtro.pensum = pensum;
 
@@ -888,7 +899,7 @@ router.delete('/asistencia/:id', async (req, res) => {
 router.get('/observaciones', async (req, res) => {
     try {
         const { estudiante, docente, page = 1, limit = 50 } = req.query;
-        const filtro = { estado: 'A' };
+        const filtro = { estado: 'A', ...filtroSede(req.query) };
         if (estudiante) filtro.estudiante = estudiante;
         if (docente) filtro.docente = docente;
 
@@ -1030,7 +1041,8 @@ router.delete('/anuncios/:id', async (req, res) => {
 // ========================================
 router.get('/pagos', async (req, res) => {
     try {
-        const pagos = await Pago.find().sort({ fecha: -1 }).limit(100).lean();
+        const filtro = { ...filtroSede(req.query) };
+        const pagos = await Pago.find(filtro).sort({ fecha: -1 }).limit(100).lean();
         res.json(pagos);
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -1081,7 +1093,7 @@ router.delete('/pagos/:id', async (req, res) => {
 router.get('/horarios', async (req, res) => {
     try {
         const { curso } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (curso) filtro.curso = curso;
         const horarios = await Horario.find(filtro).limit(200).lean();
         res.json(horarios);
@@ -2315,6 +2327,68 @@ router.get('/sistema/stats', async (req, res) => {
             Asignatura.countDocuments({ estado: 'A' })
         ]);
         res.json({ usuarios, estudiantes, docentes, acudientes, cursos, asignaturas, fecha: new Date().toISOString() });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// ========================================
+// 🏫 SEDES
+// ========================================
+router.get('/sedes', async (req, res) => {
+    try {
+        const sedes = await Sede.find({ activa: { $ne: false } }).sort({ nombre: 1 }).lean();
+        res.json(sedes);
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.get('/sedes/todas', async (req, res) => {
+    try {
+        const sedes = await Sede.find().sort({ nombre: 1 }).lean();
+        res.json(sedes);
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.post('/sedes', async (req, res) => {
+    try {
+        const data = req.body;
+        if (!data.nombre) return res.status(400).json({ error: 'El nombre de la sede es obligatorio' });
+        const existe = await Sede.findOne({ codigo: data.codigo }).lean();
+        if (existe && data.codigo) return res.status(409).json({ error: 'Ya existe una sede con ese código' });
+        if (!data.color) data.color = '#6366f1';
+        if (data.activa === undefined) data.activa = true;
+        data.creado = new Date();
+        const nueva = new Sede(data);
+        await nueva.save();
+        res.status(201).json({ success: true, sede: nueva.toObject() });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.put('/sedes/:id', async (req, res) => {
+    try {
+        const sede = await Sede.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        if (!sede) return res.status(404).json({ error: 'Sede no encontrada' });
+        res.json({ success: true, sede: sede.toObject() });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+router.delete('/sedes/:id', async (req, res) => {
+    try {
+        // Soft delete: marcar como inactiva
+        const sede = await Sede.findByIdAndUpdate(req.params.id, { $set: { activa: false } }, { new: true });
+        if (!sede) return res.status(404).json({ error: 'Sede no encontrada' });
+        res.json({ success: true });
+    } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
+});
+
+// Stats por sede
+router.get('/sedes/:id/stats', async (req, res) => {
+    try {
+        const sedeId = req.params.id;
+        const [estudiantes, docentes, cursos] = await Promise.all([
+            Estudiante.countDocuments({ sede_id: sedeId, estado_est: { $ne: 'R' } }),
+            Docente.countDocuments({ sede_id: sedeId, estado: 'A' }),
+            Curso.countDocuments({ sede_id: sedeId, estado: 'A' }),
+        ]);
+        res.json({ estudiantes, docentes, cursos });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
 
