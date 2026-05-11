@@ -2283,8 +2283,7 @@ router.get('/empresa/apariencia', async (req, res) => {
 
 router.put('/empresa/apariencia', async (req, res) => {
     try {
-        const result = await Empresa.findOneAndUpdate({}, { $set: { apariencia: req.body } }, { new: true, upsert: false });
-        if (!result) return res.status(404).json({ error: 'Configuración no encontrada' });
+        await Empresa.findOneAndUpdate({}, { $set: { apariencia: req.body } }, { new: true, upsert: true });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -2299,7 +2298,7 @@ router.get('/empresa/acceso-modulos', async (req, res) => {
 
 router.put('/empresa/acceso-modulos', async (req, res) => {
     try {
-        const result = await Empresa.findOneAndUpdate({}, { $set: { acceso_modulos: req.body } }, { new: true, upsert: false });
+        const result = await Empresa.findOneAndUpdate({}, { $set: { acceso_modulos: req.body } }, { new: true, upsert: true });
         if (!result) return res.status(404).json({ error: 'Configuración no encontrada' });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
@@ -2315,8 +2314,7 @@ router.get('/empresa/academico-config', async (req, res) => {
 
 router.put('/empresa/academico-config', async (req, res) => {
     try {
-        const result = await Empresa.findOneAndUpdate({}, { $set: { academico_avanzado: req.body } }, { new: true, upsert: false });
-        if (!result) return res.status(404).json({ error: 'Configuración no encontrada' });
+        await Empresa.findOneAndUpdate({}, { $set: { academico_avanzado: req.body } }, { new: true, upsert: true });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });

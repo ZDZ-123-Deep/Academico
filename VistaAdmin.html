@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -5791,16 +5791,23 @@
 
 
             var pageBreak = idx > 0 ? '<div style="page-break-before:always"></div>' : '';
+            // Logo e institución dinámica desde _cfgEmpresa
+            var _emp = window._cfgEmpresa || {};
+            var _nombInst = _emp.nombre || 'Institución Educativa';
+            var _logoSrc  = _emp.logo_boletin || _emp.logo || '';
+            var _logoHTML = _logoSrc
+                ? '<img src="' + _logoSrc + '" style="width:46px;height:46px;object-fit:contain;border-radius:6px">'
+                : '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>';
 
             return pageBreak
                 // Header
                 + '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:14px 20px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">'
                 +   '<div style="display:flex;align-items:center;gap:13px">'
-                +     '<div style="width:50px;height:50px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center">'
-                +       '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>'
+                +     '<div style="width:50px;height:50px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden">'
+                +       _logoHTML
                 +     '</div>'
-                +     '<div><div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em">Institucion Educativa</div>'
-                +          '<div style="color:#fff;font-size:0.95rem;font-weight:700">COLEGIO DE LA ESPERANZA</div></div>'
+                +     '<div><div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em">Institución Educativa</div>'
+                +          '<div style="color:#fff;font-size:0.95rem;font-weight:700">' + _nombInst + '</div></div>'
                 +   '</div>'
                 +   '<div style="text-align:right">'
                 +     '<div style="color:rgba(255,255,255,0.65);font-size:0.55rem;text-transform:uppercase;letter-spacing:0.12em">Informe Academico</div>'
@@ -5991,16 +5998,22 @@
                 }).join('');
 
                 var pageBreak = idx > 0 ? '<div style="page-break-before:always"></div>' : '';
+                var _emp2 = window._cfgEmpresa || {};
+                var _nombInst2 = _emp2.nombre || 'Institución Educativa';
+                var _logoSrc2  = _emp2.logo_boletin || _emp2.logo || '';
+                var _logoHTML2 = _logoSrc2
+                    ? '<img src="' + _logoSrc2 + '" style="width:46px;height:46px;object-fit:contain;border-radius:6px">'
+                    : '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>';
 
                 return pageBreak
                     + '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:14px 20px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">'
                     +   '<div style="display:flex;align-items:center;gap:13px">'
-                    +     '<div style="width:50px;height:50px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center">'
-                    +       '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>'
+                    +     '<div style="width:50px;height:50px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden">'
+                    +       _logoHTML2
                     +     '</div>'
                     +     '<div>'
-                    +       '<div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em">Institucion Educativa</div>'
-                    +       '<div style="color:#fff;font-size:0.95rem;font-weight:700">COLEGIO DE LA ESPERANZA</div>'
+                    +       '<div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em">Institución Educativa</div>'
+                    +       '<div style="color:#fff;font-size:0.95rem;font-weight:700">' + _nombInst2 + '</div>'
                     +     '</div>'
                     +   '</div>'
                     +   '<div style="text-align:right">'
@@ -6189,23 +6202,30 @@
                 var pageBreak = idx > 0 ? '<div style="page-break-before:always"></div>' : '';
 
                 return pageBreak
-                    // Header degradado
-                    + '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:14px 20px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">'
-                    +   '<div style="display:flex;align-items:center;gap:13px">'
-                    +     '<div style="width:50px;height:50px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center">'
-                    +       '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>'
-                    +     '</div>'
-                    +     '<div>'
-                    +       '<div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em">Institucion Educativa</div>'
-                    +       '<div style="color:#fff;font-size:0.95rem;font-weight:700">COLEGIO DE LA ESPERANZA</div>'
-                    +     '</div>'
-                    +   '</div>'
-                    +   '<div style="text-align:right">'
-                    +     '<div style="color:rgba(255,255,255,0.65);font-size:0.55rem;text-transform:uppercase;letter-spacing:0.12em">Informe Academico</div>'
-                    +     '<div style="color:#fff;font-size:0.88rem;font-weight:700">' + titulo + '</div>'
-                    +     '<div style="color:rgba(255,255,255,0.8);font-size:0.6rem;margin-top:2px">Periodo ' + periodo + '  |  ' + fecha + '  |  2026</div>'
-                    +   '</div>'
-                    + '</div>'
+                    + (function() {
+                        var _emp4 = window._cfgEmpresa || {};
+                        var _n4 = _emp4.nombre || 'Institución Educativa';
+                        var _ls4 = _emp4.logo_boletin || _emp4.logo || '';
+                        var _lh4 = _ls4
+                            ? '<img src="' + _ls4 + '" style="width:50px;height:50px;object-fit:contain;border-radius:6px">'
+                            : '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>';
+                        return '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:16px 22px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">'
+                            +   '<div style="display:flex;align-items:center;gap:14px">'
+                            +     '<div style="width:54px;height:54px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center;overflow:hidden">'
+                            +       _lh4
+                            +     '</div>'
+                            +     '<div>'
+                            +       '<div style="color:rgba(255,255,255,0.65);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em">Institución Educativa</div>'
+                            +       '<div style="color:#fff;font-size:1rem;font-weight:700;letter-spacing:0.01em">' + _n4 + '</div>'
+                            +     '</div>'
+                            +   '</div>'
+                            +   '<div style="text-align:right">'
+                            +     '<div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.14em">Informe Académico</div>'
+                            +     '<div style="color:#fff;font-size:0.95rem;font-weight:700">' + titulo + '</div>'
+                            +     '<div style="color:rgba(255,255,255,0.8);font-size:0.62rem;margin-top:2px">Periodo ' + periodo + '  |  ' + fecha + '  |  2026</div>'
+                            +   '</div>'
+                            + '</div>';
+                    })()
                     // Estudiante
                     + '<div style="border:1px solid #e2e8f0;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:16px">'
                     +   '<div style="background:linear-gradient(135deg,#1e3a5f,#2563eb);width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">' + fotoHTML + '</div>'
@@ -6377,19 +6397,14 @@
                 + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
                 + '</style></head><body>'
 
-                // Header degradado
-                + '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:16px 22px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">'
-                +   '<div style="display:flex;align-items:center;gap:14px">'
-                +     '<div style="width:54px;height:54px;background:rgba(255,255,255,0.15);border-radius:50%;border:2px solid rgba(255,255,255,0.35);display:flex;align-items:center;justify-content:center">'
-                +       '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
-                +         '<path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/>'
-                +       '</svg>'
-                +     '</div>'
-                +     '<div>'
-                +       '<div style="color:rgba(255,255,255,0.65);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em">Institucion Educativa</div>'
-                +       '<div style="color:#fff;font-size:1rem;font-weight:700;letter-spacing:0.01em">COLEGIO DE LA ESPERANZA</div>'
-                +     '</div>'
-                +   '</div>'
+                // Header dinamico desde _cfgEmpresa
+                + (function() {
+                    var _e = window._cfgEmpresa || {};
+                    var _n = _e.nombre || 'Institucion Educativa';
+                    var _ls = _e.logo_boletin || _e.logo || '';
+                    var _lh = _ls ? '<img src="' + _ls + '" style="width:50px;height:50px;object-fit:contain;border-radius:6px">' : '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M2 17l10 6 10-6"/><path d="M2 13l10 6 10-6"/></svg>';
+                    return '<div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:16px 22px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between">' + '<div style="display:flex;align-items:center;gap:14px">' + '<div style="width:54px;height:54px;background:rgba(255,255,255,0.15);border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center">' + _lh + '</div>' + '<div><div style="color:rgba(255,255,255,0.65);font-size:0.58rem;text-transform:uppercase">Institucion Educativa</div><div style="color:#fff;font-size:1rem;font-weight:700">' + _n + '</div></div></div>';
+                })()
                 +   '<div style="text-align:right">'
                 +     '<div style="color:rgba(255,255,255,0.65);font-size:0.56rem;text-transform:uppercase;letter-spacing:0.14em">Informe Academico</div>'
                 +     '<div style="color:#fff;font-size:0.95rem;font-weight:700">PROCESOS INTERMEDIOS</div>'
