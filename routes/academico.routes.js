@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { generarToken, verificarToken } = require('../middleware/auth');
 
@@ -33,11 +34,14 @@ const { Tarea, EntregaTarea } = require('../models/Tarea');
 const Notificacion = require('../models/Notificacion');
 const Sede = require('../models/Sede');
 
-// Helper: construir filtro de sede
+// Helper: construir filtro de sede (convierte string a ObjectId para queries correctas)
 function filtroSede(query) {
     const { sede_id } = query;
     if (!sede_id || sede_id === 'todas') return {};
-    return { sede_id };
+    if (mongoose.Types.ObjectId.isValid(sede_id)) {
+        return { sede_id: new mongoose.Types.ObjectId(sede_id) };
+    }
+    return { sede_id }; // fallback por si acaso
 }
 
 // ========================================
@@ -2382,7 +2386,9 @@ router.delete('/sedes/:id', async (req, res) => {
 // Stats por sede
 router.get('/sedes/:id/stats', async (req, res) => {
     try {
-        const sedeId = req.params.id;
+        const sedeId = mongoose.Types.ObjectId.isValid(req.params.id)
+            ? new mongoose.Types.ObjectId(req.params.id)
+            : req.params.id;
         const [estudiantes, docentes, cursos] = await Promise.all([
             Estudiante.countDocuments({ sede_id: sedeId, estado_est: { $ne: 'R' } }),
             Docente.countDocuments({ sede_id: sedeId, estado: 'A' }),

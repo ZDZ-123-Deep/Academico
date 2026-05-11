@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -2294,7 +2294,7 @@
                     <div class="form-group">
                         <label class="form-label">Color identificador</label>
                         <div style="display:flex;gap:8px;align-items:center">
-                            <input type="color" id="sede_color" value="#6366f1" style="width:44px;height:38px;border-radius:8px;border:1px solid var(--gray-200);cursor:pointer;padding:2px">
+                            <input type="color" id="sede_color" value="#6366f1" style="width:44px;height:38px;border-radius:8px;border:1px solid var(--gray-200);cursor:pointer;padding:2px" oninput="document.getElementById('sede_color_hex').value=this.value">
                             <input class="form-input" id="sede_color_hex" placeholder="#6366f1" style="flex:1" oninput="document.getElementById('sede_color').value=this.value">
                         </div>
                     </div>
@@ -7642,19 +7642,24 @@
         // ── Interceptor fetch: inyectar sede_id automáticamente ──
         (function patchFetch() {
             const _orig = window.fetch.bind(window);
+            // Rutas que NO deben recibir sede_id (son globales/institucionales)
+            const SKIP_SEDE = ['/api/sedes', '/api/empresa', '/auth/login'];
             window.fetch = function(url, opts) {
                 opts = opts || {};
                 if (typeof url === 'string' && url.includes('/api/')) {
-                    const sedeId = getSedeId();
-                    const method = (opts.method || 'GET').toUpperCase();
-                    if (sedeId !== 'todas') {
-                        if (method === 'GET') {
-                            url = url + (url.includes('?') ? '&' : '?') + 'sede_id=' + encodeURIComponent(sedeId);
-                        } else if ((method === 'POST' || method === 'PUT') && opts.body) {
-                            try {
-                                const b = JSON.parse(opts.body);
-                                if (!b.sede_id) { b.sede_id = sedeId; opts = Object.assign({}, opts, { body: JSON.stringify(b) }); }
-                            } catch(e) { /* body no es JSON */ }
+                    const skipInject = SKIP_SEDE.some(p => url.includes(p));
+                    if (!skipInject) {
+                        const sedeId = getSedeId();
+                        const method = (opts.method || 'GET').toUpperCase();
+                        if (sedeId !== 'todas') {
+                            if (method === 'GET') {
+                                url = url + (url.includes('?') ? '&' : '?') + 'sede_id=' + encodeURIComponent(sedeId);
+                            } else if ((method === 'POST' || method === 'PUT') && opts.body) {
+                                try {
+                                    const b = JSON.parse(opts.body);
+                                    if (!b.sede_id) { b.sede_id = sedeId; opts = Object.assign({}, opts, { body: JSON.stringify(b) }); }
+                                } catch(e) { /* body no es JSON */ }
+                            }
                         }
                     }
                 }
