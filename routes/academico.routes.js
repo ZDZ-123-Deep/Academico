@@ -49,11 +49,12 @@ function filtroSede(query) {
 // ========================================
 router.get('/dashboard/stats', async (req, res) => {
     try {
+        const sf = filtroSede(req.query);
         const [estudiantes, docentes, cursos, asignaturas, empresa] = await Promise.all([
-            Estudiante.countDocuments({ estado_est: { $ne: 'R' } }),
-            Docente.countDocuments({ estado: 'A' }),
-            Curso.countDocuments({ estado: 'A' }),
-            Asignatura.countDocuments({ estado: 'A' }),
+            Estudiante.countDocuments({ ...sf, estado_est: { $ne: 'R' } }),
+            Docente.countDocuments({ ...sf, estado: 'A' }),
+            Curso.countDocuments({ ...sf, estado: 'A' }),
+            Asignatura.countDocuments({ ...sf, estado: 'A' }),
             Empresa.findOne().lean()
         ]);
 
@@ -306,7 +307,7 @@ router.delete('/docentes/:id', async (req, res) => {
 router.get('/acudientes', async (req, res) => {
     try {
         const { buscar, page = 1, limit = 50 } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (buscar) filtro.nombre_asistente = { $regex: escapeRegex(buscar), $options: 'i' };
 
         const total = await Acudiente.countDocuments(filtro);
@@ -503,7 +504,7 @@ router.delete('/cursos/:id', async (req, res) => {
 router.get('/pensum', async (req, res) => {
     try {
         const { curso } = req.query;
-        const filtro = { estado: 'A' };
+        const filtro = { ...filtroSede(req.query), estado: 'A' };
         if (curso) filtro.class_id = curso;
 
         const pensums = await Pensum.find(filtro).lean();
@@ -588,7 +589,7 @@ router.delete('/pensum/:id', async (req, res) => {
 // ========================================
 router.get('/indicadores', async (req, res) => {
     try {
-        const indicadores = await Indicador.find().sort({ tipo: 1 }).lean();
+        const indicadores = await Indicador.find(filtroSede(req.query)).sort({ tipo: 1 }).lean();
         res.json(indicadores);
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
@@ -645,7 +646,7 @@ router.delete('/indicadores/:id', async (req, res) => {
 router.get('/logros', async (req, res) => {
     try {
         const { asignatura, pensum } = req.query;
-        const filtro = { estado: 'A' };
+        const filtro = { ...filtroSede(req.query), estado: 'A' };
         if (asignatura) filtro.asignatura = asignatura;
         if (pensum) filtro.pensum = pensum;
 
@@ -696,7 +697,7 @@ router.delete('/logros/:id', async (req, res) => {
 router.get('/calificaciones', async (req, res) => {
     try {
         const { periodo, pensum, estudiante, page = 1, limit = 50 } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (periodo) filtro.periodo = periodo;
         if (pensum) filtro.pensum = pensum;
         if (estudiante) filtro.estudiante = estudiante;
@@ -827,7 +828,7 @@ router.delete('/calificaciones/:id', async (req, res) => {
 // ========================================
 router.get('/planillas', async (req, res) => {
     try {
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (req.query.estado) filtro.estado = req.query.estado;
         const planillas = await Planilla.find(filtro).sort({ anno: -1, periodo: 1 }).lean();
         res.json(planillas);
@@ -840,7 +841,7 @@ router.get('/planillas', async (req, res) => {
 router.get('/id-notas', async (req, res) => {
     try {
         const { pensum, per_id } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (pensum) filtro.pensum = pensum;
         if (per_id) filtro.per_id = per_id;
         filtro.estado = 'A';
@@ -1000,7 +1001,7 @@ router.delete('/horarios-atencion/:id', async (req, res) => {
 // ========================================
 router.get('/anuncios', async (req, res) => {
     try {
-        const anuncios = await Anuncio.find().sort({ fecha: -1 }).limit(50).lean();
+        const anuncios = await Anuncio.find(filtroSede(req.query)).sort({ fecha: -1 }).limit(50).lean();
         res.json(anuncios);
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -1053,12 +1054,13 @@ router.get('/pagos', async (req, res) => {
 
 router.get('/pagos/stats', async (req, res) => {
     try {
-        const total = await Pago.countDocuments();
-        const pagados = await Pago.countDocuments({ estado: 'Pagado' });
-        const pendientes = await Pago.countDocuments({ estado: { $ne: 'Pagado' } });
-        const pagosAll = await Pago.find({ estado: 'Pagado' }).lean();
+        const sf = filtroSede(req.query);
+        const total = await Pago.countDocuments(sf);
+        const pagados = await Pago.countDocuments({ ...sf, estado: 'Pagado' });
+        const pendientes = await Pago.countDocuments({ ...sf, estado: { $ne: 'Pagado' } });
+        const pagosAll = await Pago.find({ ...sf, estado: 'Pagado' }).lean();
         const recaudado = pagosAll.reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
-        const pendientesAll = await Pago.find({ estado: { $ne: 'Pagado' } }).lean();
+        const pendientesAll = await Pago.find({ ...sf, estado: { $ne: 'Pagado' } }).lean();
         const pendienteCobro = pendientesAll.reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
         res.json({ total, pagados, pendientes, recaudado, pendienteCobro });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
