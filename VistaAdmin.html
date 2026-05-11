@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -7203,8 +7203,11 @@
             if (window._logo_logoBol === null) body.logo_boletin = '';
             const res = await fetch(`${API}/empresa`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const data = await res.json();
-            if (data.success) mostrarToast('✅ Institución guardada correctamente', 'success');
-            else mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
+            if (data.success) {
+                // Actualizar _cfgEmpresa en memoria para que los boletines usen el logo/nombre inmediatamente
+                Object.assign(window._cfgEmpresa, body);
+                mostrarToast('✅ Institución guardada correctamente', 'success');
+            } else mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
         }
 
         // --- Tab 2: Usuarios del sistema ---
@@ -7336,6 +7339,7 @@
         function aplicarApariencia(ap) {
             if (!ap) return;
             if (ap.color_primario) document.documentElement.style.setProperty('--primary', ap.color_primario);
+            if (ap.color_secundario) document.documentElement.style.setProperty('--secondary', ap.color_secundario);
             if (ap.color_accent) document.documentElement.style.setProperty('--accent', ap.color_accent);
             if (ap.radius) document.documentElement.style.setProperty('--radius', ap.radius);
             if (ap.fuente) previewFuente(ap.fuente);
