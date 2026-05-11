@@ -21,5 +21,10 @@
             "src": "/(.*)",
             "dest": "server-academico.js"
         }
-    ]
+    ],
+    "functions": {
+        "server-academico.js": {
+            "maxDuration": 30
+        }
+    }
 }

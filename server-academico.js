@@ -218,10 +218,9 @@ app.use((err, req, res, next) => {
 // ========================================
 // 📌 Conexión a DB y arranque
 // ========================================
-// Para Vercel (serverless): exportar app
+// Para Vercel (serverless): exportar app sin listen
 // Para local/Railway: usar app.listen
 conectarDB().then(() => {
-    // Solo hacer listen si NO estamos en Vercel
     if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'vercel') {
         app.listen(port, () => {
             console.log(`🎓 Servidor Académico corriendo en puerto ${port}`);
@@ -234,7 +233,9 @@ conectarDB().then(() => {
         });
     }
 }).catch(err => {
-    console.error('❌ Error al iniciar servidor académico:', err.message);
+    console.error('❌ Error al conectar DB:', err.message);
+    // NO llamar process.exit(1) en Vercel: mata el contenedor permanentemente
+    // En local sí salimos para evitar servidor sin BD
     if (process.env.VERCEL !== '1') process.exit(1);
 });
 
