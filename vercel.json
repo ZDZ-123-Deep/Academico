@@ -3,7 +3,17 @@
     "builds": [
         {
             "src": "server-academico.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "*.html",
+                    "*.css",
+                    "config/**",
+                    "middleware/**",
+                    "models/**",
+                    "routes/**"
+                ]
+            }
         }
     ],
     "routes": [
