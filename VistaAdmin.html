@@ -2091,10 +2091,24 @@
 
         <!-- TAB 3: CONTROL DE ACCESO -->
         <div class="cfg-panel" id="cfgTab-acceso" style="padding:24px">
-            <p style="color:var(--gray-500);font-size:0.875rem;margin-bottom:20px">Define qué módulos son visibles para cada rol. Los cambios aplican al próximo inicio de sesión de cada usuario.</p>
+            <p style="color:var(--gray-500);font-size:0.875rem;margin-bottom:20px">Define qué módulos puede <strong>ver</strong> y cuáles puede <strong>editar</strong> cada rol. Los cambios aplican al próximo inicio de sesión.</p>
             <div style="overflow-x:auto">
                 <table class="data-table" id="tablaAcceso">
-                    <thead><tr><th>Módulo / Sección</th><th style="text-align:center"><i class="fas fa-user-shield" style="color:#6366f1"></i> Admin</th><th style="text-align:center"><i class="fas fa-chalkboard-teacher" style="color:#10b981"></i> Profesor</th><th style="text-align:center"><i class="fas fa-user-graduate" style="color:#f59e0b"></i> Estudiante</th><th style="text-align:center"><i class="fas fa-user-friends" style="color:#ec4899"></i> Padre</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="vertical-align:middle">Módulo / Sección</th>
+                            <th colspan="2" class="rol-group"><i class="fas fa-user-shield" style="color:#6366f1"></i> Admin</th>
+                            <th colspan="2" class="rol-group"><i class="fas fa-chalkboard-teacher" style="color:#10b981"></i> Profesor</th>
+                            <th colspan="2" class="rol-group"><i class="fas fa-user-graduate" style="color:#f59e0b"></i> Estudiante</th>
+                            <th colspan="2" class="rol-group"><i class="fas fa-user-friends" style="color:#ec4899"></i> Padre</th>
+                        </tr>
+                        <tr class="sub-head">
+                            <th>👁 Ver</th><th>✏️ Edit</th>
+                            <th>👁 Ver</th><th>✏️ Edit</th>
+                            <th>👁 Ver</th><th>✏️ Edit</th>
+                            <th>👁 Ver</th><th>✏️ Edit</th>
+                        </tr>
+                    </thead>
                     <tbody id="tbodyAcceso"></tbody>
                 </table>
             </div>
@@ -3154,6 +3168,8 @@
             if (window.innerWidth <= 768) toggleSidebar();
             // Cargar datos al navegar
             cargarDatosSeccion(id);
+            // Aplicar permisos de edición
+            aplicarModoLectura(id);
         }
 
         // ===== Sidebar Toggle =====
@@ -6950,26 +6966,97 @@
         let _cfgAccesoModulos = {};
         let _usuariosCargados = false;
 
-        // Módulos configurables por rol
+        // Módulos configurables — defaults {ver, editar} por rol
         const MODULOS_ACCESO = [
-            { id: 'estudiantes', label: 'Estudiantes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'profesores', label: 'Docentes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'acudientes', label: 'Acudientes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'asignaturas', label: 'Asignaturas', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'cursos', label: 'Cursos', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'calificaciones', label: 'Calificaciones', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'asistencia', label: 'Asistencia', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'observador', label: 'Observador', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'horarios', label: 'Horario General', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'horarioAtencion', label: 'Horario Atención', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'pagos', label: 'Pagos', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'boletines', label: 'Boletines', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'anuncios', label: 'Anuncios', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'logros', label: 'Logros', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'indicadores', label: 'Indicadores', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'pensum', label: 'Pensum', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'reportes', label: 'Reportes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id:'estudiantes',    label:'Estudiantes',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'profesores',     label:'Docentes',          d:{ admin:{v:1,e:1}, profesor:{v:0,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'acudientes',     label:'Acudientes',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:1,e:0} }},
+            { id:'asignaturas',    label:'Asignaturas',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:0,e:0} }},
+            { id:'cursos',         label:'Cursos',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'calificaciones', label:'Calificaciones',    d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'asistencia',     label:'Asistencia',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'observador',     label:'Observador',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'horarios',       label:'Horario General',   d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:0,e:0} }},
+            { id:'horarioAtencion',label:'Horario Atención', d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'pagos',          label:'Pagos',             d:{ admin:{v:1,e:1}, profesor:{v:0,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'boletines',      label:'Boletines',         d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'anuncios',       label:'Anuncios',          d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
+            { id:'logros',         label:'Logros',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'indicadores',    label:'Indicadores',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'pensum',         label:'Pensum',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
+            { id:'reportes',       label:'Reportes',          d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
         ];
+
+        // --- Helpers backward-compatible ---
+        function _canVer(accesos, modId, rol) {
+            if (!accesos || !accesos[modId]) return true;
+            const cfg = accesos[modId];
+            if (Array.isArray(cfg)) return cfg.includes(rol);       // formato antiguo
+            if (cfg[rol] && typeof cfg[rol] === 'object') return cfg[rol].ver !== false;
+            return true;
+        }
+        function _canEditar(accesos, modId, rol) {
+            if (!accesos || !accesos[modId]) return true;
+            const cfg = accesos[modId];
+            if (Array.isArray(cfg)) return cfg.includes(rol);       // formato antiguo
+            if (cfg[rol] && typeof cfg[rol] === 'object') return cfg[rol].editar !== false;
+            return true;
+        }
+        function _getDefault(m, rol, tipo) {
+            return m.d && m.d[rol] ? !!m.d[rol][tipo === 'ver' ? 'v' : 'e'] : true;
+        }
+
+        // --- Mapa sección → panel ID ---
+        const _secPanelMap = {
+            estudiantes:'secEstudiantes', profesores:'secProfesores', acudientes:'secAcudientes',
+            asignaturas:'secAsignaturas', cursos:'secCursos', pensum:'secPensum',
+            logros:'secLogros', indicadores:'secIndicadores', horarios:'secHorarios',
+            horarioAtencion:'secHorarioAtencion', asistencia:'secAsistencia',
+            calificaciones:'secCalificaciones', observador:'secObservador',
+            pagos:'secPagos', boletines:'secBoletines', anuncios:'secAnuncios', reportes:'secReportes'
+        };
+
+        // --- Aplicar modo lectura a una sección ---
+        function aplicarModoLectura(seccionId) {
+            const panelId = _secPanelMap[seccionId];
+            if (!panelId) return;
+            const panel = document.getElementById(panelId);
+            if (!panel) return;
+            const perm = (window._permisos || {})[seccionId];
+
+            // Limpiar estado anterior
+            panel.classList.remove('modo-lectura');
+            panel.querySelector('.modo-lectura-banner')?.remove();
+            panel.querySelectorAll('._acl_hidden').forEach(el => {
+                el.style.display = '';
+                el.classList.remove('_acl_hidden');
+            });
+
+            if (!perm || perm.editar !== false) return; // tiene permiso de editar
+
+            panel.classList.add('modo-lectura');
+
+            // Ocultar botones de crear/nuevo
+            panel.querySelectorAll('button, .btn').forEach(btn => {
+                if (btn.closest('.modo-lectura-banner')) return;
+                const oc = btn.getAttribute('onclick') || '';
+                const tx = btn.textContent.trim().toLowerCase();
+                if (oc.match(/abrir[A-Z]|abrirModal|nuevo|agregar|crear|guardarNota/i) ||
+                    tx.match(/^\+?\s*(nuevo|nueva|agregar|crear)/i)) {
+                    btn.classList.add('_acl_hidden');
+                    btn.style.display = 'none';
+                }
+            });
+
+            // Banner visual en la primera card
+            const firstCard = panel.querySelector('.card');
+            if (firstCard) {
+                const banner = document.createElement('div');
+                banner.className = 'modo-lectura-banner';
+                banner.innerHTML = '<i class="fas fa-lock"></i>&nbsp; Solo lectura — No tiene permiso de edición en este módulo';
+                firstCard.prepend(banner);
+            }
+        }
 
         // --- Tab switching ---
         function switchCfgTab(tab, btn) {
@@ -7208,20 +7295,54 @@
         function renderTablaAcceso() {
             const tbody = document.getElementById('tbodyAcceso');
             tbody.innerHTML = MODULOS_ACCESO.map(m => {
-                const rolesCells = ['admin','profesor','estudiante','padre'].map(rol => {
-                    if (!m.roles.includes(rol)) return '<td style="text-align:center"><span style="color:var(--gray-300)">—</span></td>';
-                    const checked = _cfgAccesoModulos[m.id] ? _cfgAccesoModulos[m.id].includes(rol) : m.roles.includes(rol);
-                    return `<td style="text-align:center"><label class="toggle-switch"><input type="checkbox" id="acc_${m.id}_${rol}" ${checked ? 'checked' : ''}><span class="toggle-slider"></span></label></td>`;
+                const cols = ['admin','profesor','estudiante','padre'].map(rol => {
+                    const cfg = _cfgAccesoModulos[m.id];
+                    let canVer, canEditar;
+                    if (!cfg) {
+                        canVer    = _getDefault(m, rol, 'ver');
+                        canEditar = _getDefault(m, rol, 'editar');
+                    } else if (Array.isArray(cfg)) {           // formato antiguo
+                        canVer = canEditar = cfg.includes(rol);
+                    } else {
+                        canVer    = cfg[rol] ? cfg[rol].ver    !== false : _getDefault(m, rol, 'ver');
+                        canEditar = cfg[rol] ? cfg[rol].editar !== false : _getDefault(m, rol, 'editar');
+                    }
+                    const vid = `acc_${m.id}_${rol}_ver`;
+                    const eid = `acc_${m.id}_${rol}_editar`;
+                    return `<td class="acc-cell">
+                        <div class="acc-check">
+                            <label style="font-size:0.7rem;color:var(--gray-500);display:flex;align-items:center;gap:4px;cursor:pointer">
+                                <input type="checkbox" id="${vid}" ${canVer?'checked':''} onchange="onVerChange('${m.id}','${rol}')">
+                                <span>Ver</span>
+                            </label>
+                            <label style="font-size:0.7rem;color:#d97706;display:flex;align-items:center;gap:4px;cursor:pointer">
+                                <input type="checkbox" id="${eid}" class="editar-cb" ${canEditar?'checked':''} ${!canVer?'disabled':''}>
+                                <span>Edit</span>
+                            </label>
+                        </div>
+                    </td>`;
                 }).join('');
-                return `<tr><td style="font-weight:500">${m.label}</td>${rolesCells}</tr>`;
+                return `<tr><td style="font-weight:500;padding-left:8px">${m.label}</td>${cols}</tr>`;
             }).join('');
+        }
+        function onVerChange(modId, rol) {
+            const verEl    = document.getElementById(`acc_${modId}_${rol}_ver`);
+            const editarEl = document.getElementById(`acc_${modId}_${rol}_editar`);
+            if (!verEl || !editarEl) return;
+            if (!verEl.checked) { editarEl.checked = false; editarEl.disabled = true; }
+            else                { editarEl.disabled = false; }
         }
         async function guardarAccesoModulos() {
             const result = {};
             MODULOS_ACCESO.forEach(m => {
-                result[m.id] = ['admin','profesor','estudiante','padre'].filter(rol => {
-                    const el = document.getElementById(`acc_${m.id}_${rol}`);
-                    return el && el.checked;
+                result[m.id] = {};
+                ['admin','profesor','estudiante','padre'].forEach(rol => {
+                    const v = document.getElementById(`acc_${m.id}_${rol}_ver`);
+                    const e = document.getElementById(`acc_${m.id}_${rol}_editar`);
+                    result[m.id][rol] = {
+                        ver:    v ? v.checked    : true,
+                        editar: e ? e.checked    : true
+                    };
                 });
             });
             const res = await fetch(`${API}/empresa/acceso-modulos`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result) });
@@ -7653,6 +7774,7 @@
                             if (tokenStr) {
                                 const rolActual = JSON.parse(atob(tokenStr.split('.')[1])).rol;
                                 const accesos = emp.acceso_modulos;
+                                window._permisos = {};
                                 const map = {
                                     'estudiantes': ['estudiantes'],
                                     'profesores': ['profesores'],
@@ -7673,14 +7795,21 @@
                                     'reportes': ['reportes']
                                 };
                                 for (const modId in map) {
-                                    const sections = map[modId];
-                                    const isVisible = !accesos[modId] || accesos[modId].includes(rolActual);
-                                    if (!isVisible) {
-                                        sections.forEach(sec => {
-                                            const btns = document.querySelectorAll(`button[onclick*="'${sec}'"]`);
-                                            btns.forEach(btn => btn.style.display = 'none');
+                                    const canVer    = _canVer(accesos, modId, rolActual);
+                                    const canEditar = _canEditar(accesos, modId, rolActual);
+                                    window._permisos[modId] = { ver: canVer, editar: canEditar };
+                                    if (!canVer) {
+                                        map[modId].forEach(sec => {
+                                            document.querySelectorAll(`button[onclick*="'${sec}'"]`)
+                                                .forEach(btn => btn.style.display = 'none');
                                         });
                                     }
+                                }
+                                // Aplicar modo lectura a la sección activa actual
+                                const activeBtn = document.querySelector('.nav-item.active');
+                                if (activeBtn) {
+                                    const m2 = (activeBtn.getAttribute('onclick')||'').match(/mostrarSeccion\('([^']+)'/);
+                                    if (m2) aplicarModoLectura(m2[1]);
                                 }
                             }
                         } catch(e) { console.error('Error aplicando control de acceso:', e); }
