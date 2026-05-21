@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -6928,6 +6928,26 @@
             } catch (err) { console.error(err); }
         }
 
+        const MODULOS_ACCESO = [
+            { id:'estudiantes',    label:'Estudiantes',      d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'profesores',     label:'Docentes',         d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'acudientes',     label:'Acudientes',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'asignaturas',    label:'Asignaturas',      d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'cursos',         label:'Cursos',           d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'calificaciones', label:'Calificaciones',   d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'asistencia',     label:'Asistencia',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'observador',     label:'Observador',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'horarios',       label:'Horario General',  d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'horarioAtencion',label:'Horario Atención',d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'pagos',          label:'Pagos',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'boletines',      label:'Boletines',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'anuncios',       label:'Anuncios',         d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'logros',         label:'Logros',           d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'indicadores',    label:'Indicadores',      d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'pensum',         label:'Pensum',           d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+            { id:'reportes',       label:'Reportes',         d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:1}, padre:{v:1,e:1} }},
+        ];
+
         function tiempoRelativo(fecha) {
             const diff = Date.now() - new Date(fecha).getTime();
             const mins = Math.floor(diff / 60000);
@@ -6956,28 +6976,6 @@
         window._cfgEmpresa = window._cfgEmpresa || {};
         let _cfgUsuariosSistema = [];
         let _cfgAccesoModulos = {};
-        let _usuariosCargados = false;
-
-        // Módulos configurables — defaults {ver, editar} por rol
-        const MODULOS_ACCESO = [
-            { id:'estudiantes',    label:'Estudiantes',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'profesores',     label:'Docentes',          d:{ admin:{v:1,e:1}, profesor:{v:0,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'acudientes',     label:'Acudientes',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:1,e:0} }},
-            { id:'asignaturas',    label:'Asignaturas',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:0,e:0} }},
-            { id:'cursos',         label:'Cursos',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'calificaciones', label:'Calificaciones',    d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'asistencia',     label:'Asistencia',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'observador',     label:'Observador',        d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'horarios',       label:'Horario General',   d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:0,e:0} }},
-            { id:'horarioAtencion',label:'Horario Atención', d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'pagos',          label:'Pagos',             d:{ admin:{v:1,e:1}, profesor:{v:0,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'boletines',      label:'Boletines',         d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'anuncios',       label:'Anuncios',          d:{ admin:{v:1,e:1}, profesor:{v:1,e:1}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-            { id:'logros',         label:'Logros',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'indicadores',    label:'Indicadores',       d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'pensum',         label:'Pensum',            d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:0,e:0}, padre:{v:0,e:0} }},
-            { id:'reportes',       label:'Reportes',          d:{ admin:{v:1,e:1}, profesor:{v:1,e:0}, estudiante:{v:1,e:0}, padre:{v:1,e:0} }},
-        ];
 
         // --- Helpers backward-compatible ---
         function _canVer(accesos, modId, rol) {
