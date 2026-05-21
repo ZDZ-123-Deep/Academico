@@ -1287,6 +1287,7 @@ router.get('/boletines/intermedio', async (req, res) => {
                 estudiante_id: est.estudiante_id,
                 nombre: est.nombre,
                 curso_id: est.curso_id,
+                foto: est.foto || '',
                 materias
             };
         });
@@ -1394,6 +1395,7 @@ router.get('/boletines/regdiario', async (req, res) => {
                 estudiante_id: est.estudiante_id,
                 nombre:        est.nombre,
                 curso_id:      est.curso_id,
+                foto:          est.foto || '',
                 materias
             };
         });

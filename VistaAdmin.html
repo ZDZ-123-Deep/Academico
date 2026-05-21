@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -5367,7 +5367,7 @@
                         return '<tr>' +
                             `<td style="text-align:center;padding:6px">${cursoCodigo}</td>` +
                             `<td style="text-align:center;padding:6px;font-weight:600">${est.estudiante_id}</td>` +
-                            `<td style="text-align:center;padding:6px"><img src="${fotoSvg}" style="width:32px;height:32px;border-radius:50%;background:var(--gray-200)"></td>` +
+                            `<td style="text-align:center;padding:6px"><img src="${est.foto || fotoSvg}" style="width:32px;height:32px;border-radius:50%;background:var(--gray-200);object-fit:cover"></td>` +
                             `<td style="padding:6px 10px;font-weight:600">${est.nombre}</td>` +
                             notas.map(n => {
                                 const col = colorNota(n);
@@ -5394,7 +5394,7 @@
                             <div style="display:flex;align-items:center;gap:16px">
                                 <div style="text-align:center">
                                     <div style="font-size:0.7rem;color:var(--gray-500);font-weight:600;margin-bottom:4px">Foto</div>
-                                    <img src="${foto}" style="width:48px;height:48px;border-radius:50%;background:var(--gray-200)">
+                                    <img src="${est.foto || foto}" style="width:48px;height:48px;border-radius:50%;background:var(--gray-200);object-fit:cover">
                                 </div>
                                 <div>
                                     <div style="font-size:0.7rem;color:var(--gray-500);font-weight:600;margin-bottom:2px">Nombre</div>
