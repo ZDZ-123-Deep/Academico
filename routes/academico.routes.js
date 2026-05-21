@@ -448,7 +448,7 @@ router.delete('/asignaturas/:id', async (req, res) => {
 router.get('/cursos', async (req, res) => {
     try {
         const filtro = { estado: 'A', ...filtroSede(req.query) };
-        const cursos = await Curso.find(filtro).sort({ orden: 1 }).lean();
+        const cursos = await Curso.find(filtro).lean();
         // Enriquecer con nombre del docente director
         const docentes = await Docente.find().select('teacher_id nombre').lean();
         const docenteMap = {};
@@ -458,6 +458,14 @@ router.get('/cursos', async (req, res) => {
             ...c,
             docente_nombre: docenteMap[c.id_docente] || 'Sin asignar'
         }));
+
+        result.sort((a, b) => {
+            const ordA = parseFloat(a.orden || a.curso_id) || 0;
+            const ordB = parseFloat(b.orden || b.curso_id) || 0;
+            if (ordA !== ordB) return ordA - ordB;
+            return (a.nombre || '').localeCompare(b.nombre || '', 'es', { numeric: true });
+        });
+
         res.json(result);
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
@@ -1669,12 +1677,31 @@ router.get('/profesor/dashboard', async (req, res) => {
             cursoGroups[m.class_id].materias.push({ asignatura: m.asignatura, int_horaria: m.int_horaria, pensum_id: m.pensum_id });
         });
 
+        const sortedCursos = Object.values(cursoGroups);
+        sortedCursos.sort((a, b) => {
+            const cursoA = cursos.find(c => String(c.curso_id) === String(a.class_id));
+            const cursoB = cursos.find(c => String(c.curso_id) === String(b.class_id));
+            const ordA = parseFloat(cursoA?.orden || a.class_id) || 0;
+            const ordB = parseFloat(cursoB?.orden || b.class_id) || 0;
+            if (ordA !== ordB) return ordA - ordB;
+            return (a.curso_nombre || '').localeCompare(b.curso_nombre || '', 'es', { numeric: true });
+        });
+
+        materias.sort((a, b) => {
+            const cursoA = cursos.find(c => String(c.curso_id) === String(a.class_id));
+            const cursoB = cursos.find(c => String(c.curso_id) === String(b.class_id));
+            const ordA = parseFloat(cursoA?.orden || a.class_id) || 0;
+            const ordB = parseFloat(cursoB?.orden || b.class_id) || 0;
+            if (ordA !== ordB) return ordA - ordB;
+            return (a.asignatura || '').localeCompare(b.asignatura || '', 'es', { numeric: true });
+        });
+
         res.json({
             docente: docente ? { nombre: docente.nombre, teacher_id: docente.teacher_id, email: docente.email, especialidad: docente.especialidad } : null,
             totalCursos: cursoIds.length,
             totalEstudiantes: Object.values(studentCounts).reduce((a, b) => a + b, 0),
             totalMaterias: pensums.length,
-            cursos: Object.values(cursoGroups),
+            cursos: sortedCursos,
             materias
         });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
