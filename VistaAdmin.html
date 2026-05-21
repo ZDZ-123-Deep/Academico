@@ -379,7 +379,14 @@
                                             </button>
                                         </div>
                                     </th>
-                                    <th>Estado</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Estado
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantes('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado">
+                                                <i class="fas fa-sort" id="sort-icon-estado"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -3637,7 +3644,8 @@
         let sortDirections = {
             nombre: 'asc',
             codigo: 'asc',
-            grado: 'asc'
+            grado: 'asc',
+            estado: 'asc'
         };
         async function cargarEstudiantes() {
             if (Object.keys(mapaCursos).length === 0) {
@@ -3707,6 +3715,7 @@
             document.getElementById('sort-icon-nombre').className = 'fas fa-sort';
             document.getElementById('sort-icon-codigo').className = 'fas fa-sort';
             document.getElementById('sort-icon-grado').className = 'fas fa-sort';
+            document.getElementById('sort-icon-estado').className = 'fas fa-sort';
 
             const activeIcon = document.getElementById('sort-icon-' + campo);
             if (activeIcon) {
@@ -3727,6 +3736,10 @@
                     } else {
                         comp = (a.curso_nombre || '').localeCompare(b.curso_nombre || '', 'es', { numeric: true });
                     }
+                } else if (campo === 'estado') {
+                    const labelA = a.estado_est === 'R' ? 'Retirado' : (a.estado_est === 'T' ? 'Trasladado' : 'Matriculado');
+                    const labelB = b.estado_est === 'R' ? 'Retirado' : (b.estado_est === 'T' ? 'Trasladado' : 'Matriculado');
+                    comp = labelA.localeCompare(labelB, 'es', { numeric: true });
                 }
                 return dir === 'asc' ? comp : -comp;
             });

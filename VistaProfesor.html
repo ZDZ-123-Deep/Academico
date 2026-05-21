@@ -417,7 +417,14 @@
                                 </div>
                             </th>
                             <th>Documento</th>
-                            <th>Estado</th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Estado
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantesClean('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado">
+                                        <i class="fas fa-sort" id="sort-icon-clean-estado"></i>
+                                    </button>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="tablaEstudiantesClean">
@@ -1284,7 +1291,8 @@ let mapaCursosClean = {};
 let sortDirectionsClean = {
     nombre: 'asc',
     codigo: 'asc',
-    grado: 'asc'
+    grado: 'asc',
+    estado: 'asc'
 };
 async function cargarEstudiantesClean() {
     try {
@@ -1335,6 +1343,7 @@ function ordenarEstudiantesClean(campo) {
     document.getElementById('sort-icon-clean-nombre').className = 'fas fa-sort';
     document.getElementById('sort-icon-clean-codigo').className = 'fas fa-sort';
     document.getElementById('sort-icon-clean-grado').className = 'fas fa-sort';
+    document.getElementById('sort-icon-clean-estado').className = 'fas fa-sort';
 
     const activeIcon = document.getElementById('sort-icon-clean-' + campo);
     if (activeIcon) {
@@ -1355,6 +1364,10 @@ function ordenarEstudiantesClean(campo) {
             } else {
                 comp = (a.curso_nombre || '').localeCompare(b.curso_nombre || '', 'es', { numeric: true });
             }
+        } else if (campo === 'estado') {
+            const labelA = a.estado_est === 'R' ? 'Retirado' : (a.estado_est === 'T' ? 'Trasladado' : 'Matriculado');
+            const labelB = b.estado_est === 'R' ? 'Retirado' : (b.estado_est === 'T' ? 'Trasladado' : 'Matriculado');
+            comp = labelA.localeCompare(labelB, 'es', { numeric: true });
         }
         return dir === 'asc' ? comp : -comp;
     });
