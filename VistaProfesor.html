@@ -1274,7 +1274,7 @@ async function cargarEstudiantesClean() {
             <tr>
                 <td>${e.nombre || '—'}</td>
                 <td>${e.estudiante_id || '—'}</td>
-                <td>${e.curso_id || '—'}</td>
+                <td>${e.curso_nombre || e.curso_id || '—'}</td>
                 <td>${e.documento || '—'}</td>
                 <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : e.estado_est === 'T' ? 'warning' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
             </tr>

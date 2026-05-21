@@ -163,7 +163,19 @@ router.get('/estudiantes', async (req, res) => {
             .sort({ nombre: 1 })
             .lean();
 
-        res.json({ total, pagina: parseInt(page), estudiantes });
+        // Enriquecer con nombre del grado/curso
+        const cursos = await Curso.find({ estado: 'A' }).select('curso_id nombre codigo').lean();
+        const cursoMap = {};
+        cursos.forEach(c => {
+            cursoMap[c.curso_id] = c.nombre || c.codigo;
+        });
+
+        const enrichedEstudiantes = estudiantes.map(e => ({
+            ...e,
+            curso_nombre: cursoMap[e.curso_id] || e.curso_id || '—'
+        }));
+
+        res.json({ total, pagina: parseInt(page), estudiantes: enrichedEstudiantes });
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }

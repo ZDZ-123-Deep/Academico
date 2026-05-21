@@ -3644,7 +3644,7 @@
                         ${e.nombre}
                     </div></td>
                     <td>${e.estudiante_id}</td>
-                    <td>${e.curso_id || '—'}</td>
+                    <td>${e.curso_nombre || e.curso_id || '—'}</td>
                     <td>${e.documento || '—'}</td>
                     <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
                     <td>
