@@ -355,10 +355,30 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Código</th>
-                                    <th>Grado</th>
-                                    <th>Promedio</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Nombre
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantes('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                                <i class="fas fa-sort" id="sort-icon-nombre"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Código
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantes('codigo')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Código">
+                                                <i class="fas fa-sort" id="sort-icon-codigo"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Grado
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantes('grado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Grado">
+                                                <i class="fas fa-sort" id="sort-icon-grado"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -3613,11 +3633,33 @@
         function cerrarModalDocente() { document.getElementById('modalProfesor').classList.remove('show'); }
 
         // ── ESTUDIANTES ──
+        let mapaCursos = {};
+        let sortDirections = {
+            nombre: 'asc',
+            codigo: 'asc',
+            grado: 'asc'
+        };
         async function cargarEstudiantes() {
+            if (Object.keys(mapaCursos).length === 0) {
+                try {
+                    const resC = await fetch(`${API}/cursos`);
+                    const cursos = await resC.json();
+                    cursos.forEach(c => {
+                        mapaCursos[c.curso_id] = parseFloat(c.orden || c.curso_id) || 0;
+                    });
+                } catch (e) {
+                    console.error('Error cargando cursos para ordenación:', e);
+                }
+            }
             const res = await fetch(`${API}/estudiantes?limit=200`);
             const data = await res.json();
+            window.listaEstudiantes = data.estudiantes || [];
+            renderEstudiantes(window.listaEstudiantes);
+        }
+
+        function renderEstudiantes(estudiantes) {
             const tbody = document.getElementById('tablaEstudiantes');
-            tbody.innerHTML = data.estudiantes.map((e, i) => `
+            tbody.innerHTML = estudiantes.map((e, i) => `
                 <tr id="est-row-${e.estudiante_id}">
                     <td><div style="display:flex;align-items:center;gap:10px">
                         <div style="position:relative;flex-shrink:0;width:36px;height:36px">
@@ -3645,18 +3687,54 @@
                     </div></td>
                     <td>${e.estudiante_id}</td>
                     <td>${e.curso_nombre || e.curso_id || '—'}</td>
-                    <td>${e.documento || '—'}</td>
                     <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
                     <td>
                         <div class="actions">
                             <button class="btn btn-edit btn-sm" onclick="editarEstudiante('${e.estudiante_id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-delete btn-sm" onclick="eliminarEstudiante('${e.estudiante_id}','${(e.nombre || '').replace(/'/g, "\\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-delete btn-sm" onclick="eliminarEstudiante('${e.estudiante_id}','${(e.nombre || '').replace(/'/g, "\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
-
         }
+
+        function ordenarEstudiantes(campo) {
+            if (!window.listaEstudiantes || !window.listaEstudiantes.length) return;
+            const dir = sortDirections[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirections[campo] = dir;
+
+            // Reset icons
+            document.getElementById('sort-icon-nombre').className = 'fas fa-sort';
+            document.getElementById('sort-icon-codigo').className = 'fas fa-sort';
+            document.getElementById('sort-icon-grado').className = 'fas fa-sort';
+
+            const activeIcon = document.getElementById('sort-icon-' + campo);
+            if (activeIcon) {
+                activeIcon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            }
+
+            window.listaEstudiantes.sort((a, b) => {
+                let comp = 0;
+                if (campo === 'nombre') {
+                    comp = (a.nombre || '').localeCompare(b.nombre || '', 'es', { numeric: true });
+                } else if (campo === 'codigo') {
+                    comp = (a.estudiante_id || '').localeCompare(b.estudiante_id || '', 'es', { numeric: true });
+                } else if (campo === 'grado') {
+                    const ordA = mapaCursos[a.curso_id] || 0;
+                    const ordB = mapaCursos[b.curso_id] || 0;
+                    if (ordA !== ordB) {
+                        comp = ordA - ordB;
+                    } else {
+                        comp = (a.curso_nombre || '').localeCompare(b.curso_nombre || '', 'es', { numeric: true });
+                    }
+                }
+                return dir === 'asc' ? comp : -comp;
+            });
+
+            renderEstudiantes(window.listaEstudiantes);
+        }
+
+        
         var _fotoEstudianteId = null;
         var _fotoBase64       = null;
         var _fotoNombre       = null;

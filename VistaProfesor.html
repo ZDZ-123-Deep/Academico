@@ -392,9 +392,30 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Estudiante</th>
-                            <th>ID</th>
-                            <th>Curso</th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Estudiante
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantesClean('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                        <i class="fas fa-sort" id="sort-icon-clean-nombre"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    ID
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantesClean('codigo')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Código">
+                                        <i class="fas fa-sort" id="sort-icon-clean-codigo"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Curso
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarEstudiantesClean('grado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Grado">
+                                        <i class="fas fa-sort" id="sort-icon-clean-grado"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th>Documento</th>
                             <th>Estado</th>
                         </tr>
@@ -1259,28 +1280,88 @@ async function cargarAnunciosClean() {
 }
 
 // --- ESTUDIANTES ---
+let mapaCursosClean = {};
+let sortDirectionsClean = {
+    nombre: 'asc',
+    codigo: 'asc',
+    grado: 'asc'
+};
 async function cargarEstudiantesClean() {
     try {
+        if (Object.keys(mapaCursosClean).length === 0) {
+            try {
+                const resC = await fetch(`${API}/cursos`);
+                const cursos = await resC.json();
+                cursos.forEach(c => {
+                    mapaCursosClean[c.curso_id] = parseFloat(c.orden || c.curso_id) || 0;
+                });
+            } catch (e) {
+                console.error('Error cargando cursos para ordenación:', e);
+            }
+        }
         const res = await fetch(`${API}/estudiantes?limit=200`);
         const data = await res.json();
-        const tbody = document.getElementById('tablaEstudiantesClean');
-        
-        if (!data.estudiantes || data.estudiantes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan='5'>No se encontraron estudiantes en la DB. (data.estudiantes=${typeof data.estudiantes}, data=${JSON.stringify(data).substring(0,50)})</td></tr>`;
-            return;
-        }
-        tbody.innerHTML = data.estudiantes.map(e => `
-
-            <tr>
-                <td>${e.nombre || '—'}</td>
-                <td>${e.estudiante_id || '—'}</td>
-                <td>${e.curso_nombre || e.curso_id || '—'}</td>
-                <td>${e.documento || '—'}</td>
-                <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : e.estado_est === 'T' ? 'warning' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
-            </tr>
-        `).join('');
-    } catch(e) { console.error(e); document.getElementById('tablaEstudiantesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; }
+        window.listaEstudiantesClean = data.estudiantes || [];
+        renderEstudiantesClean(window.listaEstudiantesClean);
+    } catch(e) { 
+        console.error(e); 
+        document.getElementById('tablaEstudiantesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; 
+    }
 }
+
+function renderEstudiantesClean(estudiantes) {
+    const tbody = document.getElementById('tablaEstudiantesClean');
+    if (!estudiantes || estudiantes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan='5'>No se encontraron estudiantes en la DB.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = estudiantes.map(e => `
+        <tr>
+            <td>${e.nombre || '—'}</td>
+            <td>${e.estudiante_id || '—'}</td>
+            <td>${e.curso_nombre || e.curso_id || '—'}</td>
+            <td>${e.documento || '—'}</td>
+            <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : e.estado_est === 'T' ? 'warning' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
+        </tr>
+    `).join('');
+}
+
+function ordenarEstudiantesClean(campo) {
+    if (!window.listaEstudiantesClean || !window.listaEstudiantesClean.length) return;
+    const dir = sortDirectionsClean[campo] === 'asc' ? 'desc' : 'asc';
+    sortDirectionsClean[campo] = dir;
+
+    // Reset icons
+    document.getElementById('sort-icon-clean-nombre').className = 'fas fa-sort';
+    document.getElementById('sort-icon-clean-codigo').className = 'fas fa-sort';
+    document.getElementById('sort-icon-clean-grado').className = 'fas fa-sort';
+
+    const activeIcon = document.getElementById('sort-icon-clean-' + campo);
+    if (activeIcon) {
+        activeIcon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    }
+
+    window.listaEstudiantesClean.sort((a, b) => {
+        let comp = 0;
+        if (campo === 'nombre') {
+            comp = (a.nombre || '').localeCompare(b.nombre || '', 'es', { numeric: true });
+        } else if (campo === 'codigo') {
+            comp = (a.estudiante_id || '').localeCompare(b.estudiante_id || '', 'es', { numeric: true });
+        } else if (campo === 'grado') {
+            const ordA = mapaCursosClean[a.curso_id] || 0;
+            const ordB = mapaCursosClean[b.curso_id] || 0;
+            if (ordA !== ordB) {
+                comp = ordA - ordB;
+            } else {
+                comp = (a.curso_nombre || '').localeCompare(b.curso_nombre || '', 'es', { numeric: true });
+            }
+        }
+        return dir === 'asc' ? comp : -comp;
+    });
+
+    renderEstudiantesClean(window.listaEstudiantesClean);
+}
+
 
 // --- ACUDIENTES ---
 async function cargarAcudientesClean() {
