@@ -118,19 +118,33 @@ router.get('/empresa', async (req, res) => {
 
 router.put('/empresa', async (req, res) => {
     try {
-        let empresa = await Empresa.findOne();
-        if (empresa) {
-            Object.assign(empresa, req.body);
-            await empresa.save();
-        } else {
-            empresa = new Empresa(req.body);
-            await empresa.save();
-        }
+        console.log('--- PUT /api/empresa ---');
+        console.log('Body keys:', Object.keys(req.body));
+        console.log('Has logo?', !!req.body.logo);
+        if (req.body.logo) console.log('Logo length:', req.body.logo.length);
+        
+        // Build update object — only include defined fields
+        const update = {};
+        const allowed = ['nombre','nit','direccion','telefono','email','rector','lema','mision','vision','anio','jornada','periodos','nota_min','nota_max','nota_aprobatoria'];
+        allowed.forEach(k => { if (req.body[k] !== undefined) update[k] = req.body[k]; });
+        // Logo fields: only update if explicitly sent (non-undefined)
+        if (req.body.logo !== undefined) update.logo = req.body.logo;
+        if (req.body.logo_boletin !== undefined) update.logo_boletin = req.body.logo_boletin;
+
+        const empresa = await Empresa.findOneAndUpdate(
+            {},
+            { $set: update },
+            { new: true, upsert: true, lean: true, strict: false }
+        );
+        console.log('Saved empresa keys:', Object.keys(empresa));
+        if (empresa.logo) console.log('Saved logo length:', empresa.logo.length);
+        
         res.json({ success: true, empresa });
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
 });
+
 
 // ========================================
 // 👨‍🎓 ESTUDIANTES
@@ -214,7 +228,7 @@ router.put('/estudiantes/:id', async (req, res) => {
     try {
         const est = await Estudiante.findOne({ estudiante_id: req.params.id });
         if (!est) return res.status(404).json({ error: 'Estudiante no encontrado' });
-        Object.assign(est, req.body);
+        est.set(req.body);
         await est.save();
         res.json({ success: true, estudiante: est.toObject() });
     } catch (error) {
@@ -281,7 +295,7 @@ router.put('/docentes/:id', async (req, res) => {
     try {
         const doc = await Docente.findOne({ teacher_id: req.params.id });
         if (!doc) return res.status(404).json({ error: 'Docente no encontrado' });
-        Object.assign(doc, req.body);
+        doc.set(req.body);
         await doc.save();
         res.json({ success: true, docente: doc.toObject() });
     } catch (error) {
@@ -348,7 +362,7 @@ router.put('/acudientes/:id', async (req, res) => {
     try {
         const acud = await Acudiente.findById(req.params.id);
         if (!acud) return res.status(404).json({ error: 'Acudiente no encontrado' });
-        Object.assign(acud, req.body);
+        acud.set(req.body);
         await acud.save();
         res.json({ success: true, acudiente: acud.toObject() });
     } catch (error) {
@@ -409,7 +423,7 @@ router.put('/asignaturas/:id', async (req, res) => {
     try {
         const asig = await Asignatura.findOne({ subject_id: req.params.id });
         if (!asig) return res.status(404).json({ error: 'Asignatura no encontrada' });
-        Object.assign(asig, req.body);
+        asig.set(req.body);
         await asig.save();
         res.json({ success: true, asignatura: asig.toObject() });
     } catch (error) {
@@ -479,7 +493,7 @@ router.put('/cursos/:id', async (req, res) => {
     try {
         const curso = await Curso.findOne({ curso_id: req.params.id });
         if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
-        Object.assign(curso, req.body);
+        curso.set(req.body);
         await curso.save();
         res.json({ success: true, curso: curso.toObject() });
     } catch (error) {
@@ -565,7 +579,7 @@ router.put('/pensum/:id', async (req, res) => {
     try {
         const p = await Pensum.findOne({ subject_id: req.params.id });
         if (!p) return res.status(404).json({ error: 'Pensum no encontrado' });
-        Object.assign(p, req.body);
+        p.set(req.body);
         await p.save();
         res.json({ success: true, pensum: p.toObject() });
     } catch (error) {
@@ -623,7 +637,7 @@ router.put('/indicadores/:id', async (req, res) => {
     try {
         const ind = await Indicador.findById(req.params.id);
         if (!ind) return res.status(404).json({ error: 'Indicador no encontrado' });
-        Object.assign(ind, req.body);
+        ind.set(req.body);
         await ind.save();
         res.json({ success: true, indicador: ind.toObject() });
     } catch (error) {
@@ -718,7 +732,7 @@ router.get('/calificaciones', async (req, res) => {
 router.get('/calificaciones/detalle', async (req, res) => {
     try {
         const { periodo, pensum, estudiante, page = 1, limit = 50 } = req.query;
-        const filtro = {};
+        const filtro = { ...filtroSede(req.query) };
         if (periodo) filtro.planilla = periodo;
         if (pensum) filtro.codigo_pensum = pensum;
         if (estudiante) filtro.codigo_est = estudiante;
@@ -957,7 +971,7 @@ router.delete('/observaciones/:id', async (req, res) => {
 // ========================================
 router.get('/horarios-atencion', async (req, res) => {
     try {
-        const horarios = await HorarioAtencion.find().limit(100).lean();
+        const horarios = await HorarioAtencion.find({ ...filtroSede(req.query) }).limit(100).lean();
         res.json(horarios);
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -1136,12 +1150,12 @@ router.delete('/horarios/:id', async (req, res) => {
 // ========================================
 router.get('/reportes/stats', async (req, res) => {
     try {
-        const totalEstudiantes = await Estudiante.countDocuments({ estado_est: { $ne: 'R' } });
-        const totalDocentes = await Docente.countDocuments({ estado: 'A' });
-        const totalCursos = await Curso.countDocuments({ estado: 'A' });
+        const totalEstudiantes = await Estudiante.countDocuments({ estado_est: { $ne: 'R' }, ...filtroSede(req.query) });
+        const totalDocentes = await Docente.countDocuments({ estado: 'A', ...filtroSede(req.query) });
+        const totalCursos = await Curso.countDocuments({ estado: 'A', ...filtroSede(req.query) });
 
         // Tasa de aprobación: calificaciones con nota >= 3.0
-        const allCalif = await PlanillaConsulta.find().lean();
+        const allCalif = await PlanillaConsulta.find({ ...filtroSede(req.query) }).lean();
         let aprobados = 0, totalCalif = 0;
         allCalif.forEach(c => {
             const nota = parseFloat(c.nota_final || c.nota || 0);
@@ -1153,16 +1167,16 @@ router.get('/reportes/stats', async (req, res) => {
         const enRiesgo = totalCalif > 0 ? totalCalif - aprobados : 0;
 
         // Asistencia
-        const totalAsistencia = await AsistenciaDet.countDocuments();
-        const presentes = await AsistenciaDet.countDocuments({ asistencia: { $in: ['P', 'Presente', '1'] } });
+        const totalAsistencia = await AsistenciaDet.countDocuments({ ...filtroSede(req.query) });
+        const presentes = await AsistenciaDet.countDocuments({ asistencia: { $in: ['P', 'Presente', '1'] }, ...filtroSede(req.query) });
         const tasaAsistencia = totalAsistencia > 0 ? Math.round((presentes / totalAsistencia) * 100) : 0;
 
         // Pagos
-        const pagosPagados = await Pago.countDocuments({ estado: 'Pagado' });
-        const pagosPendientes = await Pago.countDocuments({ estado: { $ne: 'Pagado' } });
+        const pagosPagados = await Pago.countDocuments({ estado: 'Pagado', ...filtroSede(req.query) });
+        const pagosPendientes = await Pago.countDocuments({ estado: { $ne: 'Pagado' }, ...filtroSede(req.query) });
 
         // Observaciones recientes
-        const obsRecientes = await ObservacionDocente.countDocuments();
+        const obsRecientes = await ObservacionDocente.countDocuments({ ...filtroSede(req.query) });
 
         res.json({
             totalEstudiantes, totalDocentes, totalCursos,
@@ -1608,8 +1622,8 @@ router.get('/profesor/dashboard', async (req, res) => {
         const { teacher_id } = req.query;
         if (!teacher_id) return res.status(400).json({ error: 'teacher_id es obligatorio' });
 
-        const docente = await Docente.findOne({ teacher_id: String(teacher_id) }).lean();
-        const pensums = await Pensum.find({ teacher_id: String(teacher_id), estado: 'A' }).lean();
+        const docente = await Docente.findOne({ teacher_id: String(teacher_id), ...filtroSede(req.query) }).lean();
+        const pensums = await Pensum.find({ teacher_id: String(teacher_id), estado: 'A', ...filtroSede(req.query) }).lean();
 
         // All IDs in this DB are strings
         const cursoIds = [...new Set(pensums.map(p => p.class_id))];
@@ -1628,7 +1642,7 @@ router.get('/profesor/dashboard', async (req, res) => {
         // Count students per course (string IDs)
         const studentCounts = {};
         for (const cid of cursoIds) {
-            const count = await Estudiante.countDocuments({ curso_id: cid, estado_est: { $ne: 'R' } });
+            const count = await Estudiante.countDocuments({ curso_id: cid, estado_est: { $ne: 'R' }, ...filtroSede(req.query) });
             studentCounts[cid] = count;
         }
 
@@ -1671,7 +1685,7 @@ router.get('/profesor/estudiantes', async (req, res) => {
     try {
         const { class_id, pensum_id } = req.query;
         if (!class_id) return res.status(400).json({ error: 'class_id es obligatorio' });
-        const estudiantes = await Estudiante.find({ curso_id: String(class_id), estado_est: { $ne: 'R' } }).sort({ nombre: 1 }).lean();
+        const estudiantes = await Estudiante.find({ curso_id: String(class_id), estado_est: { $ne: 'R' }, ...filtroSede(req.query) }).sort({ nombre: 1 }).lean();
 
         // If pensum_id provided, fetch grades from planilla_detalle
         let notasMap = {};
@@ -1680,7 +1694,8 @@ router.get('/profesor/estudiantes', async (req, res) => {
             const notas = await PlanillaDetalle.find({
                 codigo_pensum: String(pensum_id),
                 codigo_est: { $in: estIds },
-                estado: 'A'
+                estado: 'A',
+                ...filtroSede(req.query)
             }).sort({ id_nota: 1 }).lean();
 
             // Group by student
@@ -1716,7 +1731,7 @@ router.get('/profesor/registros', async (req, res) => {
     try {
         const { pensum_id } = req.query;
         if (!pensum_id) return res.status(400).json({ error: 'pensum_id es obligatorio' });
-        const registros = await IdNota.find({ pensum: String(pensum_id), estado: 'A' }).sort({ codigo: 1, registro: 1 }).lean();
+        const registros = await IdNota.find({ pensum: String(pensum_id), estado: 'A', ...filtroSede(req.query) }).sort({ codigo: 1, registro: 1 }).lean();
         res.json(registros.map(r => ({
             id: r.Id,
             codigo: r.codigo,
@@ -1769,14 +1784,18 @@ router.post('/profesor/registros', async (req, res) => {
 // Profesor: Crear tarea
 router.post('/profesor/tareas', async (req, res) => {
     try {
-        const { teacher_id, pensum_id, class_id, titulo, descripcion, fecha_limite, permite_tardia } = req.body;
+        const { teacher_id, pensum_id, class_id, titulo, descripcion, fecha_limite, permite_tardia, sede_id } = req.body;
         if (!teacher_id || !pensum_id || !titulo || !fecha_limite) {
             return res.status(400).json({ error: 'teacher_id, pensum_id, titulo y fecha_limite son obligatorios' });
         }
-        const tarea = await Tarea.create({
+        
+        const payload = {
             titulo, descripcion: descripcion || '', teacher_id, pensum_id, class_id: class_id || '',
             fecha_limite, permite_tardia: !!permite_tardia
-        });
+        };
+        if (sede_id && sede_id !== 'todas') payload.sede_id = new mongoose.Types.ObjectId(sede_id);
+        
+        const tarea = await Tarea.create(payload);
         res.json({ success: true, tarea });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -1787,7 +1806,7 @@ router.get('/profesor/tareas', async (req, res) => {
         const { teacher_id } = req.query;
         if (!teacher_id) return res.status(400).json({ error: 'teacher_id es obligatorio' });
 
-        const tareas = await Tarea.find({ teacher_id, estado: 'A' }).sort({ fecha_creacion: -1 }).lean();
+        const tareas = await Tarea.find({ teacher_id, estado: 'A', ...filtroSede(req.query) }).sort({ fecha_creacion: -1 }).lean();
 
         // Enrich with subject names and entrega counts
         const pensumIds = [...new Set(tareas.map(t => t.pensum_id))];
@@ -2187,7 +2206,7 @@ router.get('/padre/cartera', async (req, res) => {
 // Todas las vistas: Leer notificaciones
 router.get('/notificaciones', async (req, res) => {
     try {
-        const notifs = await Notificacion.find({ estado: 'A' }).sort({ fecha_creacion: -1 }).limit(20).lean();
+        const notifs = await Notificacion.find({ estado: 'A', ...filtroSede(req.query) }).sort({ fecha_creacion: -1 }).limit(20).lean();
         res.json(notifs);
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -2195,11 +2214,15 @@ router.get('/notificaciones', async (req, res) => {
 // Admin: Crear notificación
 router.post('/admin/notificaciones', async (req, res) => {
     try {
-        const { titulo, mensaje, tipo, icono, creado_por } = req.body;
+        const { titulo, mensaje, tipo, icono, creado_por, sede_id } = req.body;
         if (!titulo || !mensaje) return res.status(400).json({ error: 'titulo y mensaje son obligatorios' });
-        const notif = await Notificacion.create({
+        
+        const payload = {
             titulo, mensaje, tipo: tipo || 'noticia', icono: icono || 'fa-bullhorn', creado_por: creado_por || 'admin'
-        });
+        };
+        if (sede_id && sede_id !== 'todas') payload.sede_id = new mongoose.Types.ObjectId(sede_id);
+        
+        const notif = await Notificacion.create(payload);
         res.json({ success: true, notificacion: notif });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -2283,7 +2306,7 @@ router.get('/empresa/apariencia', async (req, res) => {
 
 router.put('/empresa/apariencia', async (req, res) => {
     try {
-        await Empresa.findOneAndUpdate({}, { $set: { apariencia: req.body } }, { new: true, upsert: true });
+        await Empresa.findOneAndUpdate({}, { $set: { apariencia: req.body } }, { new: true, upsert: true, strict: false });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });
@@ -2298,7 +2321,7 @@ router.get('/empresa/acceso-modulos', async (req, res) => {
 
 router.put('/empresa/acceso-modulos', async (req, res) => {
     try {
-        const result = await Empresa.findOneAndUpdate({}, { $set: { acceso_modulos: req.body } }, { new: true, upsert: true });
+        const result = await Empresa.findOneAndUpdate({}, { $set: { acceso_modulos: req.body } }, { new: true, upsert: true, strict: false });
         if (!result) return res.status(404).json({ error: 'Configuración no encontrada' });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
@@ -2314,7 +2337,7 @@ router.get('/empresa/academico-config', async (req, res) => {
 
 router.put('/empresa/academico-config', async (req, res) => {
     try {
-        await Empresa.findOneAndUpdate({}, { $set: { academico_avanzado: req.body } }, { new: true, upsert: true });
+        await Empresa.findOneAndUpdate({}, { $set: { academico_avanzado: req.body } }, { new: true, upsert: true, strict: false });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
 });

@@ -10,7 +10,7 @@ const TareaSchema = new mongoose.Schema({
     fecha_limite: String,     // deadline
     permite_tardia: { type: Boolean, default: false },
     estado: { type: String, default: 'A' }  // A = active, I = inactive
-}, { collection: 'tareas' });
+}, { collection: 'tareas', strict: false });
 
 const EntregaTareaSchema = new mongoose.Schema({
     tarea_id: String,
@@ -20,7 +20,7 @@ const EntregaTareaSchema = new mongoose.Schema({
     fecha_entrega: { type: String, default: () => new Date().toISOString().replace('T', ' ').substring(0, 19) },
     es_tardia: { type: Boolean, default: false },
     estado: { type: String, default: 'A' }
-}, { collection: 'entregas_tareas' });
+}, { collection: 'entregas_tareas', strict: false });
 
 const Tarea = mongoose.model('Tarea', TareaSchema);
 const EntregaTarea = mongoose.model('EntregaTarea', EntregaTareaSchema);

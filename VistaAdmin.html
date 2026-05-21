@@ -103,11 +103,8 @@
                 <button class="nav-item" onclick="mostrarSeccion('anuncios',this)">
                     <i class="fas fa-bullhorn"></i> Anuncios
                 </button>
-                <button class="nav-item" onclick="mostrarSeccion('configuracion',this)">
-                    <i class="fas fa-cog"></i> Configuración
-                </button>
                 <button class="nav-item" id="navConfigAvanzada" onclick="mostrarSeccion('configAvanzada',this)">
-                    <i class="fas fa-sliders-h"></i> Configuración Avanzada
+                    <i class="fas fa-cog"></i> Configuración
                 </button>
                 <button class="nav-item" onclick="mostrarSeccion('sedes',this)">
                     <i class="fas fa-map-marker-alt"></i> Sedes
@@ -1963,55 +1960,6 @@
                 </div>
             </div>
 
-            <!-- ===== CONFIGURACIÓN ===== -->
-            <div class="section" id="secConfiguracion">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-cog"></i> Configuración General</h3>
-                    </div>
-                    <div class="form-grid" style="padding:8px 0">
-                        <div class="form-group"><label class="form-label">Nombre de la Institución</label><input
-                                class="form-input" id="cfgNombre"></div>
-                        <div class="form-group"><label class="form-label">NIT</label><input class="form-input"
-                                id="cfgNit">
-                        </div>
-                        <div class="form-group"><label class="form-label">Dirección</label><input class="form-input"
-                                id="cfgDireccion"></div>
-                        <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input"
-                                id="cfgTelefono"></div>
-                        <div class="form-group"><label class="form-label">Email institucional</label><input
-                                class="form-input" id="cfgEmail"></div>
-                        <div class="form-group"><label class="form-label">Rector(a)</label><input class="form-input"
-                                id="cfgRector"></div>
-                        <div class="form-group"><label class="form-label">Año lectivo</label><input class="form-input"
-                                id="cfgAnio" type="number" value="2026"></div>
-                        <div class="form-group"><label class="form-label">Periodos académicos</label><select
-                                class="form-input" id="cfgPeriodos">
-                                <option value="3">3 Periodos</option>
-                                <option value="4">4 Periodos</option>
-                            </select></div>
-                        <div class="form-group"><label class="form-label">Escala calificación - Mínimo</label><input
-                                class="form-input" id="cfgNotaMin" type="number" step="0.1"></div>
-                        <div class="form-group"><label class="form-label">Escala calificación - Máximo</label><input
-                                class="form-input" id="cfgNotaMax" type="number" step="0.1"></div>
-                        <div class="form-group"><label class="form-label">Nota mínima aprobatoria</label><input
-                                class="form-input" id="cfgNotaAprobatoria" type="number" step="0.1"></div>
-                        <div class="form-group"><label class="form-label">Jornada</label><select class="form-input"
-                                id="cfgJornada">
-                                <option>Mañana</option>
-                                <option>Tarde</option>
-                                <option>Completa</option>
-                            </select></div>
-                    </div>
-                    <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end">
-                        <button class="btn btn-secondary" onclick="cargarEmpresa()"><i class="fas fa-undo"></i>
-                            Restablecer</button>
-                        <button class="btn btn-primary" onclick="guardarConfiguracion()"><i class="fas fa-save"></i>
-                            Guardar Configuración</button>
-                    </div>
-                </div>
-            </div>
-
             <!-- 🏫 SEDES -->
             <div class="section" id="secSedes">
                 <!-- Stats rápidas por sede -->
@@ -3198,10 +3146,10 @@
         function mostrarSeccion(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', configuracion: 'secConfiguracion', reportes: 'secReportes', notificaciones: 'secNotificaciones', configAvanzada: 'secConfigAvanzada', sedes: 'secSedes' };
+            const secMap = { dashboard: 'secDashboard', profesores: 'secProfesores', estudiantes: 'secEstudiantes', acudientes: 'secAcudientes', asignaturas: 'secAsignaturas', cursos: 'secCursos', pensum: 'secPensum', logros: 'secLogros', indicadores: 'secIndicadores', horarios: 'secHorarios', horarioAtencion: 'secHorarioAtencion', asistencia: 'secAsistencia', calificaciones: 'secCalificaciones', observador: 'secObservador', pagos: 'secPagos', boletines: 'secBoletines', anuncios: 'secAnuncios', reportes: 'secReportes', notificaciones: 'secNotificaciones', configAvanzada: 'secConfigAvanzada', sedes: 'secSedes' };
             document.getElementById(secMap[id]).classList.add('active');
             if (btn) btn.classList.add('active');
-            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', configuracion: '<span>Configuración</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>', configAvanzada: '⚙️ Configuración <span>Avanzada</span>', sedes: '🏫 Gestión de <span>Sedes</span>' };
+            const titles = { dashboard: 'Panel <span>Administrador</span>', profesores: 'Gestión de <span>Docentes</span>', estudiantes: 'Gestión de <span>Estudiantes</span>', acudientes: 'Gestión de <span>Acudientes</span>', asignaturas: '<span>Asignaturas</span>', cursos: 'Gestión de <span>Cursos</span>', pensum: '<span>Pensum</span>', logros: '<span>Logros</span>', indicadores: 'Indicadores de <span>Comportamiento</span>', horarios: '<span>Horario</span> General', horarioAtencion: 'Horario de <span>Atención</span>', asistencia: 'Control de <span>Asistencia</span>', calificaciones: 'Registro de <span>Calificaciones</span>', observador: 'Observador del <span>Estudiante</span>', pagos: '<span>Pagos</span>', boletines: '<span>Boletines</span>', anuncios: '<span>Anuncios</span>', reportes: '<span>Reportes</span> Académicos', notificaciones: '<span>Notificaciones</span>', configAvanzada: '⚙️ <span>Configuración</span>', sedes: '🏫 Gestión de <span>Sedes</span>' };
             document.getElementById('headerTitle').innerHTML = titles[id] || 'Panel <span>Administrador</span>';
             if (window.innerWidth <= 768) toggleSidebar();
             // Cargar datos al navegar
@@ -3277,8 +3225,7 @@
                     case 'pagos': await cargarPagos(); break;
                     case 'anuncios': await cargarAnuncios(); break;
                     case 'reportes': await cargarReportes(); break;
-                    case 'configuracion': await cargarEmpresa(); break;
-                    case 'configAvanzada': await initConfigAvanzada(); break;
+                                        case 'configAvanzada': await initConfigAvanzada(); break;
                     case 'sedes': await cargarSedes(); break;
                 }
             } catch (err) {
@@ -5701,7 +5648,7 @@
                     return '<div style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:6px;overflow:hidden;background:'+rowBg+'">'
                         + '<div style="background:#1e3a5f;padding:5px 10px;display:flex;justify-content:space-between;align-items:center">'
                         +   '<span style="color:#fff;font-size:0.72rem;font-weight:700;text-transform:uppercase">'+f.materia+'</span>'
-                        +   '<span style="color:rgba(255,255,255,0.7);font-size:0.6rem">I.H: '+ih+' &nbsp;|&nbsp; Aus: 0</span>'
+                        +   '<span style="color:rgba(255,255,255,0.7);font-size:0.6rem">I.H: '+ih+' &nbsp;—&nbsp; Aus: 0</span>'
                         + '</div>'
                         + '<div style="padding:8px 12px;display:flex;gap:20px;flex-wrap:wrap;font-size:0.68rem">'
                         +   _lv('PROM. NOTAS 60%', f.rd) + _lv('PROC-INTERMEDIOS', f.pi) + _lv('REC. o PROF.', f.pirp)
@@ -5826,9 +5773,9 @@
                 + '</div>'
                 // Leyenda columnas
                 + '<div style="background:#f1f5f9;border:1px solid #e2e8f0;border-top:none;padding:5px 20px;margin-bottom:6px;display:flex;gap:16px">'
-                +   '<span style="font-size:0.56rem;font-weight:700;color:#2563eb">&#9632; Registro Diario (60%)</span>'
-                +   '<span style="font-size:0.56rem;font-weight:700;color:#7c3aed">&#9632; Proceso Intermedio</span>'
-                +   '<span style="font-size:0.56rem;font-weight:700;color:#0891b2">&#9632; Examen Final (40%)</span>'
+                +   '<span style="font-size:0.56rem;font-weight:700;color:#2563eb">■ Registro Diario (60%)</span>'
+                +   '<span style="font-size:0.56rem;font-weight:700;color:#7c3aed">■ Proceso Intermedio</span>'
+                +   '<span style="font-size:0.56rem;font-weight:700;color:#0891b2">■ Examen Final (40%)</span>'
                 + '</div>'
                 // Bloques
                 + '<div style="padding:0 0 4px 0">' + bloquesHTML + '</div>'
@@ -6875,53 +6822,6 @@
             else alert('Error al eliminar');
         }
 
-        // ── EMPRESA / CONFIGURACIÓN ──
-        async function cargarEmpresa() {
-            const res = await fetch(`${API}/empresa`);
-            const emp = await res.json();
-            if (!emp) return;
-            document.getElementById('cfgNombre').value = emp.nombre || '';
-            document.getElementById('cfgNit').value = emp.nit || '';
-            document.getElementById('cfgDireccion').value = emp.direccion || '';
-            document.getElementById('cfgTelefono').value = emp.telefono || '';
-            document.getElementById('cfgEmail').value = emp.email || '';
-            document.getElementById('cfgRector').value = emp.rector || '';
-            document.getElementById('cfgAnio').value = emp.anio || 2026;
-            document.getElementById('cfgPeriodos').value = emp.periodos || '4';
-            document.getElementById('cfgNotaMin').value = emp.nota_min || 1.0;
-            document.getElementById('cfgNotaMax').value = emp.nota_max || 5.0;
-            document.getElementById('cfgNotaAprobatoria').value = emp.nota_aprobatoria || 3.0;
-            document.getElementById('cfgJornada').value = emp.jornada || 'Mañana';
-        }
-
-        async function guardarConfiguracion() {
-            const body = {
-                nombre: document.getElementById('cfgNombre').value.trim(),
-                nit: document.getElementById('cfgNit').value.trim(),
-                direccion: document.getElementById('cfgDireccion').value.trim(),
-                telefono: document.getElementById('cfgTelefono').value.trim(),
-                email: document.getElementById('cfgEmail').value.trim(),
-                rector: document.getElementById('cfgRector').value.trim(),
-                anio: parseInt(document.getElementById('cfgAnio').value) || 2026,
-                periodos: document.getElementById('cfgPeriodos').value,
-                nota_min: parseFloat(document.getElementById('cfgNotaMin').value) || 1.0,
-                nota_max: parseFloat(document.getElementById('cfgNotaMax').value) || 5.0,
-                nota_aprobatoria: parseFloat(document.getElementById('cfgNotaAprobatoria').value) || 3.0,
-                jornada: document.getElementById('cfgJornada').value
-            };
-            const res = await fetch(`${API}/empresa`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('✅ Configuración guardada exitosamente');
-            } else {
-                alert('Error: ' + (data.error || 'No se pudo guardar'));
-            }
-        }
-
         // ── CARGAR DASHBOARD AL INICIO ──
         cargarDatosSeccion('dashboard');
 
@@ -6994,7 +6894,7 @@
             const mensaje = document.getElementById('notifMensaje').value.trim();
             const tipo = document.getElementById('notifTipo').value;
             const icono = document.getElementById('notifIcono').value;
-            if (!titulo || !mensaje) { alert('Complete t\u00edtulo y mensaje'); return; }
+            if (!titulo || !mensaje) { alert('Complete título y mensaje'); return; }
             try {
                 const res = await fetch(`${API}/admin/notificaciones`, {
                     method: 'POST',
@@ -7007,11 +6907,11 @@
                     document.getElementById('notifMensaje').value = '';
                     cargarNotificaciones();
                 } else { alert('Error: ' + (data.error || 'No se pudo crear')); }
-            } catch (err) { alert('Error de conexi\u00f3n'); console.error(err); }
+            } catch (err) { alert('Error de conexión'); console.error(err); }
         }
 
         async function eliminarNotificacion(id) {
-            if (!confirm('\u00bfEliminar esta notificaci\u00f3n?')) return;
+            if (!confirm('¿Eliminar esta notificación?')) return;
             try {
                 const res = await fetch(`${API}/admin/notificaciones/${id}`, { method: 'DELETE' });
                 const data = await res.json();
@@ -7045,30 +6945,30 @@
         // =============================================
 
         // --- Datos en memoria ---
-        let _cfgEmpresa = {};
+        window._cfgEmpresa = window._cfgEmpresa || {};
         let _cfgUsuariosSistema = [];
         let _cfgAccesoModulos = {};
         let _usuariosCargados = false;
 
         // Módulos configurables por rol
         const MODULOS_ACCESO = [
-            { id: 'estudiantes', label: 'Estudiantes', roles: ['admin'] },
-            { id: 'profesores', label: 'Docentes', roles: ['admin'] },
-            { id: 'acudientes', label: 'Acudientes', roles: ['admin'] },
-            { id: 'asignaturas', label: 'Asignaturas', roles: ['admin'] },
-            { id: 'cursos', label: 'Cursos', roles: ['admin'] },
-            { id: 'calificaciones', label: 'Calificaciones', roles: ['admin', 'profesor', 'estudiante'] },
-            { id: 'asistencia', label: 'Asistencia', roles: ['admin', 'profesor'] },
-            { id: 'observador', label: 'Observador', roles: ['admin', 'profesor'] },
-            { id: 'horarios', label: 'Horario General', roles: ['admin', 'profesor', 'estudiante'] },
-            { id: 'horarioAtencion', label: 'Horario Atención', roles: ['admin', 'profesor'] },
-            { id: 'pagos', label: 'Pagos', roles: ['admin', 'padre'] },
-            { id: 'boletines', label: 'Boletines', roles: ['admin', 'profesor'] },
+            { id: 'estudiantes', label: 'Estudiantes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'profesores', label: 'Docentes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'acudientes', label: 'Acudientes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'asignaturas', label: 'Asignaturas', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'cursos', label: 'Cursos', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'calificaciones', label: 'Calificaciones', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'asistencia', label: 'Asistencia', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'observador', label: 'Observador', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'horarios', label: 'Horario General', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'horarioAtencion', label: 'Horario Atención', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'pagos', label: 'Pagos', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'boletines', label: 'Boletines', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
             { id: 'anuncios', label: 'Anuncios', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
-            { id: 'logros', label: 'Logros', roles: ['admin'] },
-            { id: 'indicadores', label: 'Indicadores', roles: ['admin'] },
-            { id: 'pensum', label: 'Pensum', roles: ['admin'] },
-            { id: 'reportes', label: 'Reportes', roles: ['admin'] },
+            { id: 'logros', label: 'Logros', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'indicadores', label: 'Indicadores', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'pensum', label: 'Pensum', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
+            { id: 'reportes', label: 'Reportes', roles: ['admin', 'profesor', 'estudiante', 'padre'] },
         ];
 
         // --- Tab switching ---
@@ -7092,7 +6992,7 @@
                     fetch(`${API}/empresa/apariencia`),
                     fetch(`${API}/empresa/academico-config`)
                 ]);
-                _cfgEmpresa = await empRes.json() || {};
+                window._cfgEmpresa = await empRes.json() || {};
                 _cfgAccesoModulos = await accRes.json() || {};
                 const apariencia = await aparRes.json() || {};
                 const academico = await acaRes.json() || {};
@@ -7100,18 +7000,24 @@
                 // Rellenar Tab 1 — Institución
                 ['Nombre','Nit','Direccion','Telefono','Email','Rector','Lema','Mision','Vision'].forEach(k => {
                     const el = document.getElementById('adv' + k);
-                    if (el) el.value = _cfgEmpresa[k.toLowerCase()] || _cfgEmpresa[k] || '';
+                    if (el) el.value = window._cfgEmpresa[k.toLowerCase()] || window._cfgEmpresa[k] || '';
                 });
-                document.getElementById('advAnio').value = _cfgEmpresa.anio || 2026;
-                document.getElementById('advJornada').value = _cfgEmpresa.jornada || 'Mañana';
-                document.getElementById('advPeriodos').value = _cfgEmpresa.periodos || '4';
-                document.getElementById('advNotaMin').value = _cfgEmpresa.nota_min || 1.0;
-                document.getElementById('advNotaMax').value = _cfgEmpresa.nota_max || 5.0;
-                document.getElementById('advNotaAprobatoria').value = _cfgEmpresa.nota_aprobatoria || 3.0;
+                document.getElementById('advAnio').value = window._cfgEmpresa.anio || 2026;
+                document.getElementById('advJornada').value = window._cfgEmpresa.jornada || 'Mañana';
+                document.getElementById('advPeriodos').value = window._cfgEmpresa.periodos || '4';
+                document.getElementById('advNotaMin').value = window._cfgEmpresa.nota_min || 1.0;
+                document.getElementById('advNotaMax').value = window._cfgEmpresa.nota_max || 5.0;
+                document.getElementById('advNotaAprobatoria').value = window._cfgEmpresa.nota_aprobatoria || 3.0;
 
-                // Logos
-                if (_cfgEmpresa.logo) setLogoPreview('logo', _cfgEmpresa.logo);
-                if (_cfgEmpresa.logo_boletin) setLogoPreview('logoBol', _cfgEmpresa.logo_boletin);
+                // Logos: guardar previews y sincronizar variables globales
+                if (window._cfgEmpresa.logo) {
+                    setLogoPreview('logo', window._cfgEmpresa.logo);
+                    window._logo_logo = window._cfgEmpresa.logo; // inicializar con valor actual
+                }
+                if (window._cfgEmpresa.logo_boletin) {
+                    setLogoPreview('logoBol', window._cfgEmpresa.logo_boletin);
+                    window._logo_logoBol = window._cfgEmpresa.logo_boletin; // inicializar con valor actual
+                }
 
                 // Tab 4 — Apariencia
                 if (apariencia.color_primario) {
@@ -7197,16 +7103,30 @@
                 nota_max: parseFloat(document.getElementById('advNotaMax').value) || 5.0,
                 nota_aprobatoria: parseFloat(document.getElementById('advNotaAprobatoria').value) || 3.0,
             };
-            if (window._logo_logo) body.logo = window._logo_logo;
-            if (window._logo_logoBol) body.logo_boletin = window._logo_logoBol;
-            if (window._logo_logo === null) body.logo = '';
-            if (window._logo_logoBol === null) body.logo_boletin = '';
+            // Logo: enviar siempre el valor actual (nuevo upload o el existente en memoria)
+            // null = el usuario lo eliminó explícitamente, undefined = no lo incluir
+            if (window._logo_logo !== undefined) body.logo = window._logo_logo || '';
+            if (window._logo_logoBol !== undefined) body.logo_boletin = window._logo_logoBol || '';
             const res = await fetch(`${API}/empresa`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const data = await res.json();
             if (data.success) {
-                // Actualizar _cfgEmpresa en memoria para que los boletines usen el logo/nombre inmediatamente
+                // Actualizar _cfgEmpresa en memoria
+                window._cfgEmpresa = window._cfgEmpresa || {};
                 Object.assign(window._cfgEmpresa, body);
                 mostrarToast('✅ Institución guardada correctamente', 'success');
+                // Actualizar logo en sidebar si cambió
+                const sidebarLogo = document.querySelector('.sidebar-logo');
+                if (sidebarLogo) {
+                    if (body.logo) {
+                        sidebarLogo.innerHTML = `<img src="${body.logo}" style="width:100%;height:100%;object-fit:contain;" alt="Logo">`;
+                        sidebarLogo.style.background = 'transparent';
+                        sidebarLogo.style.boxShadow = 'none';
+                    } else if (body.logo === '') {
+                        sidebarLogo.innerHTML = `<i class="fas fa-graduation-cap"></i> EduGestión`;
+                        sidebarLogo.style.background = 'var(--primary)';
+                        sidebarLogo.style.boxShadow = '0 4px 12px rgba(108, 99, 255, 0.3)';
+                    }
+                }
             } else mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
         }
 
@@ -7696,7 +7616,81 @@
         // Cargar sedes en header al iniciar
         cargarSedesEnHeader();
 
-    </script>
-</body>
+        // Cargar apariencia global (colores, fuente, logo) — se ejecuta con JWT activo
+        (async function cargarAparienciaGlobal() {
+            try {
+                const resApariencia = await fetch('/api/empresa/apariencia');
+                if (resApariencia.ok) {
+                    const ap = await resApariencia.json();
+                    if (ap) {
+                        if (ap.color_primario) document.documentElement.style.setProperty('--primary', ap.color_primario);
+                        if (ap.color_secundario) document.documentElement.style.setProperty('--secondary', ap.color_secundario);
+                        if (ap.color_accent) document.documentElement.style.setProperty('--accent', ap.color_accent);
+                        if (ap.radius) document.documentElement.style.setProperty('--radius', ap.radius);
+                        if (ap.fuente) {
+                            const link = document.createElement('link'); link.rel = 'stylesheet';
+                            link.href = `https://fonts.googleapis.com/css2?family=${ap.fuente.replace(/ /g,'+')}:wght@400;500;600;700&display=swap`;
+                            document.head.appendChild(link);
+                            document.body.style.fontFamily = `'${ap.fuente}', sans-serif`;
+                        }
+                    }
+                }
+                const resEmpresa = await fetch('/api/empresa');
+                if (resEmpresa.ok) {
+                    const emp = await resEmpresa.json();
+                    if (emp && emp.logo) {
+                        const sidebarLogo = document.querySelector('.sidebar-logo');
+                        if (sidebarLogo) {
+                            sidebarLogo.innerHTML = `<img src="${emp.logo}" style="width:100%;height:100%;object-fit:contain;" alt="Logo Institución">`;
+                            sidebarLogo.style.background = 'transparent';
+                            sidebarLogo.style.boxShadow = 'none';
+                        }
+                    }
+                    // --- Control de Acceso Global ---
+                    if (emp && emp.acceso_modulos) {
+                        try {
+                            const tokenStr = sessionStorage.getItem('eduGestionToken');
+                            if (tokenStr) {
+                                const rolActual = JSON.parse(atob(tokenStr.split('.')[1])).rol;
+                                const accesos = emp.acceso_modulos;
+                                const map = {
+                                    'estudiantes': ['estudiantes'],
+                                    'profesores': ['profesores'],
+                                    'acudientes': ['acudientes'],
+                                    'asignaturas': ['asignaturas'],
+                                    'cursos': ['cursos'],
+                                    'calificaciones': ['calificaciones'],
+                                    'asistencia': ['asistencia'],
+                                    'observador': ['observador'],
+                                    'horarios': ['horarios', 'horario'],
+                                    'horarioAtencion': ['horarioAtencion'],
+                                    'pagos': ['pagos', 'cartera'],
+                                    'boletines': ['boletines'],
+                                    'anuncios': ['anuncios'],
+                                    'logros': ['logros'],
+                                    'indicadores': ['indicadores'],
+                                    'pensum': ['pensum'],
+                                    'reportes': ['reportes']
+                                };
+                                for (const modId in map) {
+                                    const sections = map[modId];
+                                    const isVisible = !accesos[modId] || accesos[modId].includes(rolActual);
+                                    if (!isVisible) {
+                                        sections.forEach(sec => {
+                                            const btns = document.querySelectorAll(`button[onclick*="'${sec}'"]`);
+                                            btns.forEach(btn => btn.style.display = 'none');
+                                        });
+                                    }
+                                }
+                            }
+                        } catch(e) { console.error('Error aplicando control de acceso:', e); }
+                    }
 
+                }
+            } catch(e) { console.error('Error cargando apariencia global:', e); }
+        })();
+
+    </script>
+
+</body>
 </html>

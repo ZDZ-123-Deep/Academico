@@ -58,3 +58,4 @@ mongodump*/
 
 # SEGURIDAD: Scripts con credenciales
 check_types.js
+.vercel

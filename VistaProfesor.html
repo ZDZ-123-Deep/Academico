@@ -57,6 +57,22 @@
                 <button class="nav-item" onclick="mostrarSeccion('actividades',this)">
                     <i class="fas fa-tasks"></i> Actividades
                 </button>
+                <!-- Módulos Inyectados -->
+                <button class="nav-item mod-inyectado" id="btn-nav-observador" style="display:none" onclick="mostrarSeccion('observador',this)">
+                    <i class="fas fa-eye"></i> Observador
+                </button>
+                <button class="nav-item mod-inyectado" id="btn-nav-anuncios" style="display:none" onclick="mostrarSeccion('anuncios',this)">
+                    <i class="fas fa-bullhorn"></i> Anuncios
+                </button>
+                <button class="nav-item mod-inyectado" id="btn-nav-estudiantes" style="display:none" onclick="mostrarSeccion('estudiantes',this)">
+                    <i class="fas fa-user-graduate"></i> Estudiantes
+                </button>
+                <button class="nav-item mod-inyectado" id="btn-nav-acudientes" style="display:none" onclick="mostrarSeccion('acudientes',this)">
+                    <i class="fas fa-user-friends"></i> Acudientes
+                </button>
+                <button class="nav-item mod-inyectado" id="btn-nav-reportes" style="display:none" onclick="mostrarSeccion('reportes',this)">
+                    <i class="fas fa-chart-line"></i> Reportes
+                </button>
             </div>
         </nav>
         <div class="sidebar-footer">
@@ -332,6 +348,108 @@
                 </div>
             </div>
         </div>
+    <!-- ========================================== -->
+    <!-- MÓDULOS INYECTADOS (SOLO LECTURA/REDUCIDO) -->
+    <!-- ========================================== -->
+
+    <!-- SECCION: OBSERVADOR -->
+    <div id="secObservador" class="section">
+        <div class="card" style="padding: 20px; overflow: hidden;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-eye"></i> Observador del Alumno</h3></div>
+            <p>Busque un estudiante para consultar su historial de observaciones.</p>
+            <div style="margin-top:20px;">
+                <label>Seleccione Curso</label>
+                <select id="obsPlanillaCursoClean" class="form-control" onchange="buscarEstudiantesObsClean(this.value)">
+                    <option value="">Cargando cursos...</option>
+                </select>
+                <br>
+                <label>Seleccione Estudiante</label>
+                <select id="obsSelectEstudianteClean" class="form-control" onchange="verObservacionesEstudianteClean(this.value)">
+                    <option value="">Seleccione primero el curso</option>
+                </select>
+            </div>
+            <div id="obsListaClean" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+                <!-- Aquí se listan las observaciones -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCION: ANUNCIOS -->
+    <div id="secAnuncios" class="section">
+        <div class="card" style="padding: 20px; overflow: hidden;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-bullhorn"></i> Anuncios Institucionales</h3></div>
+            <div id="anunciosListaClean" style="margin-top:20px;">
+                <div style="text-align:center;padding:20px;color:var(--gray-400)">Cargando anuncios...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCION: ESTUDIANTES (SOLO LECTURA) -->
+    <div id="secEstudiantes" class="section">
+        <div class="card" style="padding: 20px; overflow: hidden;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-user-graduate"></i> Directorio de Estudiantes</h3></div>
+            <div class="table-container" style="margin-top:20px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>ID</th>
+                            <th>Curso</th>
+                            <th>Documento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaEstudiantesClean">
+                        <tr><td colspan="5" style="text-align:center">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCION: ACUDIENTES (SOLO LECTURA) -->
+    <div id="secAcudientes" class="section">
+        <div class="card" style="padding: 20px; overflow: hidden;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-user-friends"></i> Directorio de Acudientes</h3></div>
+            <div class="table-container" style="margin-top:20px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Identificación</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Formación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAcudientesClean">
+                        <tr><td colspan="5" style="text-align:center">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCION: REPORTES -->
+    <div id="secReportes" class="section">
+        <div class="card" style="padding: 20px; overflow: hidden;">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-line"></i> Reportes Académicos</h3></div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top:20px;">
+                <div style="padding:15px; border-radius:8px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2)">
+                    <div style="font-size:0.85rem; color:var(--gray-500)">Tasa de Aprobación</div>
+                    <div id="repTasaAprobacionClean" style="font-size:1.5rem; font-weight:bold; color:var(--text-primary)">--%</div>
+                </div>
+                <div style="padding:15px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2)">
+                    <div style="font-size:0.85rem; color:var(--gray-500)">Estudiantes en Riesgo</div>
+                    <div id="repEnRiesgoClean" style="font-size:1.5rem; font-weight:bold; color:var(--text-primary)">--</div>
+                </div>
+                <div style="padding:15px; border-radius:8px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2)">
+                    <div style="font-size:0.85rem; color:var(--gray-500)">Tasa Asistencia Media</div>
+                    <div id="repAsistenciaClean" style="font-size:1.5rem; font-weight:bold; color:var(--text-primary)">--%</div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- MODAL CREAR TAREA -->
@@ -441,14 +559,36 @@
         // ── UI Helpers ──
         function mostrarSeccion(id, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const map = { dashboard: 'secDashboard', cursos: 'secCursos', calificaciones: 'secCalificaciones', asistencia: 'secAsistencia', horario: 'secHorario', actividades: 'secActividades' };
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            const map = { 
+                dashboard: 'secDashboard', cursos: 'secCursos', calificaciones: 'secCalificaciones', 
+                asistencia: 'secAsistencia', horario: 'secHorario', actividades: 'secActividades',
+                observador: 'secObservador', anuncios: 'secAnuncios', estudiantes: 'secEstudiantes', 
+                acudientes: 'secAcudientes', reportes: 'secReportes'
+            };
             document.getElementById(map[id]).classList.add('active');
             if (btn) btn.classList.add('active');
-            const titles = { dashboard: 'Panel <span>Profesor</span>', cursos: 'Mis <span>Cursos</span>', calificaciones: '<span>Calificaciones</span>', asistencia: 'Control de <span>Asistencia</span>', horario: 'Mi <span>Horario</span>', actividades: '<span>Actividades</span>' };
-            document.getElementById('headerTitle').innerHTML = titles[id];
+            
+            const titles = { 
+                dashboard: 'Panel <span>Profesor</span>', cursos: 'Mis <span>Cursos</span>', 
+                calificaciones: '<span>Calificaciones</span>', asistencia: 'Control de <span>Asistencia</span>', 
+                horario: 'Mi <span>Horario</span>', actividades: '<span>Actividades</span>',
+                observador: '<span>Observador</span>', anuncios: '<span>Anuncios</span>', 
+                estudiantes: '<span>Estudiantes</span>', acudientes: '<span>Acudientes</span>', 
+                reportes: '<span>Reportes</span>' 
+            };
+            document.getElementById('headerTitle').innerHTML = titles[id] || id;
+            
+            // Cargar datos si es necesario
+            if (id === 'observador' && typeof cargarObservadorClean === 'function') cargarObservadorClean();
+            if (id === 'anuncios' && typeof cargarAnunciosClean === 'function') cargarAnunciosClean();
+            if (id === 'estudiantes' && typeof cargarEstudiantesClean === 'function') cargarEstudiantesClean();
+            if (id === 'acudientes' && typeof cargarAcudientesClean === 'function') cargarAcudientesClean();
+            if (id === 'reportes' && typeof cargarReportesClean === 'function') cargarReportesClean();
+
             if (window.innerWidth <= 768) toggleSidebar();
         }
+        
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('active') }
         const dm = document.getElementById('darkModeToggle'); dm.checked = localStorage.getItem('darkMode') === 'true'; if (dm.checked) document.body.classList.add('dark-mode');
         function toggleDarkMode() { document.body.classList.toggle('dark-mode'); document.documentElement.classList.toggle('dark-mode'); localStorage.setItem('darkMode', dm.checked) }
@@ -1001,8 +1141,178 @@
             const dd = document.getElementById('notifDropdown');
             if (bell && dd && !bell.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show');
         });
+
         cargarNotificaciones();
-    </script>
-</body>
+
+        // -- Aplicar control de acceso desde configuración de empresa --
+        (async function aplicarAccesoModulos() {
+            try {
+                const res = await fetch(`${API}/empresa`);
+                const emp = await res.json();
+                if (emp.logo) {
+                    const logo = document.getElementById('companyLogo');
+                    if (logo) logo.src = emp.logo;
+                }
+                if (emp.nombre) document.title = 'EduGestión - ' + emp.nombre;
+                // Fallback to true if undefined (para desarrollo/pruebas)
+                const access = emp.acceso_modulos || { 
+                    observador: true, anuncios: true, estudiantes: true, 
+                    acudientes: true, reportes: true 
+                };
+                
+                const btnObs = document.getElementById('btn-nav-observador');
+                const btnAnun = document.getElementById('btn-nav-anuncios');
+                const btnEst = document.getElementById('btn-nav-estudiantes');
+                const btnAcud = document.getElementById('btn-nav-acudientes');
+                const btnRep = document.getElementById('btn-nav-reportes');
+                
+                if (btnObs) btnObs.style.display = access.observador ? 'flex' : 'none';
+                if (btnAnun) btnAnun.style.display = access.anuncios ? 'flex' : 'none';
+                if (btnEst) btnEst.style.display = access.estudiantes ? 'flex' : 'none';
+                if (btnAcud) btnAcud.style.display = access.acudientes ? 'flex' : 'none';
+                if (btnRep) btnRep.style.display = access.reportes ? 'flex' : 'none';
+            } catch(e) {
+                console.warn('Control de acceso no pudo cargar:', e.message);
+            }
+        })();
+    
+// ==========================================
+// FUNCIONES INYECTADAS (VERSIÓN LIMPIA)
+// ==========================================
+
+// --- OBSERVADOR ---
+async function cargarObservadorClean() {
+    try {
+        const resCursos = await fetch(`${API}/cursos`);
+        const cursos = await resCursos.json();
+        const opts = '<option value="">Seleccione Curso</option>' + 
+            cursos.map(c => `<option value="${c.curso_id}">${c.codigo} - ${c.nombre || c.codigo}</option>`).join('');
+        document.getElementById('obsPlanillaCursoClean').innerHTML = opts;
+    } catch(e) { console.error('Error cargando cursos observador:', e); }
+}
+
+async function buscarEstudiantesObsClean(cursoId) {
+    if (!cursoId) {
+        document.getElementById('obsSelectEstudianteClean').innerHTML = '<option value="">Seleccione primero el curso</option>';
+        return;
+    }
+    try {
+        const res = await fetch(`${API}/estudiantes?curso=${cursoId}`);
+        const data = await res.json();
+        const opts = '<option value="">Seleccione Estudiante</option>' + 
+            (data.estudiantes || []).map(e => `<option value="${e.estudiante_id}">${e.nombre}</option>`).join('');
+        document.getElementById('obsSelectEstudianteClean').innerHTML = opts;
+    } catch(e) { console.error('Error buscando estudiantes:', e); }
+}
+
+async function verObservacionesEstudianteClean(estudianteId) {
+    const contenedor = document.getElementById('obsListaClean');
+    if (!estudianteId) {
+        contenedor.innerHTML = '';
+        return;
+    }
+    contenedor.innerHTML = '<div style="text-align:center">Cargando observaciones...</div>';
+    try {
+        const res = await fetch(`${API}/observaciones?estudiante=${estudianteId}`);
+        const obs = await res.json();
+        if (obs.length === 0) {
+            contenedor.innerHTML = '<div style="color:var(--gray-500);text-align:center;">No hay observaciones para este estudiante.</div>';
+            return;
+        }
+        contenedor.innerHTML = obs.map(o => `
+            <div style="background:var(--bg-secondary); padding:15px; border-radius:8px; margin-bottom:10px; border-left:4px solid ${o.tipo==='Positiva'?'var(--success)':o.tipo==='Negativa'?'var(--danger)':'var(--warning)'}">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <strong>${o.tipo} - ${o.categoria || 'General'}</strong>
+                    <small style="color:var(--gray-500)">${new Date(o.fecha).toLocaleDateString()}</small>
+                </div>
+                <p style="margin:0; font-size:0.9rem">${o.descripcion}</p>
+                <div style="margin-top:8px; font-size:0.8rem; color:var(--gray-500)">Docente: ${o.docente_nombre || o.docente_id || 'N/A'}</div>
+            </div>
+        `).join('');
+    } catch(e) {
+        console.error('Error cargando observaciones:', e);
+        contenedor.innerHTML = '<div style="color:red;text-align:center;">Error al cargar las observaciones.</div>';
+    }
+}
+
+// --- ANUNCIOS ---
+async function cargarAnunciosClean() {
+    const lista = document.getElementById('anunciosListaClean');
+    lista.innerHTML = '<div style="text-align:center;padding:20px;">Cargando...</div>';
+    try {
+        const res = await fetch(`${API}/anuncios`);
+        const anuncios = await res.json();
+        if (anuncios.length === 0) {
+            lista.innerHTML = '<div style="text-align:center;color:var(--gray-500)">No hay anuncios disponibles.</div>';
+            return;
+        }
+        lista.innerHTML = anuncios.map(a => `
+            <div style="background:var(--bg-secondary); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border)">
+                <h4 style="margin:0 0 5px 0; color:var(--primary)">${a.titulo || 'Sin título'}</h4>
+                <div style="font-size:0.8rem; color:var(--gray-500); margin-bottom:10px">
+                    ${new Date(a.fecha).toLocaleDateString()} | Para: ${a.destinatarios || 'Todos'}
+                </div>
+                <p style="margin:0; font-size:0.9rem; line-height:1.4">${a.contenido}</p>
+            </div>
+        `).join('');
+    } catch(e) { console.error(e); document.getElementById('anunciosListaClean').innerHTML = `<div style='color:red'>ERROR: ${e.message}</div>`; }
+}
+
+// --- ESTUDIANTES ---
+async function cargarEstudiantesClean() {
+    try {
+        const res = await fetch(`${API}/estudiantes?limit=200`);
+        const data = await res.json();
+        const tbody = document.getElementById('tablaEstudiantesClean');
+        
+        if (!data.estudiantes || data.estudiantes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan='5'>No se encontraron estudiantes en la DB. (data.estudiantes=${typeof data.estudiantes}, data=${JSON.stringify(data).substring(0,50)})</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = data.estudiantes.map(e => `
+
+            <tr>
+                <td>${e.nombre || '—'}</td>
+                <td>${e.estudiante_id || '—'}</td>
+                <td>${e.curso_id || '—'}</td>
+                <td>${e.documento || '—'}</td>
+                <td><span class="badge badge-${e.estado_est === 'R' ? 'danger' : e.estado_est === 'T' ? 'warning' : 'success'}">${e.estado_est === 'R' ? 'Retirado' : e.estado_est === 'T' ? 'Trasladado' : 'Matriculado'}</span></td>
+            </tr>
+        `).join('');
+    } catch(e) { console.error(e); document.getElementById('tablaEstudiantesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; }
+}
+
+// --- ACUDIENTES ---
+async function cargarAcudientesClean() {
+    try {
+        const res = await fetch(`${API}/acudientes?limit=200`);
+        const data = await res.json();
+        const tbody = document.getElementById('tablaAcudientesClean');
+        tbody.innerHTML = (data.acudientes || []).map(a => `
+            <tr>
+                <td>${a.nombre_asistente || '—'}</td>
+                <td>${a.id_acud || a.Id || '—'}</td>
+                <td>${a.tel_acud || '—'}</td>
+                <td>${a.correo_acud || '—'}</td>
+                <td>${a.formacion_acud || '—'}</td>
+            </tr>
+        `).join('');
+    } catch(e) { console.error(e); document.getElementById('tablaAcudientesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; }
+}
+
+// --- REPORTES ---
+async function cargarReportesClean() {
+    try {
+        const res = await fetch(`${API}/reportes/stats`);
+        const s = await res.json();
+        document.getElementById('repTasaAprobacionClean').textContent = (s.tasaAprobacion || 0) + '%';
+        document.getElementById('repEnRiesgoClean').textContent = s.enRiesgo || 0;
+        document.getElementById('repAsistenciaClean').textContent = (s.tasaAsistencia || 0) + '%';
+    } catch(e) { console.error(e); document.getElementById('repEnRiesgoClean').innerHTML = `<span style='color:red'>ERR</span>`; }
+}
+
+</script>
+
+    </body>
 
 </html>

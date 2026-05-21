@@ -8,6 +8,6 @@ const NotificacionSchema = new mongoose.Schema({
     fecha_creacion: { type: String, default: () => new Date().toISOString().replace('T', ' ').substring(0, 19) },
     creado_por: String, // admin user id
     estado: { type: String, default: 'A' } // A = active, I = inactive
-}, { collection: 'notificaciones' });
+}, { collection: 'notificaciones', strict: false });
 
 module.exports = mongoose.model('Notificacion', NotificacionSchema);

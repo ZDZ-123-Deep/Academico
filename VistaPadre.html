@@ -940,6 +940,80 @@
         // ── INIT ──
         cargarDatosPadre();
         cargarNotificaciones();
+
+        // Cargar apariencia global (colores, fuente, logo) — se ejecuta con JWT activo
+        (async function cargarAparienciaGlobal() {
+            try {
+                const resApariencia = await fetch('/api/empresa/apariencia');
+                if (resApariencia.ok) {
+                    const ap = await resApariencia.json();
+                    if (ap) {
+                        if (ap.color_primario) document.documentElement.style.setProperty('--primary', ap.color_primario);
+                        if (ap.color_secundario) document.documentElement.style.setProperty('--secondary', ap.color_secundario);
+                        if (ap.color_accent) document.documentElement.style.setProperty('--accent', ap.color_accent);
+                        if (ap.radius) document.documentElement.style.setProperty('--radius', ap.radius);
+                        if (ap.fuente) {
+                            const link = document.createElement('link'); link.rel = 'stylesheet';
+                            link.href = `https://fonts.googleapis.com/css2?family=${ap.fuente.replace(/ /g,'+')}:wght@400;500;600;700&display=swap`;
+                            document.head.appendChild(link);
+                            document.body.style.fontFamily = `'${ap.fuente}', sans-serif`;
+                        }
+                    }
+                }
+                const resEmpresa = await fetch('/api/empresa');
+                if (resEmpresa.ok) {
+                    const emp = await resEmpresa.json();
+                    if (emp && emp.logo) {
+                        const sidebarLogo = document.querySelector('.sidebar-logo');
+                        if (sidebarLogo) {
+                            sidebarLogo.innerHTML = `<img src="${emp.logo}" style="width:100%;height:100%;object-fit:contain;" alt="Logo Institución">`;
+                            sidebarLogo.style.background = 'transparent';
+                            sidebarLogo.style.boxShadow = 'none';
+                        }
+                    }
+                    // --- Control de Acceso Global ---
+                    if (emp && emp.acceso_modulos) {
+                        try {
+                            const tokenStr = sessionStorage.getItem('eduGestionToken');
+                            if (tokenStr) {
+                                const rolActual = JSON.parse(atob(tokenStr.split('.')[1])).rol;
+                                const accesos = emp.acceso_modulos;
+                                const map = {
+                                    'estudiantes': ['estudiantes'],
+                                    'profesores': ['profesores'],
+                                    'acudientes': ['acudientes'],
+                                    'asignaturas': ['asignaturas'],
+                                    'cursos': ['cursos'],
+                                    'calificaciones': ['calificaciones'],
+                                    'asistencia': ['asistencia'],
+                                    'observador': ['observador'],
+                                    'horarios': ['horarios', 'horario'],
+                                    'horarioAtencion': ['horarioAtencion'],
+                                    'pagos': ['pagos', 'cartera'],
+                                    'boletines': ['boletines'],
+                                    'anuncios': ['anuncios'],
+                                    'logros': ['logros'],
+                                    'indicadores': ['indicadores'],
+                                    'pensum': ['pensum'],
+                                    'reportes': ['reportes']
+                                };
+                                for (const modId in map) {
+                                    const sections = map[modId];
+                                    const isVisible = !accesos[modId] || accesos[modId].includes(rolActual);
+                                    if (!isVisible) {
+                                        sections.forEach(sec => {
+                                            const btns = document.querySelectorAll(`button[onclick*="'${sec}'"]`);
+                                            btns.forEach(btn => btn.style.display = 'none');
+                                        });
+                                    }
+                                }
+                            }
+                        } catch(e) { console.error('Error aplicando control de acceso:', e); }
+                    }
+
+                }
+            } catch(e) { console.error('Error cargando apariencia global:', e); }
+        })();
     </script>
 </body>
 
