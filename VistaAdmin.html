@@ -267,11 +267,39 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Cédula</th>
-                                    <th>Especialidad</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Nombre
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarDocentes('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                                <i class="fas fa-sort" id="sort-icon-doc-nombre"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Cédula
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarDocentes('cedula')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Cédula">
+                                                <i class="fas fa-sort" id="sort-icon-doc-cedula"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Especialidad
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarDocentes('especialidad')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Especialidad">
+                                                <i class="fas fa-sort" id="sort-icon-doc-especialidad"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Cursos</th>
-                                    <th>Estado</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Estado
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarDocentes('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado">
+                                                <i class="fas fa-sort" id="sort-icon-doc-estado"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -469,11 +497,46 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Código</th>
-                                    <th>Dir. Grupo</th>
-                                    <th>Estado</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            ID
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarCursos('id')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por ID">
+                                                <i class="fas fa-sort" id="sort-icon-cur-id"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Nombre
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarCursos('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                                <i class="fas fa-sort" id="sort-icon-cur-nombre"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Código
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarCursos('codigo')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Código">
+                                                <i class="fas fa-sort" id="sort-icon-cur-codigo"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Dir. Grupo
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarCursos('director')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Dir. Grupo">
+                                                <i class="fas fa-sort" id="sort-icon-cur-director"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Estado
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarCursos('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado">
+                                                <i class="fas fa-sort" id="sort-icon-cur-estado"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -849,10 +912,38 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Cédula</th>
-                                    <th>Teléfono</th>
-                                    <th>Email</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Nombre
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAcudientes('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                                <i class="fas fa-sort" id="sort-icon-acud-nombre"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Cédula
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAcudientes('cedula')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Cédula">
+                                                <i class="fas fa-sort" id="sort-icon-acud-cedula"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Teléfono
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAcudientes('telefono')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Teléfono">
+                                                <i class="fas fa-sort" id="sort-icon-acud-telefono"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Email
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAcudientes('email')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Email">
+                                                <i class="fas fa-sort" id="sort-icon-acud-email"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Estudiantes a cargo</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -920,11 +1011,39 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Código</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            ID
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAsignaturas('id')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por ID">
+                                                <i class="fas fa-sort" id="sort-icon-asig-id"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Nombre
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAsignaturas('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                                <i class="fas fa-sort" id="sort-icon-asig-nombre"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Código
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAsignaturas('codigo')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Código">
+                                                <i class="fas fa-sort" id="sort-icon-asig-codigo"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Sigla</th>
-                                    <th>Estado</th>
+                                    <th>
+                                        <div style="display:flex;align-items:center;gap:6px">
+                                            Estado
+                                            <button class="btn btn-sm btn-sort" onclick="ordenarAsignaturas('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado">
+                                                <i class="fas fa-sort" id="sort-icon-asig-estado"></i>
+                                            </button>
+                                        </div>
+                                    </th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -2110,7 +2229,7 @@
             </div>
             <div style="overflow-x:auto">
                 <table class="data-table" id="tablaUsuariosSistema">
-                    <thead><tr><th>Cuenta</th><th>Nombre</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <thead><tr><th><div style="display:flex;align-items:center;gap:6px">Cuenta <button class="btn btn-sm btn-sort" onclick="ordenarUsuariosSistema('cuenta')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Cuenta"><i class="fas fa-sort" id="sort-icon-usr-cuenta"></i></button></div></th><th><div style="display:flex;align-items:center;gap:6px">Nombre <button class="btn btn-sm btn-sort" onclick="ordenarUsuariosSistema('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre"><i class="fas fa-sort" id="sort-icon-usr-nombre"></i></button></div></th><th><div style="display:flex;align-items:center;gap:6px">Rol <button class="btn btn-sm btn-sort" onclick="ordenarUsuariosSistema('rol')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Rol"><i class="fas fa-sort" id="sort-icon-usr-rol"></i></button></div></th><th><div style="display:flex;align-items:center;gap:6px">Estado <button class="btn btn-sm btn-sort" onclick="ordenarUsuariosSistema('estado')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Estado"><i class="fas fa-sort" id="sort-icon-usr-estado"></i></button></div></th><th>Acciones</th></tr></thead>
                     <tbody id="tbodyUsuariosSistema"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400)"><i class="fas fa-spinner fa-spin"></i> Cargando...</td></tr></tbody>
                 </table>
             </div>
@@ -3533,9 +3652,14 @@
         }
 
         // ── DOCENTES ──
+        let listaDocentes = [];
+        let sortDirectionsDoc = { nombre:'asc', cedula:'asc', especialidad:'asc', estado:'asc' };
         async function cargarDocentes() {
             const res = await fetch(`${API}/docentes`);
-            const docentes = await res.json();
+            listaDocentes = await res.json();
+            renderDocentes(listaDocentes);
+        }
+        function renderDocentes(docentes) {
             const tbody = document.getElementById('tablaProfesores');
             tbody.innerHTML = docentes.map((d, i) => `
                 <tr>
@@ -3549,12 +3673,37 @@
                     <td>
                         <div class="actions">
                             <button class="btn btn-edit btn-sm" onclick="editarDocente('${d.teacher_id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-delete btn-sm" onclick="eliminarDocente('${d.teacher_id}','${(d.nombre || '').replace(/'/g, "\\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-delete btn-sm" onclick="eliminarDocente('${d.teacher_id}','${(d.nombre || '').replace(/'/g, "\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
+        function ordenarDocentes(campo) {
+            if (!listaDocentes.length) return;
+            const dir = sortDirectionsDoc[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirectionsDoc[campo] = dir;
+            ['nombre','cedula','especialidad','estado'].forEach(c => {
+                const el = document.getElementById('sort-icon-doc-' + c);
+                if (el) el.className = 'fas fa-sort';
+            });
+            const icon = document.getElementById('sort-icon-doc-' + campo);
+            if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            listaDocentes.sort((a, b) => {
+                let va = '', vb = '';
+                if (campo === 'nombre') { va = a.nombre || ''; vb = b.nombre || ''; }
+                else if (campo === 'cedula') { va = a.identi || a.teacher_id || ''; vb = b.identi || b.teacher_id || ''; }
+                else if (campo === 'especialidad') { va = a.especialidad || ''; vb = b.especialidad || ''; }
+                else if (campo === 'estado') {
+                    va = a.estado === 'A' ? 'Activo' : 'Inactivo';
+                    vb = b.estado === 'A' ? 'Activo' : 'Inactivo';
+                }
+                const comp = va.localeCompare(vb, 'es', { numeric: true });
+                return dir === 'asc' ? comp : -comp;
+            });
+            renderDocentes(listaDocentes);
+        }
+
 
         // =========================================================
         // 📝 CRUD DOCENTES
@@ -3989,12 +4138,18 @@
         cargarDatosSeccion('dashboard');
 
         // ── ACUDIENTES ──
+        let listaAcudientes = [];
+        let sortDirectionsAcud = { nombre:'asc', cedula:'asc', telefono:'asc', email:'asc' };
         async function cargarAcudientes() {
             const res = await fetch(`${API}/acudientes?limit=200`);
             const data = await res.json();
+            listaAcudientes = data.acudientes || [];
+            renderAcudientes(listaAcudientes);
+        }
+        function renderAcudientes(acudientes) {
             const sec = document.getElementById('secAcudientes');
             const tbody = sec.querySelector('tbody');
-            tbody.innerHTML = data.acudientes.map((a, i) => `
+            tbody.innerHTML = acudientes.map((a, i) => `
                 <tr>
                     <td>${a.nombre_asistente || '—'}</td>
                     <td>${a.id_acud || a.Id || '—'}</td>
@@ -4004,12 +4159,34 @@
                     <td>
                         <div class="actions">
                             <button class="btn btn-edit btn-sm" onclick="editarAcudiente('${a._id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-delete btn-sm" onclick="eliminarAcudiente('${a._id}','${(a.nombre_asistente || '').replace(/'/g, "\\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-delete btn-sm" onclick="eliminarAcudiente('${a._id}','${(a.nombre_asistente || '').replace(/'/g, "\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
+        function ordenarAcudientes(campo) {
+            if (!listaAcudientes.length) return;
+            const dir = sortDirectionsAcud[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirectionsAcud[campo] = dir;
+            ['nombre','cedula','telefono','email'].forEach(c => {
+                const el = document.getElementById('sort-icon-acud-' + c);
+                if (el) el.className = 'fas fa-sort';
+            });
+            const icon = document.getElementById('sort-icon-acud-' + campo);
+            if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            listaAcudientes.sort((a, b) => {
+                let va = '', vb = '';
+                if (campo === 'nombre') { va = a.nombre_asistente || ''; vb = b.nombre_asistente || ''; }
+                else if (campo === 'cedula') { va = a.id_acud || a.Id || ''; vb = b.id_acud || b.Id || ''; }
+                else if (campo === 'telefono') { va = a.tel_acud || ''; vb = b.tel_acud || ''; }
+                else if (campo === 'email') { va = a.correo_acud || ''; vb = b.correo_acud || ''; }
+                const comp = va.localeCompare(vb, 'es', { numeric: true });
+                return dir === 'asc' ? comp : -comp;
+            });
+            renderAcudientes(listaAcudientes);
+        }
+
 
         // =========================================================
         // 📝 CRUD ACUDIENTES
@@ -4086,9 +4263,14 @@
         }
 
         // ── ASIGNATURAS ──
+        let listaAsignaturas = [];
+        let sortDirectionsAsig = { id:'asc', nombre:'asc', codigo:'asc', estado:'asc' };
         async function cargarAsignaturas() {
             const res = await fetch(`${API}/asignaturas`);
-            const asignaturas = await res.json();
+            listaAsignaturas = await res.json();
+            renderAsignaturas(listaAsignaturas);
+        }
+        function renderAsignaturas(asignaturas) {
             const sec = document.getElementById('secAsignaturas');
             const tbody = sec.querySelector('tbody');
             tbody.innerHTML = asignaturas.map(a => `
@@ -4097,19 +4279,42 @@
                     <td><strong>${a.nombre}</strong></td>
                     <td>${a.codigo}</td>
                     <td>${a.sigla || '—'}</td>
-
                     <td><span class="badge badge-${a.estado === 'A' ? 'success' : 'danger'}">${a.estado === 'A' ? 'Activa' : 'Inactiva'}</span></td>
                     <td>
                         <div class="actions">
                             <button class="btn btn-edit btn-sm" onclick="editarAsignatura('${a.subject_id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-delete btn-sm" onclick="eliminarAsignatura('${a.subject_id}','${(a.nombre || '').replace(/'/g, "\\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-delete btn-sm" onclick="eliminarAsignatura('${a.subject_id}','${(a.nombre || '').replace(/'/g, "\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
+        function ordenarAsignaturas(campo) {
+            if (!listaAsignaturas.length) return;
+            const dir = sortDirectionsAsig[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirectionsAsig[campo] = dir;
+            ['id','nombre','codigo','estado'].forEach(c => {
+                const el = document.getElementById('sort-icon-asig-' + c);
+                if (el) el.className = 'fas fa-sort';
+            });
+            const icon = document.getElementById('sort-icon-asig-' + campo);
+            if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            listaAsignaturas.sort((a, b) => {
+                let va = '', vb = '';
+                if (campo === 'id') { va = String(a.subject_id || ''); vb = String(b.subject_id || ''); }
+                else if (campo === 'nombre') { va = a.nombre || ''; vb = b.nombre || ''; }
+                else if (campo === 'codigo') { va = a.codigo || ''; vb = b.codigo || ''; }
+                else if (campo === 'estado') {
+                    va = a.estado === 'A' ? 'Activa' : 'Inactiva';
+                    vb = b.estado === 'A' ? 'Activa' : 'Inactiva';
+                }
+                const comp = va.localeCompare(vb, 'es', { numeric: true });
+                return dir === 'asc' ? comp : -comp;
+            });
+            renderAsignaturas(listaAsignaturas);
+        }
 
-        // =========================================================
+                // =========================================================
         // 📝 CRUD ASIGNATURAS
         // =========================================================
         const asigFieldMap = { asig_nombre: 'nombre', asig_codigo: 'codigo', asig_sigla: 'sigla', asig_estado: 'estado' };
@@ -4184,9 +4389,14 @@
         }
 
         // ── CURSOS ──
+        let listaCursos = [];
+        let sortDirectionsCur = { id:'asc', nombre:'asc', codigo:'asc', director:'asc', estado:'asc' };
         async function cargarCursos() {
             const res = await fetch(`${API}/cursos`);
-            const cursos = await res.json();
+            listaCursos = await res.json();
+            renderCursos(listaCursos);
+        }
+        function renderCursos(cursos) {
             const sec = document.getElementById('secCursos');
             const tbody = sec.querySelector('tbody');
             tbody.innerHTML = cursos.map(c => `
@@ -4199,14 +4409,39 @@
                     <td>
                         <div class="actions">
                             <button class="btn btn-edit btn-sm" onclick="editarCurso('${c.curso_id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-delete btn-sm" onclick="eliminarCurso('${c.curso_id}','${(c.nombre || c.codigo || '').replace(/'/g, "\\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-delete btn-sm" onclick="eliminarCurso('${c.curso_id}','${(c.nombre || c.codigo || '').replace(/'/g, "\'")}')" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
+        function ordenarCursos(campo) {
+            if (!listaCursos.length) return;
+            const dir = sortDirectionsCur[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirectionsCur[campo] = dir;
+            ['id','nombre','codigo','director','estado'].forEach(c => {
+                const el = document.getElementById('sort-icon-cur-' + c);
+                if (el) el.className = 'fas fa-sort';
+            });
+            const icon = document.getElementById('sort-icon-cur-' + campo);
+            if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            listaCursos.sort((a, b) => {
+                let va = '', vb = '';
+                if (campo === 'id') { va = String(a.curso_id || ''); vb = String(b.curso_id || ''); }
+                else if (campo === 'nombre') { va = a.nombre || a.codigo || ''; vb = b.nombre || b.codigo || ''; }
+                else if (campo === 'codigo') { va = a.codigo || ''; vb = b.codigo || ''; }
+                else if (campo === 'director') { va = a.docente_nombre || ''; vb = b.docente_nombre || ''; }
+                else if (campo === 'estado') {
+                    va = a.estado === 'A' ? 'Activo' : 'Inactivo';
+                    vb = b.estado === 'A' ? 'Activo' : 'Inactivo';
+                }
+                const comp = va.localeCompare(vb, 'es', { numeric: true });
+                return dir === 'asc' ? comp : -comp;
+            });
+            renderCursos(listaCursos);
+        }
 
-        // =========================================================
+                // =========================================================
         // 📝 CRUD CURSOS
         // =========================================================
         const cursoFieldMap = { curso_codigo: 'codigo', curso_nombre: 'nombre', curso_id_docente: 'id_docente', curso_estado: 'estado' };
@@ -7305,10 +7540,12 @@
             _cfgUsuariosSistema = await res.json();
             renderTablaUsuarios();
         }
-        function renderTablaUsuarios() {
+        let sortDirectionsUsr = { cuenta:'asc', nombre:'asc', rol:'asc', estado:'asc' };
+        function renderTablaUsuarios(lista) {
             const levels = { A: '🛡️ Admin', D: '👨‍🏫 Docente', E: '🎓 Estudiante' };
+            const data = lista !== undefined ? lista : _cfgUsuariosSistema;
             const tbody = document.getElementById('tbodyUsuariosSistema');
-            tbody.innerHTML = _cfgUsuariosSistema.map(u => `
+            tbody.innerHTML = data.map(u => `
                 <tr>
                     <td><code style="font-size:0.85rem">${u.cuenta || ''}</code></td>
                     <td>${u.name || u.nombre || ''}</td>
@@ -7319,6 +7556,31 @@
                         <button class="btn btn-secondary" style="padding:4px 10px;font-size:0.8rem;background:#fee2e2;color:#dc2626" onclick="eliminarUsuarioSistema('${u._id}','${(u.cuenta||'').replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400)">Sin usuarios</td></tr>';
+        }
+        function ordenarUsuariosSistema(campo) {
+            if (!_cfgUsuariosSistema || !_cfgUsuariosSistema.length) return;
+            const dir = sortDirectionsUsr[campo] === 'asc' ? 'desc' : 'asc';
+            sortDirectionsUsr[campo] = dir;
+            const levels = { A: '🛡️ Admin', D: '👨‍🏫 Docente', E: '🎓 Estudiante' };
+            ['cuenta','nombre','rol','estado'].forEach(c => {
+                const el = document.getElementById('sort-icon-usr-' + c);
+                if (el) el.className = 'fas fa-sort';
+            });
+            const icon = document.getElementById('sort-icon-usr-' + campo);
+            if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            const sorted = [..._cfgUsuariosSistema].sort((a, b) => {
+                let va = '', vb = '';
+                if (campo === 'cuenta') { va = a.cuenta || ''; vb = b.cuenta || ''; }
+                else if (campo === 'nombre') { va = a.name || a.nombre || ''; vb = b.name || b.nombre || ''; }
+                else if (campo === 'rol') { va = levels[a.level] || a.level || ''; vb = levels[b.level] || b.level || ''; }
+                else if (campo === 'estado') {
+                    va = a.estado === 'A' ? 'Activo' : 'Inactivo';
+                    vb = b.estado === 'A' ? 'Activo' : 'Inactivo';
+                }
+                const comp = va.localeCompare(vb, 'es', { numeric: true });
+                return dir === 'asc' ? comp : -comp;
+            });
+            renderTablaUsuarios(sorted);
         }
         function abrirModalUsuario() {
             document.getElementById('modalUsuarioTitulo').innerHTML = '<i class="fas fa-user-plus" style="color:var(--primary)"></i> Nuevo Usuario';

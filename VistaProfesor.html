@@ -443,11 +443,46 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Identificación</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th>Formación</th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Nombre
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarAcudientesClean('nombre')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Nombre">
+                                        <i class="fas fa-sort" id="sort-icon-acudclean-nombre"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Identificación
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarAcudientesClean('identificacion')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Identificación">
+                                        <i class="fas fa-sort" id="sort-icon-acudclean-identificacion"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Teléfono
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarAcudientesClean('telefono')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Teléfono">
+                                        <i class="fas fa-sort" id="sort-icon-acudclean-telefono"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Correo
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarAcudientesClean('correo')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Correo">
+                                        <i class="fas fa-sort" id="sort-icon-acudclean-correo"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    Formación
+                                    <button class="btn btn-sm btn-sort" onclick="ordenarAcudientesClean('formacion')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;padding:2px 4px;display:inline-flex;align-items:center" title="Ordenar por Formación">
+                                        <i class="fas fa-sort" id="sort-icon-acudclean-formacion"></i>
+                                    </button>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="tablaAcudientesClean">
@@ -1377,23 +1412,57 @@ function ordenarEstudiantesClean(campo) {
 
 
 // --- ACUDIENTES ---
+let listaAcudientesClean = [];
+let sortDirectionsAcudClean = { nombre:'asc', identificacion:'asc', telefono:'asc', correo:'asc', formacion:'asc' };
 async function cargarAcudientesClean() {
     try {
         const res = await fetch(`${API}/acudientes?limit=200`);
         const data = await res.json();
-        const tbody = document.getElementById('tablaAcudientesClean');
-        tbody.innerHTML = (data.acudientes || []).map(a => `
-            <tr>
-                <td>${a.nombre_asistente || '—'}</td>
-                <td>${a.id_acud || a.Id || '—'}</td>
-                <td>${a.tel_acud || '—'}</td>
-                <td>${a.correo_acud || '—'}</td>
-                <td>${a.formacion_acud || '—'}</td>
-            </tr>
-        `).join('');
-    } catch(e) { console.error(e); document.getElementById('tablaAcudientesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; }
+        listaAcudientesClean = data.acudientes || [];
+        renderAcudientesClean(listaAcudientesClean);
+    } catch(e) { 
+        console.error(e); 
+        document.getElementById('tablaAcudientesClean').innerHTML = `<tr><td colspan='5' style='color:red'>ERROR: ${e.message}</td></tr>`; 
+    }
 }
-
+function renderAcudientesClean(acudientes) {
+    const tbody = document.getElementById('tablaAcudientesClean');
+    if (!acudientes || !acudientes.length) {
+        tbody.innerHTML = `<tr><td colspan='5'>No se encontraron acudientes.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = acudientes.map(a => `
+        <tr>
+            <td>${a.nombre_asistente || '—'}</td>
+            <td>${a.id_acud || a.Id || '—'}</td>
+            <td>${a.tel_acud || '—'}</td>
+            <td>${a.correo_acud || '—'}</td>
+            <td>${a.formacion_acud || '—'}</td>
+        </tr>
+    `).join('');
+}
+function ordenarAcudientesClean(campo) {
+    if (!listaAcudientesClean.length) return;
+    const dir = sortDirectionsAcudClean[campo] === 'asc' ? 'desc' : 'asc';
+    sortDirectionsAcudClean[campo] = dir;
+    ['nombre','identificacion','telefono','correo','formacion'].forEach(c => {
+        const el = document.getElementById('sort-icon-acudclean-' + c);
+        if (el) el.className = 'fas fa-sort';
+    });
+    const icon = document.getElementById('sort-icon-acudclean-' + campo);
+    if (icon) icon.className = dir === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    listaAcudientesClean.sort((a, b) => {
+        let va = '', vb = '';
+        if (campo === 'nombre') { va = a.nombre_asistente || ''; vb = b.nombre_asistente || ''; }
+        else if (campo === 'identificacion') { va = a.id_acud || a.Id || ''; vb = b.id_acud || b.Id || ''; }
+        else if (campo === 'telefono') { va = a.tel_acud || ''; vb = b.tel_acud || ''; }
+        else if (campo === 'correo') { va = a.correo_acud || ''; vb = b.correo_acud || ''; }
+        else if (campo === 'formacion') { va = a.formacion_acud || ''; vb = b.formacion_acud || ''; }
+        const comp = va.localeCompare(vb, 'es', { numeric: true });
+        return dir === 'asc' ? comp : -comp;
+    });
+    renderAcudientesClean(listaAcudientesClean);
+}
 // --- REPORTES ---
 async function cargarReportesClean() {
     try {
