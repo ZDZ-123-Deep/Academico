@@ -2093,22 +2093,14 @@
         <div class="cfg-panel" id="cfgTab-acceso" style="padding:24px">
             <p style="color:var(--gray-500);font-size:0.875rem;margin-bottom:20px">Define qué módulos puede <strong>ver</strong> y cuáles puede <strong>editar</strong> cada rol. Los cambios aplican al próximo inicio de sesión.</p>
             <div style="overflow-x:auto">
-                <table class="data-table" id="tablaAcceso">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="vertical-align:middle">Módulo / Sección</th>
-                            <th colspan="2" class="rol-group"><i class="fas fa-user-shield" style="color:#6366f1"></i> Admin</th>
-                            <th colspan="2" class="rol-group"><i class="fas fa-chalkboard-teacher" style="color:#10b981"></i> Profesor</th>
-                            <th colspan="2" class="rol-group"><i class="fas fa-user-graduate" style="color:#f59e0b"></i> Estudiante</th>
-                            <th colspan="2" class="rol-group"><i class="fas fa-user-friends" style="color:#ec4899"></i> Padre</th>
-                        </tr>
-                        <tr class="sub-head">
-                            <th>👁 Ver</th><th>✏️ Edit</th>
-                            <th>👁 Ver</th><th>✏️ Edit</th>
-                            <th>👁 Ver</th><th>✏️ Edit</th>
-                            <th>👁 Ver</th><th>✏️ Edit</th>
-                        </tr>
-                    </thead>
+                <table class="data-table" id="tablaAcceso" style="min-width:620px">
+                    <thead><tr>
+                        <th>Módulo / Sección</th>
+                        <th style="text-align:center"><i class="fas fa-user-shield" style="color:#6366f1"></i> Admin</th>
+                        <th style="text-align:center"><i class="fas fa-chalkboard-teacher" style="color:#10b981"></i> Profesor</th>
+                        <th style="text-align:center"><i class="fas fa-user-graduate" style="color:#f59e0b"></i> Estudiante</th>
+                        <th style="text-align:center"><i class="fas fa-user-friends" style="color:#ec4899"></i> Padre</th>
+                    </tr></thead>
                     <tbody id="tbodyAcceso"></tbody>
                 </table>
             </div>
@@ -7294,35 +7286,44 @@
         // --- Tab 3: Control de Acceso ---
         function renderTablaAcceso() {
             const tbody = document.getElementById('tbodyAcceso');
+            const roles = [
+                { id:'admin',      color:'#6366f1' },
+                { id:'profesor',   color:'#10b981' },
+                { id:'estudiante', color:'#f59e0b' },
+                { id:'padre',      color:'#ec4899' }
+            ];
             tbody.innerHTML = MODULOS_ACCESO.map(m => {
-                const cols = ['admin','profesor','estudiante','padre'].map(rol => {
+                const cols = roles.map(r => {
                     const cfg = _cfgAccesoModulos[m.id];
                     let canVer, canEditar;
                     if (!cfg) {
-                        canVer    = _getDefault(m, rol, 'ver');
-                        canEditar = _getDefault(m, rol, 'editar');
-                    } else if (Array.isArray(cfg)) {           // formato antiguo
-                        canVer = canEditar = cfg.includes(rol);
+                        canVer    = _getDefault(m, r.id, 'ver');
+                        canEditar = _getDefault(m, r.id, 'editar');
+                    } else if (Array.isArray(cfg)) {
+                        canVer = canEditar = cfg.includes(r.id);
                     } else {
-                        canVer    = cfg[rol] ? cfg[rol].ver    !== false : _getDefault(m, rol, 'ver');
-                        canEditar = cfg[rol] ? cfg[rol].editar !== false : _getDefault(m, rol, 'editar');
+                        canVer    = cfg[r.id] ? cfg[r.id].ver    !== false : _getDefault(m, r.id, 'ver');
+                        canEditar = cfg[r.id] ? cfg[r.id].editar !== false : _getDefault(m, r.id, 'editar');
                     }
-                    const vid = `acc_${m.id}_${rol}_ver`;
-                    const eid = `acc_${m.id}_${rol}_editar`;
-                    return `<td class="acc-cell">
-                        <div class="acc-check">
-                            <label style="font-size:0.7rem;color:var(--gray-500);display:flex;align-items:center;gap:4px;cursor:pointer">
-                                <input type="checkbox" id="${vid}" ${canVer?'checked':''} onchange="onVerChange('${m.id}','${rol}')">
-                                <span>Ver</span>
+                    const vid = `acc_${m.id}_${r.id}_ver`;
+                    const eid = `acc_${m.id}_${r.id}_editar`;
+                    return `<td style="text-align:center;padding:10px 8px">
+                        <div style="display:inline-flex;flex-direction:column;gap:5px;align-items:flex-start">
+                            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.75rem;user-select:none;color:var(--gray-600)">
+                                <input type="checkbox" id="${vid}" ${canVer?'checked':''}
+                                    style="width:14px;height:14px;accent-color:${r.color};cursor:pointer"
+                                    onchange="onVerChange('${m.id}','${r.id}')">
+                                <span style="color:${r.color};font-weight:600">Ver</span>
                             </label>
-                            <label style="font-size:0.7rem;color:#d97706;display:flex;align-items:center;gap:4px;cursor:pointer">
-                                <input type="checkbox" id="${eid}" class="editar-cb" ${canEditar?'checked':''} ${!canVer?'disabled':''}>
-                                <span>Edit</span>
+                            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.75rem;user-select:none;color:var(--gray-500)">
+                                <input type="checkbox" id="${eid}" ${canEditar?'checked':''} ${!canVer?'disabled':''}
+                                    style="width:14px;height:14px;accent-color:#f59e0b;cursor:pointer">
+                                <span style="font-weight:500">Editar</span>
                             </label>
                         </div>
                     </td>`;
                 }).join('');
-                return `<tr><td style="font-weight:500;padding-left:8px">${m.label}</td>${cols}</tr>`;
+                return `<tr><td style="font-weight:500;padding:10px 14px">${m.label}</td>${cols}</tr>`;
             }).join('');
         }
         function onVerChange(modId, rol) {
