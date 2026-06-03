@@ -13,6 +13,7 @@ if (!process.env.MONGO_URI_ACADEMICO) {
 
 const conectarDB = require('./config/database');
 const academicoRoutes = require('./routes/academico.routes');
+const iaRoutes = require('./ai-academico/routes/ia.routes');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -56,9 +57,7 @@ app.use(helmet({
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com",
                 "https://fonts.googleapis.com",
-                "https://fonts.gstatic.com",
-                // Módulo IA — microservicio local en puerto 3001
-                "http://localhost:3001"
+                "https://fonts.gstatic.com"
             ]
         }
     },
@@ -192,6 +191,7 @@ app.use('/api', async (req, res, next) => {
 });
 
 app.use('/api', academicoRoutes);
+app.use('/api/ia', iaRoutes);
 
 // ========================================
 // 📌 Rutas de vistas
