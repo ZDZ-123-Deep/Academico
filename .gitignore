@@ -59,3 +59,24 @@ mongodump*/
 # SEGURIDAD: Scripts con credenciales
 check_types.js
 .vercel
+
+# Claude Code interno
+.claude/
+
+# Python cache y scripts de desarrollo/migración
+__pycache__/
+*.py
+*.pyc
+
+# Scripts JS temporales y de diagnóstico
+temp_*.js
+test_*.js
+check_db.js
+admin_script.js
+observador_js.js
+seed_indicators.js
+tmp_find.js
+tmp_research.js
+
+# Snippets de desarrollo
+observador_snippet.html
