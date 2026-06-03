@@ -40,6 +40,9 @@
                 <button class="nav-item active" onclick="mostrarSeccion('dashboard',this)">
                     <i class="fas fa-chart-pie"></i> Dashboard
                 </button>
+                <button class="nav-item" id="btn-ia-admin" onclick="window.iaAdmin ? iaAdmin.mostrar(this) : setTimeout(function(){if(window.iaAdmin)iaAdmin.mostrar(document.getElementById('btn-ia-admin'));},500)" style="background:linear-gradient(135deg,var(--primary-light),#ede9fe);color:var(--primary);font-weight:600">
+                    <i class="fas fa-brain" style="color:var(--primary)"></i> Análisis IA
+                </button>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Personas</div>
@@ -117,12 +120,6 @@
                 <div class="nav-section-title">Reportes</div>
                 <button class="nav-item" onclick="mostrarSeccion('reportes',this)">
                     <i class="fas fa-chart-bar"></i> Reportes
-                </button>
-            </div>
-            <div class="nav-section" id="ia-nav-section">
-                <div class="nav-section-title">Inteligencia Artificial</div>
-                <button class="nav-item" id="btn-ia-admin" onclick="window.iaAdmin ? iaAdmin.mostrar(this) : void 0">
-                    <i class="fas fa-brain"></i> Análisis IA
                 </button>
             </div>
         </nav>
