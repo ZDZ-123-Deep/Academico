@@ -37,6 +37,7 @@
     `<div class="mensaje error" style="display:block;margin:0">${txt}</div>`;
 
   function inyectarMenu() {
+    if (document.getElementById('btn-ia-admin')) return;
     const nav = document.querySelector('nav.sidebar-nav');
     if (!nav) return;
     const sec = document.createElement('div');
@@ -138,6 +139,7 @@
     todos: [],
 
     mostrar(btn) {
+      if (!document.getElementById('ia-panel-admin')) inyectarPanel();
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('ia-panel-admin').classList.add('active');
@@ -474,6 +476,7 @@
   };
 
   function init() {
+    if (document.getElementById('ia-panel-admin')) return;
     const u = sessionStorage.getItem('eduGestionUser');
     if (!u) return;
     try {
@@ -484,9 +487,8 @@
     inyectarPanel();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    setTimeout(init, 200);
-  }
+  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState !== 'loading') init();
+  setTimeout(init, 300);
+  setTimeout(init, 1000);
 })();
