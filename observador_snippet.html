@@ -1,0 +1,137 @@
+<div class="section" id="secObservador">
+                <div class="card">
+                    <div class="card-header" style="flex-direction:column;align-items:stretch;gap:12px">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <h3 class="card-title"><i class="fas fa-eye"></i> Observador del Estudiante</h3>
+                        </div>
+                        <!-- TABS -->
+                        <div class="obs-tabs-container">
+                            <button class="obs-tab active" onclick="cambiarTabObs('planilla', this)">
+                                <i class="fas fa-list"></i> Planilla de Obs
+                            </button>
+                            <button class="obs-tab" onclick="cambiarTabObs('consulta', this)">
+                                <i class="fas fa-search"></i> Consulta Obs
+                            </button>
+                            <button class="obs-tab" onclick="cambiarTabObs('insertar', this)">
+                                <i class="fas fa-plus"></i> Insertar Obs
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB: Planilla de Obs -->
+                    <div id="obsTabPlanilla" class="obs-tab-content" style="padding:16px">
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+                            <span style="font-weight:600"><i class="fas fa-list"></i> Planilla de Obs.</span>
+                            <select class="form-input" id="obsPlanillaPeriodo" style="width:auto">
+                                <option>P1 - 2026</option>
+                                <option>P2 - 2026</option>
+                                <option>P3 - 2026</option>
+                                <option>P4 - 2026</option>
+                            </select>
+                            <select class="form-input" id="obsPlanillaCurso" style="width:auto">
+                                <option value="">Seleccione Curso</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="buscarPlanillaObs()"><i
+                                    class="fas fa-search"></i>
+                                Buscar</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Curso</th>
+                                        <th>Foto</th>
+                                        <th>Nombre</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyPlanillaObs">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center;padding:20px;color:var(--gray-400)">
+                                            Seleccione un curso y haga clic en Buscar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB: Consulta Obs -->
+                    <div id="obsTabConsulta" class="obs-tab-content" style="padding:16px;display:none">
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+                            <span style="font-weight:600"><i class="fas fa-search"></i> Consulta de Observaciones</span>
+                            <input type="text" class="form-input" id="obsConsultaBuscar"
+                                placeholder="Buscar estudiante..." style="width:250px">
+                            <button class="btn btn-primary btn-sm" onclick="buscarConsultaObs()"><i
+                                    class="fas fa-search"></i>
+                                Buscar</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Estudiante</th>
+                                        <th>Curso</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                        <th>Docente</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyConsultaObs">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;padding:20px;color:var(--gray-400)">
+                                            Ingrese un nombre y haga clic en Buscar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB: Insertar Obs -->
+                    <div id="obsTabInsertar" class="obs-tab-content" style="padding:16px;display:none">
+                        <h4 style="color:var(--primary);margin:0 0 16px"><i class="fas fa-plus-circle"></i> Insertar
+                            Nueva Observación</h4>
+                        <div class="form-grid" style="grid-template-columns:repeat(3,1fr);gap:12px">
+                            <div class="form-group"><label class="form-label">Estudiante *</label><select
+                                    class="form-input" id="obsInsEstudiante">
+                                    <option value="">Seleccione Estudiante</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label">Curso</label><select class="form-input"
+                                    id="obsInsCurso">
+                                    <option value="">Seleccione Curso</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label">Docente</label><select class="form-input"
+                                    id="obsInsDocente">
+                                    <option value="">Seleccione Docente</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label">Fecha</label><input class="form-input"
+                                    id="obsInsFecha" type="date"></div>
+                            <div class="form-group"><label class="form-label">Tipo</label><select class="form-input"
+                                    id="obsInsTipo">
+                                    <option value="Académica">Académica</option>
+                                    <option value="Disciplinaria">Disciplinaria</option>
+                                    <option value="Meritoria">Meritoria</option>
+                                    <option value="General">General</option>
+                                </select></div>
+                            <div class="form-group"><label class="form-label">Pensum</label><input class="form-input"
+                                    id="obsInsPensum" placeholder="Pensum"></div>
+                            <div class="form-group" style="grid-column:span 3"><label class="form-label">Problema /
+                                    Observación *</label><textarea class="form-input" id="obsInsProblema" rows="3"
+                                    placeholder="Describa la observación..."></textarea></div>
+                            <div class="form-group" style="grid-column:span 3"><label class="form-label">Correctivo /
+                                    Acción</label><textarea class="form-input" id="obsInsCorrectivo" rows="2"
+                                    placeholder="Correctivo aplicado..."></textarea></div>
+                        </div>
+                        <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+                            <button class="btn btn-secondary btn-sm" onclick="limpiarInsertarObs()"><i
+                                    class="fas fa-eraser"></i> Limpiar</button>
+                            <button class="btn btn-primary btn-sm" onclick="guardarObservacion()"><i
+                                    class="fas fa-save"></i>
+                                Guardar Observación</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGOS ===== -->
+            
