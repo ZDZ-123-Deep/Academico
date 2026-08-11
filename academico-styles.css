@@ -285,7 +285,8 @@ input:checked+.slider:before {
     justify-content: center;
     color: var(--white);
     font-weight: 600;
-    font-size: 0.9rem
+    font-size: 0.9rem;
+    flex-shrink: 0
 }
 
 .user-info {
@@ -419,7 +420,8 @@ input:checked+.slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem
+    font-size: 1.3rem;
+    flex-shrink: 0;
 }
 
 .stat-icon.violet {
@@ -753,7 +755,8 @@ input:checked+.slider:before {
     align-items: center;
     justify-content: center;
     color: var(--white);
-    font-weight: 600
+    font-weight: 600;
+    flex-shrink: 0
 }
 
 .user-item-details h4 {
@@ -1064,20 +1067,25 @@ body.dark-mode .nav-item:hover {
 /* ===== HAMBURGER / MOBILE ===== */
 .hamburger-btn {
     display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--gray-600);
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    font-size: 1.2rem;
+    color: var(--gray-700);
     cursor: pointer;
-    padding: 8px;
     margin-right: 12px;
     border-radius: var(--radius-sm);
-    transition: var(--transition)
+    transition: var(--transition);
+    flex-shrink: 0;
 }
 
-.hamburger-btn:hover {
-    background: var(--gray-100);
-    color: var(--primary)
+.hamburger-btn:hover, .hamburger-btn:active {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
 }
 
 .sidebar-overlay {
@@ -1085,15 +1093,16 @@ body.dark-mode .nav-item:hover {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
+    z-index: 150;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease
+    transition: opacity 0.3s ease;
 }
 
 .sidebar-overlay.active {
+    display: block;
     opacity: 1;
-    pointer-events: auto
+    pointer-events: auto;
 }
 
 .sidebar-close {
@@ -1108,27 +1117,36 @@ body.dark-mode .nav-item:hover {
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
-    transition: var(--transition)
+    transition: var(--transition);
+    align-items: center;
+    justify-content: center;
 }
 
 @media(max-width:768px) {
 
-    .hamburger-btn,
-    .sidebar-close,
-    .sidebar-overlay {
-        display: block
+    .hamburger-btn {
+        display: inline-flex;
+    }
+
+    .sidebar-close {
+        display: flex;
     }
 
     .sidebar {
-        transform: translateX(-100%)
+        transform: translateX(-100%);
+        z-index: 200;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
     }
 
     .sidebar.open {
-        transform: translateX(0)
+        transform: translateX(0);
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25);
     }
 
     .main-content {
-        margin-left: 0
+        margin-left: 0 !important;
     }
 
     .header {
@@ -1508,50 +1526,50 @@ body.dark-mode .notif-item-msg {
 @media (max-width: 768px) {
 
     /* ---- SIDEBAR como drawer ---- */
-    .hamburger-btn,
-    .sidebar-close,
-    .sidebar-overlay {
-        display: block
-    }
-
-    .sidebar {
-        transform: translateX(-100%);
-        z-index: 200;
-        width: 280px
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.2)
+    .hamburger-btn {
+        display: inline-flex;
     }
 
     .sidebar-close {
         display: flex;
         align-items: center;
-        justify-content: center
+        justify-content: center;
     }
 
-    .sidebar-overlay {
-        display: block
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 200;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 25px rgba(0,0,0,0.25);
     }
 
     /* ---- MAIN CONTENT sin margen ---- */
     .main-content {
-        margin-left: 0 !important
+        margin-left: 0 !important;
     }
 
     /* ---- HEADER compacto ---- */
     .header {
         padding: 0 12px;
-        height: 60px
+        height: 60px;
     }
 
     .header-title {
-        font-size: 1rem
+        font-size: 1.05rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
     }
 
     .header-title span {
-        display: none
+        display: inline;
     }
 
     .user-info {

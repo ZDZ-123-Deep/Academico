@@ -575,9 +575,10 @@
             if (btn) btn.classList.add('active');
             const titles = { dashboard: 'Mi <span>Inicio</span>', hijos: 'Mis <span>Hijos</span>', calificaciones: '<span>Calificaciones</span>', cartera: '<span>Cartera</span>' };
             document.getElementById('headerTitle').innerHTML = titles[id];
-            if (window.innerWidth <= 768) toggleSidebar();
+            if (window.innerWidth <= 768) closeSidebar();
         }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('active') }
+        function closeSidebar() { const sb = document.getElementById('sidebar'); const sbo = document.getElementById('sidebarOverlay'); if (sb) sb.classList.remove('open'); if (sbo) sbo.classList.remove('active'); }
+        function toggleSidebar() { const sb = document.getElementById('sidebar'); const sbo = document.getElementById('sidebarOverlay'); if (sb) sb.classList.toggle('open'); if (sbo) sbo.classList.toggle('active'); }
         function toggleDarkMode() { document.body.classList.toggle('dark-mode') }
         function confirmarLogout() { document.getElementById('logoutModal').classList.add('show') }
         function cerrarSesion() { sessionStorage.removeItem('eduGestionUser'); window.location.href = '/login'; }
@@ -1015,6 +1016,10 @@
             } catch(e) { console.error('Error cargando apariencia global:', e); }
         })();
     </script>
+
+    <!-- Módulo IA Académico -->
+    <script>window.AI_SERVICE_URL = 'http://localhost:3001';</script>
+    <script src="/ai-academico/public/ia-padre.js"></script>
 </body>
 
 </html>

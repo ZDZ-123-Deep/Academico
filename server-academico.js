@@ -56,7 +56,9 @@ app.use(helmet({
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com",
                 "https://fonts.googleapis.com",
-                "https://fonts.gstatic.com"
+                "https://fonts.gstatic.com",
+                // Módulo IA — microservicio local en puerto 3001
+                "http://localhost:3001"
             ]
         }
     },

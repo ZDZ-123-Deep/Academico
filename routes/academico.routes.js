@@ -44,6 +44,18 @@ function filtroSede(query) {
     return { sede_id }; // fallback por si acaso
 }
 
+// Helper: obtener el ID numérico máximo de un modelo para auto-incrementar IDs string
+async function getMaxNumericId(Model, fieldName = 'Id') {
+    const maxDocs = await Model.aggregate([
+        { $match: { [fieldName]: /^[0-9]+$/ } },
+        { $project: { numericId: { $toInt: `$${fieldName}` } } },
+        { $sort: { numericId: -1 } },
+        { $limit: 1 }
+    ]);
+    return maxDocs.length > 0 ? maxDocs[0].numericId : 0;
+}
+
+
 // ========================================
 // 📊 DASHBOARD - Estadísticas generales
 // ========================================
@@ -679,13 +691,33 @@ router.delete('/indicadores/:id', async (req, res) => {
 // ========================================
 router.get('/logros', async (req, res) => {
     try {
-        const { asignatura, pensum } = req.query;
+        const { asignatura, pensum, curso, periodo } = req.query;
         const filtro = { ...filtroSede(req.query), estado: 'A' };
         if (asignatura) filtro.asignatura = asignatura;
         if (pensum) filtro.pensum = pensum;
+        if (curso) filtro.curso = curso;
+        if (periodo) filtro.periodo = periodo;
 
-        const logros = await Logro.find(filtro).limit(100).lean();
-        res.json(logros);
+        const logros = await Logro.find(filtro).lean();
+        
+        // Fetch all course and subjects to resolve names
+        const [asigs, curs] = await Promise.all([
+            Asignatura.find().select('subject_id nombre').lean(),
+            Curso.find().select('curso_id nombre').lean()
+        ]);
+        
+        // Maps
+        const asigMap = new Map(asigs.map(a => [String(a.subject_id), a.nombre]));
+        const cursoMap = new Map(curs.map(c => [String(c.curso_id), c.nombre]));
+        
+        // Enrich logros
+        const enrichedLogros = logros.map(l => ({
+            ...l,
+            asignatura_nombre: asigMap.get(String(l.asignatura)) || l.asignatura || '—',
+            curso_nombre: cursoMap.get(String(l.curso)) || l.curso || '—'
+        }));
+        
+        res.json(enrichedLogros);
     } catch (error) {
         res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message });
     }
@@ -785,8 +817,8 @@ router.post('/calificaciones/detalle', async (req, res) => {
         if (!codigo_est || !codigo_pensum || !id_nota) {
             return res.status(400).json({ error: 'codigo_est, codigo_pensum, id_nota son obligatorios' });
         }
-        const maxDoc = await PlanillaDetalle.findOne().sort({ Id: -1 }).lean();
-        const nextId = String((parseInt(maxDoc?.Id || '0') + 1));
+        const maxId = await getMaxNumericId(PlanillaDetalle, 'Id');
+        const nextId = String(maxId + 1);
         const nuevo = await PlanillaDetalle.create({
             Id: nextId,
             codigo_est, codigo_pensum, id_nota,
@@ -807,8 +839,8 @@ router.post('/calificaciones/detalle/bulk', async (req, res) => {
             return res.status(400).json({ error: 'estudiantes[], codigo_pensum, id_nota son obligatorios' });
         }
         // Obtener el último Id para auto-incremento
-        const maxDoc = await PlanillaDetalle.findOne().sort({ Id: -1 }).lean();
-        let lastId = parseInt(maxDoc?.Id || '0');
+        const maxId = await getMaxNumericId(PlanillaDetalle, 'Id');
+        let lastId = maxId;
         const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
         const docs = estudiantes.map(cod_est => {
@@ -1144,6 +1176,7 @@ router.post('/horarios', async (req, res) => {
     try {
         const data = req.body;
         if (!data.curso || !data.dia || !data.hora) return res.status(400).json({ error: 'Curso, día y hora son obligatorios' });
+        if (!data.estado) data.estado = 'A';
         const nuevo = new Horario(data);
         await nuevo.save();
         res.status(201).json(nuevo);
@@ -1792,8 +1825,8 @@ router.post('/profesor/registros', async (req, res) => {
         if (!pensum_id || !codigo || !concepto) return res.status(400).json({ error: 'pensum_id, codigo y concepto son obligatorios' });
 
         // Get next Id
-        const maxDoc = await IdNota.findOne().sort({ Id: -1 }).lean();
-        const nextId = String((parseInt(maxDoc?.Id || '0') + 1));
+        const maxId = await getMaxNumericId(IdNota, 'Id');
+        const nextId = String(maxId + 1);
 
         // Get next registro number for this pensum + codigo
         const existing = await IdNota.find({ pensum: String(pensum_id), codigo, estado: 'A' }).sort({ registro: -1 }).limit(1).lean();
@@ -2255,13 +2288,14 @@ router.get('/notificaciones', async (req, res) => {
 // Admin: Crear notificación
 router.post('/admin/notificaciones', async (req, res) => {
     try {
-        const { titulo, mensaje, tipo, icono, creado_por, sede_id } = req.body;
+        const { titulo, mensaje, tipo, icono, creado_por, sede_id, fecha_creacion } = req.body;
         if (!titulo || !mensaje) return res.status(400).json({ error: 'titulo y mensaje son obligatorios' });
         
         const payload = {
             titulo, mensaje, tipo: tipo || 'noticia', icono: icono || 'fa-bullhorn', creado_por: creado_por || 'admin'
         };
         if (sede_id && sede_id !== 'todas') payload.sede_id = new mongoose.Types.ObjectId(sede_id);
+        if (fecha_creacion) payload.fecha_creacion = fecha_creacion;
         
         const notif = await Notificacion.create(payload);
         res.json({ success: true, notificacion: notif });
@@ -2440,8 +2474,7 @@ router.put('/sedes/:id', async (req, res) => {
 
 router.delete('/sedes/:id', async (req, res) => {
     try {
-        // Soft delete: marcar como inactiva
-        const sede = await Sede.findByIdAndUpdate(req.params.id, { $set: { activa: false } }, { new: true });
+        const sede = await Sede.findByIdAndDelete(req.params.id);
         if (!sede) return res.status(404).json({ error: 'Sede no encontrada' });
         res.json({ success: true });
     } catch (error) { res.status(500).json({ error: isProduction ? 'Error interno del servidor' : error.message }); }
