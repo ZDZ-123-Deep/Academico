@@ -1375,19 +1375,19 @@ body.dark .obs-tab.active {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    width: 360px;
+    width: 340px;
     max-height: 420px;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    z-index: 200;
-    overflow: hidden
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+    z-index: 99999 !important;
+    overflow: hidden;
 }
 
 .notif-dropdown.show {
-    display: block;
-    animation: fadeIn 0.2s ease
+    display: block !important;
+    animation: fadeIn 0.2s ease;
 }
 
 .notif-dropdown-header {
@@ -1607,7 +1607,7 @@ body.dark-mode .notif-item-msg {
         width: 100% !important;
         max-width: 100vw !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     /* columna 1 del grid: hamburger */
@@ -1688,6 +1688,18 @@ body.dark-mode .notif-item-msg {
 
     .btn-logout span {
         display: none !important;
+    }
+
+    /* ---- NOTIFICACIONES DROPDOWN EN MÓVIL ---- */
+    .notif-dropdown {
+        position: fixed !important;
+        top: 60px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
+        z-index: 99999 !important;
     }
 
     /* ---- PAGE CONTENT ---- */
