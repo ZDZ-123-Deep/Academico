@@ -12,7 +12,13 @@
                     "config/**",
                     "middleware/**",
                     "models/**",
-                    "routes/**"
+                    "routes/**",
+                    "ai-academico/routes/**",
+                    "ai-academico/controllers/**",
+                    "ai-academico/services/**",
+                    "ai-academico/middleware/**",
+                    "ai-academico/cache/**",
+                    "ai-academico/public/**"
                 ]
             }
         }

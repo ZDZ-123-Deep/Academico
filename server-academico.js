@@ -13,6 +13,7 @@ if (!process.env.MONGO_URI_ACADEMICO) {
 
 const conectarDB = require('./config/database');
 const academicoRoutes = require('./routes/academico.routes');
+const iaRoutes = require('./ai-academico/routes/ia.routes');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -192,6 +193,7 @@ app.use('/api', async (req, res, next) => {
 });
 
 app.use('/api', academicoRoutes);
+app.use('/api/ia', iaRoutes);
 
 // ========================================
 // 📌 Rutas de vistas
@@ -234,24 +236,22 @@ app.use((err, req, res, next) => {
 // ========================================
 // Para Vercel (serverless): exportar app sin listen
 // Para local/Railway: usar app.listen
-conectarDB().then(() => {
-    if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'vercel') {
-        app.listen(port, () => {
-            console.log(`🎓 Servidor Académico corriendo en puerto ${port}`);
-            if (!isProduction) {
-                console.log(`📚 Panel Admin: http://localhost:${port}/admin`);
-                console.log(`👨‍🏫 Panel Profesor: http://localhost:${port}/profesor`);
-                console.log(`👨‍🎓 Panel Estudiante: http://localhost:${port}/estudiante`);
-                console.log(`👨‍👩‍👧 Panel Padre: http://localhost:${port}/padre`);
-            }
-        });
-    }
-}).catch(err => {
-    console.error('❌ Error al conectar DB:', err.message);
-    // NO llamar process.exit(1) en Vercel: mata el contenedor permanentemente
-    // En local sí salimos para evitar servidor sin BD
-    if (process.env.VERCEL !== '1') process.exit(1);
-});
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'vercel') {
+    app.listen(port, () => {
+        console.log(`🎓 Servidor Académico corriendo en puerto ${port}`);
+        console.log(`📚 Panel Admin:      http://localhost:${port}/admin`);
+        console.log(`👨‍🏫 Panel Profesor:  http://localhost:${port}/profesor`);
+        console.log(`👨‍🎓 Panel Estudiante: http://localhost:${port}/estudiante`);
+        console.log(`👨‍👩‍👧 Panel Padre:     http://localhost:${port}/padre`);
+    });
+    // Intenta conectar DB al inicio pero no bloquea el servidor
+    conectarDB().catch(err => {
+        console.warn('⚠️  MongoDB no disponible al inicio — reintentará en cada request:', err.message);
+    });
+} else {
+    // Vercel: conectar antes de exportar
+    conectarDB().catch(err => console.error('❌ Error al conectar DB:', err.message));
+}
 
 // Exportar para Vercel serverless
 module.exports = app;
